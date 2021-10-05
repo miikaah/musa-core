@@ -10,7 +10,13 @@ const fixture = [
 describe("Media Separator", () => {
   describe("createMediaCollection()", () => {
     it("should separate files to collections", async () => {
-      expect(createMediaCollection(fixture, "baseurl")).toMatchSnapshot();
+      expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toMatchSnapshot();
+    });
+
+    it("should separate files to collections for Electron", async () => {
+      expect(
+        createMediaCollection({ files: fixture, baseUrl: "baseurl", isElectron: true })
+      ).toMatchSnapshot();
     });
   });
 });

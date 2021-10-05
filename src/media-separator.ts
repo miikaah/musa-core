@@ -63,7 +63,15 @@ type FileWithInfo = File & {
   albumCoverUrl?: string;
 };
 
-export const createMediaCollection = (files: string[], baseUrl: string): MediaCollection => {
+export const createMediaCollection = ({
+  files,
+  baseUrl,
+  isElectron = false,
+}: {
+  files: string[];
+  baseUrl: string;
+  isElectron?: boolean;
+}): MediaCollection => {
   const artistsCol: ArtistCollection = {};
   const albumsCol: AlbumCollection = {};
   const audioCol: FileCollection = {};
@@ -74,11 +82,11 @@ export const createMediaCollection = (files: string[], baseUrl: string): MediaCo
   for (const file of files) {
     const [artistName, ...rest] = file.split(sep);
     const artistId = UrlSafeBase64.encode(artistName);
-    const artistUrl = getUrl(baseUrl, "artist", artistId);
     const fileId = UrlSafeBase64.encode(file);
-    const audioUrl = getUrl(baseUrl, "audio", fileId);
-    const imageUrl = getUrl(baseUrl, "image", fileId);
-    const url = getUrl(baseUrl, "file", fileId);
+    const artistUrl = isElectron ? "" : getUrl(baseUrl, "artist", artistId);
+    const audioUrl = isElectron ? "" : getUrl(baseUrl, "audio", fileId);
+    const imageUrl = isElectron ? "" : getUrl(baseUrl, "image", fileId);
+    const url = isElectron ? getElectronUrl(baseUrl, file) : getUrl(baseUrl, "file", fileId);
 
     if (!artistsCol[artistId]) {
       artistsCol[artistId] = {
@@ -125,7 +133,7 @@ export const createMediaCollection = (files: string[], baseUrl: string): MediaCo
       // This file is in an album folder
       const [albumName, ...albumRest] = rest;
       const albumId = UrlSafeBase64.encode(path.join(artistName, albumName));
-      const albumUrl = getUrl(baseUrl, "album", albumId);
+      const albumUrl = isElectron ? "" : getUrl(baseUrl, "album", albumId);
       const fileName = albumRest[albumRest.length - 1];
 
       if (!albumsCol[albumId]) {
@@ -193,7 +201,8 @@ export const createMediaCollection = (files: string[], baseUrl: string): MediaCo
   // and first album audios needed for artist metadata creation
   Object.keys(artistsCol).forEach((key) => {
     artistsCol[key].albums.forEach((a) => {
-      const id = a.url.split("/").pop() || "";
+      // a.url for server, a.id for Electron
+      const id = a.url.split("/").pop() || a.id || "";
       const files = albumsCol[id].files;
 
       // This code has to be here before early return
@@ -234,6 +243,10 @@ export const createMediaCollection = (files: string[], baseUrl: string): MediaCo
 
 const getUrl = (baseUrl: string, path: string, id: string): string => {
   return `${baseUrl}/${path}/${id}`;
+};
+
+const getElectronUrl = (baseUrl: string, filepath: string) => {
+  return path.join("file://", baseUrl, filepath);
 };
 
 const isImage = (filename: string) => {

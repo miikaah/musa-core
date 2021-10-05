@@ -102,3 +102,106 @@ Object {
   },
 }
 `;
+
+exports[`Media Separator createMediaCollection() should separate files to collections for Electron 1`] = `
+Object {
+  "albumsCol": Object {
+    "YXJ0aXN0L2FsYnVt": Object {
+      "artistName": "artist",
+      "artistUrl": "",
+      "coverUrl": "file:/baseurl/artist/album/cover.JPG",
+      "files": Array [
+        Object {
+          "fileUrl": "file:/baseurl/artist/album/song.mp3",
+          "id": "YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
+          "name": "song.mp3",
+          "url": "",
+        },
+      ],
+      "images": Array [
+        Object {
+          "fileUrl": "file:/baseurl/artist/album/cover.JPG",
+          "id": "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
+          "name": "cover.JPG",
+          "url": "",
+        },
+      ],
+      "name": "album",
+    },
+  },
+  "artistsCol": Object {
+    "YXJ0aXN0": Object {
+      "albums": Array [
+        Object {
+          "coverUrl": "file:/baseurl/artist/album/cover.JPG",
+          "firstAlbumAudio": Object {
+            "id": "YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
+            "name": "song.mp3",
+          },
+          "id": "YXJ0aXN0L2FsYnVt",
+          "name": "album",
+          "url": "",
+        },
+      ],
+      "files": Array [
+        Object {
+          "fileUrl": "file:/baseurl/artist/song.mp3",
+          "id": "YXJ0aXN0L3NvbmcubXAz",
+          "name": "song.mp3",
+          "url": "",
+        },
+      ],
+      "images": Array [
+        Object {
+          "fileUrl": "file:/baseurl/artist/image.PNG",
+          "id": "YXJ0aXN0L2ltYWdlLlBORw",
+          "name": "image.PNG",
+          "url": "",
+        },
+      ],
+      "name": "artist",
+      "url": "",
+    },
+  },
+  "audioCol": Object {
+    "YXJ0aXN0L2FsYnVtL3NvbmcubXAz": Object {
+      "albumId": "YXJ0aXN0L2FsYnVt",
+      "albumName": "album",
+      "albumUrl": "",
+      "artistName": "artist",
+      "artistUrl": "",
+      "id": "YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
+      "name": "song.mp3",
+      "url": "file:/baseurl/artist/album/song.mp3",
+    },
+    "YXJ0aXN0L3NvbmcubXAz": Object {
+      "artistName": "artist",
+      "artistUrl": "",
+      "fileUrl": "file:/baseurl/artist/song.mp3",
+      "id": "YXJ0aXN0L3NvbmcubXAz",
+      "name": "song.mp3",
+      "url": "file:/baseurl/artist/song.mp3",
+    },
+  },
+  "imagesCol": Object {
+    "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw": Object {
+      "albumId": "YXJ0aXN0L2FsYnVt",
+      "albumName": "album",
+      "albumUrl": "",
+      "artistName": "artist",
+      "artistUrl": "",
+      "id": "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
+      "name": "cover.JPG",
+      "url": "file:/baseurl/artist/album/cover.JPG",
+    },
+    "YXJ0aXN0L2ltYWdlLlBORw": Object {
+      "artistName": "artist",
+      "artistUrl": "",
+      "fileUrl": "file:/baseurl/artist/image.PNG",
+      "id": "YXJ0aXN0L2ltYWdlLlBORw",
+      "name": "image.PNG",
+      "url": "file:/baseurl/artist/image.PNG",
+    },
+  },
+}
+`;
