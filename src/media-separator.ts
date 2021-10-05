@@ -146,8 +146,8 @@ export const createMediaCollection = ({
         };
       }
 
-      if (!albumSet.has(albumUrl)) {
-        albumSet.add(albumUrl);
+      if (!albumSet.has(albumId)) {
+        albumSet.add(albumId);
         artistsCol[artistId].albums.push({
           id: albumId,
           name: albumName,
