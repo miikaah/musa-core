@@ -6,7 +6,8 @@
   "scripts": {
     "build": "tsc --project tsconfig.build.json",
     "tsc:w": "tsc --watch --noEmit",
-    "test:w": "jest --watch"
+    "test:w": "jest --watch",
+    "postinstall": "npm run build"
   },
   "author": "",
   "license": "ISC",
