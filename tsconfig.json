@@ -8,10 +8,10 @@
     "moduleResolution": "node",
     "strict": true,
     "sourceMap": true,
-    "outDir": "dist",
+    "outDir": "lib",
     "baseUrl": ".",
     "declaration": true,
-    "declarationDir": "dist"
+    "declarationDir": "lib"
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "./src/jestSetup.ts"]

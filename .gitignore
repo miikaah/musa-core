@@ -36,6 +36,7 @@ yarn-error.log*
 # build files
 dist
 esbuild
+lib
 
 # env files
 .env
