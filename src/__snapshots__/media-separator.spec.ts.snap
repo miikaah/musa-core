@@ -6,6 +6,7 @@ Object {
     "YXJ0aXN0L2FsYnVt": Object {
       "artistName": "artist",
       "artistUrl": "baseurl/artist/YXJ0aXN0",
+      "coverUrl": "baseurl/file/YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
       "files": Array [
         Object {
           "fileUrl": "baseurl/file/YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
@@ -30,6 +31,11 @@ Object {
       "albums": Array [
         Object {
           "coverUrl": "baseurl/file/YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
+          "firstAlbumAudio": Object {
+            "id": "YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
+            "name": "song.mp3",
+          },
+          "id": "YXJ0aXN0L2FsYnVt",
           "name": "album",
           "url": "baseurl/album/YXJ0aXN0L2FsYnVt",
         },
@@ -61,7 +67,6 @@ Object {
       "albumUrl": "baseurl/album/YXJ0aXN0L2FsYnVt",
       "artistName": "artist",
       "artistUrl": "baseurl/artist/YXJ0aXN0",
-      "fileUrl": "baseurl/file/YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
       "id": "YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
       "name": "song.mp3",
       "url": "baseurl/file/YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
@@ -82,7 +87,6 @@ Object {
       "albumUrl": "baseurl/album/YXJ0aXN0L2FsYnVt",
       "artistName": "artist",
       "artistUrl": "baseurl/artist/YXJ0aXN0",
-      "fileUrl": "baseurl/file/YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
       "id": "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
       "name": "cover.JPG",
       "url": "baseurl/file/YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",

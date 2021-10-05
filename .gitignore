@@ -33,9 +33,6 @@ yarn-error.log*
 **/public/workbox-*.js
 **/public/sw.js
 
-# husky
-.husky
-
 # build files
 dist
 esbuild
