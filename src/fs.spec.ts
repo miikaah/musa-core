@@ -1,11 +1,9 @@
 import { traverseFileSystem } from "./fs";
 
-const { MUSA_SRC_PATH = "" } = process.env;
-
 describe("fs", () => {
   describe("traverseFileSystem()", () => {
     it("should build a list of files in the given dir", async () => {
-      const files = await traverseFileSystem(`${MUSA_SRC_PATH}/fixtures`);
+      const files = await traverseFileSystem(`${process.cwd()}/fixtures`);
 
       expect(files).toEqual([
         "artist/album/cover.JPG",
