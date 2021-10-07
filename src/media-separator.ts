@@ -29,7 +29,7 @@ export type AlbumFile = File & {
   };
 };
 
-type ArtistWithAlbums = {
+export type ArtistWithAlbums = {
   url: string;
   name: string;
   albums: AlbumFile[];
@@ -54,7 +54,7 @@ export type FileCollection = {
   [x: string]: FileWithInfo;
 };
 
-type FileWithInfo = File & {
+export type FileWithInfo = File & {
   artistName: string;
   artistUrl: string;
   albumId?: string;
