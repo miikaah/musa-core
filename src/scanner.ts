@@ -1,6 +1,16 @@
 import { sep } from "path";
 import { traverseFileSystem, audioExts } from "./fs";
-import { createMediaCollection, MediaCollection, AlbumCollection } from "./media-separator";
+import {
+  createMediaCollection,
+  MediaCollection,
+  ArtistCollection,
+  AlbumCollection,
+  FileCollection,
+  ArtistObject,
+  ArtistWithAlbums,
+  AlbumWithFiles,
+  FileWithInfo,
+} from "./media-separator";
 import UrlSafeBase64 from "./urlsafe-base64";
 import { Api } from "./";
 
@@ -17,6 +27,24 @@ const logOpReport = (start: number, collection: unknown[], name: string) => {
   console.log(`Found: ${collection.length} ${name}`);
   console.log("----------------------\n");
 };
+
+export let files: string[] = [];
+export let artistCollection: ArtistCollection = {};
+export let albumCollection: AlbumCollection = {};
+export let audioCollection: FileCollection = {};
+export let imageCollection: FileCollection = {};
+export let artistObject: ArtistObject;
+
+export type ArtistsForFind = ArtistWithId[];
+export type AlbumsForFind = AlbumWithId[];
+export type AudiosForFind = FileWithId[];
+export type ArtistWithId = ArtistWithAlbums & { id: string };
+export type AlbumWithId = AlbumWithFiles & { id: string };
+export type FileWithId = FileWithInfo & { id: string };
+
+export let artistsForFind: ArtistsForFind = [];
+export let albumsForFind: AlbumsForFind = [];
+export let audiosForFind: AudiosForFind = [];
 
 export const refresh = async ({
   musicLibraryPath,
@@ -51,17 +79,23 @@ export const init = async ({
 
   logOpStart("Traversing file system");
   let start = Date.now();
-  const files = await traverseFileSystem(musicLibraryPath);
+  files = await traverseFileSystem(musicLibraryPath);
   logOpReport(start, files, "files");
 
   logOpStart("Creating media collection");
   start = Date.now();
-  const { artistCollection, albumCollection, audioCollection, imageCollection, artistObject } =
-    createMediaCollection({
-      files,
-      baseUrl: musicLibraryPath,
-      isElectron: true,
-    });
+  const mediaCollection = createMediaCollection({
+    files,
+    baseUrl: musicLibraryPath,
+    isElectron: true,
+  });
+  artistCollection = mediaCollection.artistCollection;
+  albumCollection = mediaCollection.albumCollection;
+  audioCollection = mediaCollection.audioCollection;
+  imageCollection = mediaCollection.imageCollection;
+  artistsForFind = Object.entries(artistCollection).map(([id, a]) => ({ ...a, id }));
+  albumsForFind = Object.entries(albumCollection).map(([id, a]) => ({ ...a, id }));
+  audiosForFind = Object.entries(audioCollection).map(([id, a]) => ({ ...a, id }));
 
   console.log(`Took: ${(Date.now() - start) / 1000} seconds`);
   console.log(`Found: ${Object.keys(artistCollection).length} artists`);

@@ -1,16 +1,14 @@
-import { AlbumCollection, AlbumWithFiles } from "../media-separator";
+import { AlbumWithFiles } from "../media-separator";
 import { Metadata } from "../metadata";
 import { getAlbum, enrichAlbumFiles, EnrichedAlbumFile } from "../db";
+import { albumCollection } from "../scanner";
 
 export type ApiAlbumWithFilesAndMetadata = Omit<AlbumWithFiles, "files"> & {
   metadata: Metadata;
   files: EnrichedAlbumFile[];
 };
 
-export const getAlbumById = async (
-  albumCollection: AlbumCollection,
-  id: string
-): Promise<ApiAlbumWithFilesAndMetadata> => {
+export const getAlbumById = async (id: string): Promise<ApiAlbumWithFilesAndMetadata> => {
   const album = albumCollection[id];
 
   if (!album) {

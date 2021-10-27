@@ -1,6 +1,7 @@
-import { AlbumCollection, FileCollection, FileWithInfo } from "../media-separator";
+import { FileWithInfo } from "../media-separator";
 import { Metadata } from "../metadata";
 import { getAudio, Audio } from "../db";
+import { albumCollection, audioCollection } from "../scanner";
 
 export type ApiAudioWithMetadata = FileWithInfo & {
   track: string | null;
@@ -9,13 +10,9 @@ export type ApiAudioWithMetadata = FileWithInfo & {
 };
 
 export const getAudioById = async ({
-  audioCollection,
-  albumCollection,
   id,
   existingDbAudio,
 }: {
-  audioCollection: FileCollection;
-  albumCollection: AlbumCollection;
   id: string;
   existingDbAudio?: Audio;
 }): Promise<ApiAudioWithMetadata> => {

@@ -1,5 +1,6 @@
-import { ArtistCollection, AlbumCollection, ArtistWithAlbums } from "../media-separator";
+import { ArtistWithAlbums } from "../media-separator";
 import { getAudio, enrichAlbums, EnrichedAlbum } from "../db";
+import { artistCollection, albumCollection } from "../scanner";
 
 type ArtistAlbum = {
   id: string;
@@ -15,10 +16,7 @@ export type ApiArtist = Omit<ArtistWithAlbums, "albums"> & {
 
 const byYear = (a: ArtistAlbum, b: ArtistAlbum) => Number(a.year) - Number(b.year);
 
-export const getArtistById = async (
-  artistCollection: ArtistCollection,
-  id: string
-): Promise<ApiArtist> => {
+export const getArtistById = async (id: string): Promise<ApiArtist> => {
   const artist = artistCollection[id];
 
   if (!artist) {
@@ -54,11 +52,7 @@ export const getArtistById = async (
   };
 };
 
-export const getArtistAlbums = async (
-  artistCollection: ArtistCollection,
-  albumCollection: AlbumCollection,
-  id: string
-): Promise<ApiArtist> => {
+export const getArtistAlbums = async (id: string): Promise<ApiArtist> => {
   const artist = artistCollection[id];
 
   if (!artist) {
