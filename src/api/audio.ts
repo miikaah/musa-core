@@ -1,4 +1,5 @@
-import { AlbumCollection, FileCollection, FileWithInfo, Metadata } from "../";
+import { AlbumCollection, FileCollection, FileWithInfo } from "../media-separator";
+import { Metadata } from "../metadata";
 import { getAudio, Audio } from "../db";
 
 export type ApiAudioWithMetadata = FileWithInfo & {

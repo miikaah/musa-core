@@ -5,7 +5,7 @@ import {
   ArtistWithAlbums,
   AlbumWithFiles,
   FileWithInfo,
-} from "../";
+} from "../media-separator";
 import fuzzysort from "fuzzysort";
 import { getArtistAlbums, ApiArtist } from "./artist";
 import { getAlbumById, ApiAlbumWithFilesAndMetadata } from "./album";

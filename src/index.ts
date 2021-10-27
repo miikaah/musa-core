@@ -14,9 +14,9 @@ import {
   upsertAudio,
   upsertAlbum,
 } from "./db";
+import { init, update, refresh } from "./scanner";
 
-const MusaCoreApi = {
-  initDb,
+const Api = {
   getAlbumById,
   getArtistById,
   getArtistAlbums,
@@ -33,10 +33,30 @@ const MusaCoreApi = {
   upsertAlbum,
 };
 
-export { MusaCoreApi, UrlSafeBase64 };
-export * from "./fs";
-export * from "./media-separator";
+const Db = {
+  init: initDb,
+};
 
+const Scanner = {
+  init,
+  update,
+  refresh,
+};
+
+export { Api, Db, Scanner, UrlSafeBase64 };
+
+export type {
+  MediaCollection,
+  ArtistCollection,
+  AlbumCollection,
+  FileCollection,
+  ArtistObject,
+  File,
+  AlbumFile,
+  ArtistWithAlbums,
+  AlbumWithFiles,
+  FileWithInfo,
+} from "./media-separator";
 export type { Metadata } from "./metadata";
 export type { ApiAlbumWithFilesAndMetadata } from "./api/album";
 export type { ApiArtist } from "./api/artist";

@@ -1,4 +1,5 @@
-import { AlbumCollection, AlbumWithFiles, Metadata } from "../";
+import { AlbumCollection, AlbumWithFiles } from "../media-separator";
+import { Metadata } from "../metadata";
 import { getAlbum, enrichAlbumFiles, EnrichedAlbumFile } from "../db";
 
 export type ApiAlbumWithFilesAndMetadata = Omit<AlbumWithFiles, "files"> & {

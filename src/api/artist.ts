@@ -1,4 +1,4 @@
-import { ArtistCollection, AlbumCollection, ArtistWithAlbums } from "../";
+import { ArtistCollection, AlbumCollection, ArtistWithAlbums } from "../media-separator";
 import { getAudio, enrichAlbums, EnrichedAlbum } from "../db";
 
 type ArtistAlbum = {

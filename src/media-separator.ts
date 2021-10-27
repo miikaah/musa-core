@@ -3,10 +3,11 @@ import { imageExts } from "./fs";
 import UrlSafeBase64 from "./urlsafe-base64";
 
 export type MediaCollection = {
-  artistsCol: ArtistCollection;
-  albumsCol: AlbumCollection;
-  audioCol: FileCollection;
-  imagesCol: FileCollection;
+  artistCollection: ArtistCollection;
+  albumCollection: AlbumCollection;
+  audioCollection: FileCollection;
+  imageCollection: FileCollection;
+  artistObject: ArtistObject;
 };
 
 export type ArtistCollection = {
@@ -63,6 +64,10 @@ export type FileWithInfo = File & {
   albumCoverUrl?: string;
 };
 
+export type ArtistObject = {
+  [label: string]: { id: string; name: string; url: string }[];
+};
+
 export const createMediaCollection = ({
   files,
   baseUrl,
@@ -72,10 +77,10 @@ export const createMediaCollection = ({
   baseUrl: string;
   isElectron?: boolean;
 }): MediaCollection => {
-  const artistsCol: ArtistCollection = {};
-  const albumsCol: AlbumCollection = {};
-  const audioCol: FileCollection = {};
-  const imagesCol: FileCollection = {};
+  const artistCollection: ArtistCollection = {};
+  const albumCollection: AlbumCollection = {};
+  const audioCollection: FileCollection = {};
+  const imageCollection: FileCollection = {};
 
   const albumSet = new Set();
 
@@ -88,8 +93,8 @@ export const createMediaCollection = ({
     const imageUrl = isElectron ? "" : getUrl(baseUrl, "image", fileId);
     const url = isElectron ? getElectronUrl(baseUrl, file) : getUrl(baseUrl, "file", fileId);
 
-    if (!artistsCol[artistId]) {
-      artistsCol[artistId] = {
+    if (!artistCollection[artistId]) {
+      artistCollection[artistId] = {
         url: artistUrl,
         name: artistName,
         albums: [],
@@ -112,21 +117,21 @@ export const createMediaCollection = ({
         };
 
         if (isImage(name)) {
-          artistsCol[artistId].images.push({
+          artistCollection[artistId].images.push({
             id: fileId,
             name,
             url: imageUrl,
             fileUrl: url,
           });
-          imagesCol[fileId] = fileWithInfo;
+          imageCollection[fileId] = fileWithInfo;
         } else {
-          artistsCol[artistId].files.push({
+          artistCollection[artistId].files.push({
             id: fileId,
             name,
             url: audioUrl,
             fileUrl: url,
           });
-          audioCol[fileId] = fileWithInfo;
+          audioCollection[fileId] = fileWithInfo;
         }
       });
     } else {
@@ -136,8 +141,8 @@ export const createMediaCollection = ({
       const albumUrl = isElectron ? "" : getUrl(baseUrl, "album", albumId);
       const fileName = albumRest[albumRest.length - 1];
 
-      if (!albumsCol[albumId]) {
-        albumsCol[albumId] = {
+      if (!albumCollection[albumId]) {
+        albumCollection[albumId] = {
           name: albumName,
           artistName,
           artistUrl,
@@ -148,7 +153,7 @@ export const createMediaCollection = ({
 
       if (!albumSet.has(albumId)) {
         albumSet.add(albumId);
-        artistsCol[artistId].albums.push({
+        artistCollection[artistId].albums.push({
           id: albumId,
           name: albumName,
           url: albumUrl,
@@ -167,43 +172,45 @@ export const createMediaCollection = ({
       };
 
       if (isImage(fileName)) {
-        albumsCol[albumId].images.push({
+        albumCollection[albumId].images.push({
           id: fileId,
           name: fileName,
           url: imageUrl,
           fileUrl: url,
         });
-        imagesCol[fileId] = fileWithInfo;
+        imageCollection[fileId] = fileWithInfo;
 
         const parsedFile = path.parse(fileName);
         if (isAlbumCoverImage(albumName, parsedFile)) {
-          albumsCol[albumId].coverUrl = url;
+          albumCollection[albumId].coverUrl = url;
 
-          const albumIndex = artistsCol[artistId].albums.findIndex((a) => a.name === albumName);
+          const albumIndex = artistCollection[artistId].albums.findIndex(
+            (a) => a.name === albumName
+          );
           if (albumIndex > -1) {
-            const album = artistsCol[artistId].albums[albumIndex];
+            const album = artistCollection[artistId].albums[albumIndex];
             album.coverUrl = url;
           }
         }
       } else {
-        albumsCol[albumId].files.push({
+        albumCollection[albumId].files.push({
           id: fileId,
           name: fileName,
           url: audioUrl,
           fileUrl: url,
         });
-        audioCol[fileId] = fileWithInfo;
+        audioCollection[fileId] = fileWithInfo;
       }
     }
   }
 
   // Second pass for enriching artist album lists with missing album covers
   // and first album audios needed for artist metadata creation
-  Object.keys(artistsCol).forEach((key) => {
-    artistsCol[key].albums.forEach((a) => {
+  Object.keys(artistCollection).forEach((key) => {
+    artistCollection[key].albums.forEach((a) => {
       // a.url for server, a.id for Electron
       const id = a.url.split("/").pop() || a.id || "";
-      const files = albumsCol[id].files;
+      const files = albumCollection[id].files;
 
       // This code has to be here before early return
       if (!a.firstAlbumAudio && typeof files[0] === "object") {
@@ -215,7 +222,7 @@ export const createMediaCollection = ({
         return;
       }
 
-      const images = albumsCol[id].images;
+      const images = albumCollection[id].images;
 
       // Find an image with a default name
       for (const img of images) {
@@ -223,7 +230,7 @@ export const createMediaCollection = ({
           const { fileUrl } = img;
 
           a.coverUrl = fileUrl;
-          albumsCol[id].coverUrl = fileUrl;
+          albumCollection[id].coverUrl = fileUrl;
           break;
         }
       }
@@ -233,12 +240,24 @@ export const createMediaCollection = ({
         const { fileUrl } = images[0];
 
         a.coverUrl = fileUrl;
-        albumsCol[id].coverUrl = fileUrl;
+        albumCollection[id].coverUrl = fileUrl;
       }
     });
   });
 
-  return { artistsCol, albumsCol, audioCol, imagesCol };
+  const artistObject = Object.entries(artistCollection)
+    .map(([id, { name, url }]) => ({ id, name, url }))
+    .reduce((acc: ArtistObject, artist) => {
+      const { name } = artist;
+      const label = name.charAt(0);
+
+      return {
+        ...acc,
+        [label]: [...(acc[label] || []), artist],
+      };
+    }, {});
+
+  return { artistCollection, albumCollection, audioCollection, imageCollection, artistObject };
 };
 
 const getUrl = (baseUrl: string, path: string, id: string): string => {
