@@ -1,6 +1,6 @@
-import { ArtistWithAlbums } from "../media-separator";
+import { ArtistWithAlbums, ArtistObject } from "../media-separator";
 import { getAudio, enrichAlbums, EnrichedAlbum } from "../db";
-import { artistCollection, albumCollection } from "../scanner";
+import { artistCollection, albumCollection, artistObject } from "../scanner";
 
 type ArtistAlbum = {
   id: string;
@@ -12,6 +12,10 @@ type ArtistAlbum = {
 
 export type ApiArtist = Omit<ArtistWithAlbums, "albums"> & {
   albums: EnrichedAlbum[];
+};
+
+export const getArtists = async (): Promise<ArtistObject> => {
+  return artistObject;
 };
 
 const byYear = (a: ArtistAlbum, b: ArtistAlbum) => Number(a.year) - Number(b.year);

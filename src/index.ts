@@ -1,6 +1,6 @@
 import UrlSafeBase64 from "./urlsafe-base64";
 import { getAlbumById } from "./api/album";
-import { getArtistById, getArtistAlbums } from "./api/artist";
+import { getArtistById, getArtistAlbums, getArtists } from "./api/artist";
 import { getAudioById } from "./api/audio";
 import { find, findRandom } from "./api/find";
 import {
@@ -18,6 +18,7 @@ import { init, update, refresh } from "./scanner";
 
 const Api = {
   getAlbumById,
+  getArtists,
   getArtistById,
   getArtistAlbums,
   getAudioById,

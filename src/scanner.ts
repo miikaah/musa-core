@@ -50,21 +50,15 @@ export const refresh = async ({
   musicLibraryPath,
   event,
   scanColor,
-  files,
-  albumCollection,
 }: {
   musicLibraryPath: string;
   event?: IpcMainEvent;
   scanColor?: { INSERT: string; UPDATE: string; ALBUM_UPDATE: string };
-  files: string[];
-  albumCollection: AlbumCollection;
 }): Promise<void> => {
   await init({ musicLibraryPath });
   await update({
     event,
     scanColor,
-    files,
-    albumCollection,
   });
 };
 
@@ -128,13 +122,9 @@ type IpcMainEvent = {
 export const update = async ({
   event,
   scanColor,
-  files,
-  albumCollection,
 }: {
   event?: IpcMainEvent;
   scanColor?: { INSERT: string; UPDATE: string; ALBUM_UPDATE: string };
-  files: string[];
-  albumCollection: AlbumCollection;
 }): Promise<void> => {
   if (!files) {
     console.error("Did not get files JSON\n");
