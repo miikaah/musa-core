@@ -87,6 +87,7 @@ export const init = async ({
   albumCollection = mediaCollection.albumCollection;
   audioCollection = mediaCollection.audioCollection;
   imageCollection = mediaCollection.imageCollection;
+  artistObject = mediaCollection.artistObject;
   artistsForFind = Object.entries(artistCollection).map(([id, a]) => ({ ...a, id }));
   albumsForFind = Object.entries(albumCollection).map(([id, a]) => ({ ...a, id }));
   audiosForFind = Object.entries(audioCollection).map(([id, a]) => ({ ...a, id }));
