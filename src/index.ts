@@ -3,7 +3,17 @@ import { getAlbumById } from "./api/album";
 import { getArtistById, getArtistAlbums } from "./api/artist";
 import { getAudioById } from "./api/audio";
 import { find, findRandom } from "./api/find";
-import { initDb, getAllThemes, getTheme, insertTheme, removeTheme } from "./db";
+import {
+  initDb,
+  getAllThemes,
+  getTheme,
+  insertTheme,
+  removeTheme,
+  getAllAudios,
+  insertAudio,
+  upsertAudio,
+  upsertAlbum,
+} from "./db";
 
 const MusaCoreApi = {
   initDb,
@@ -17,6 +27,10 @@ const MusaCoreApi = {
   getTheme,
   insertTheme,
   removeTheme,
+  getAllAudios,
+  insertAudio,
+  upsertAudio,
+  upsertAlbum,
 };
 
 export { MusaCoreApi, UrlSafeBase64 };
