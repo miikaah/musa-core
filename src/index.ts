@@ -58,6 +58,7 @@ export type {
   FileWithInfo,
 } from "./media-separator";
 export type { Metadata } from "./metadata";
+export type { MediaCollectionAndFiles } from "./scanner";
 export type { ApiAlbumWithFilesAndMetadata } from "./api/album";
 export type { ApiArtist } from "./api/artist";
 export type { ApiAudioWithMetadata } from "./api/audio";

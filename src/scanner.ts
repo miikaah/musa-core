@@ -40,11 +40,13 @@ export const refresh = async ({
   });
 };
 
+export type MediaCollectionAndFiles = MediaCollection & { files: string[] };
+
 export const init = async ({
   musicLibraryPath,
 }: {
   musicLibraryPath: string;
-}): Promise<MediaCollection> => {
+}): Promise<MediaCollectionAndFiles> => {
   const totalStart = Date.now();
 
   logOpStart("Traversing file system");
@@ -78,6 +80,7 @@ export const init = async ({
     audioCollection,
     imageCollection,
     artistObject,
+    files,
   };
 };
 
