@@ -4,6 +4,7 @@ import { getAlbum, enrichAlbumFiles, EnrichedAlbumFile } from "../db";
 import { albumCollection } from "../scanner";
 
 export type ApiAlbumWithFilesAndMetadata = Omit<AlbumWithFiles, "files"> & {
+  id: string;
   metadata: Metadata;
   files: EnrichedAlbumFile[];
 };
@@ -21,6 +22,7 @@ export const getAlbumById = async (id: string): Promise<ApiAlbumWithFilesAndMeta
 
   return {
     ...album,
+    id,
     metadata: dbAlbum?.metadata,
     files,
   };
