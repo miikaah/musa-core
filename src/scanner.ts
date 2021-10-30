@@ -48,16 +48,18 @@ export let audiosForFind: AudiosForFind = [];
 
 export const refresh = async ({
   musicLibraryPath,
+  baseUrl,
   isElectron = false,
   event,
   scanColor,
 }: {
   musicLibraryPath: string;
+  baseUrl?: string;
   isElectron?: boolean;
   event?: IpcMainEvent;
   scanColor?: { INSERT: string; UPDATE: string; ALBUM_UPDATE: string };
 }): Promise<void> => {
-  await init({ musicLibraryPath, isElectron });
+  await init({ musicLibraryPath, baseUrl, isElectron });
   await update({
     event,
     scanColor,
@@ -68,9 +70,11 @@ export type MediaCollectionAndFiles = MediaCollection & { files: string[] };
 
 export const init = async ({
   musicLibraryPath,
+  baseUrl,
   isElectron = false,
 }: {
   musicLibraryPath: string;
+  baseUrl?: string;
   isElectron: boolean;
 }): Promise<MediaCollectionAndFiles> => {
   const totalStart = Date.now();
@@ -84,7 +88,7 @@ export const init = async ({
   start = Date.now();
   const mediaCollection = createMediaCollection({
     files,
-    baseUrl: musicLibraryPath,
+    baseUrl: isElectron ? musicLibraryPath : `${baseUrl}`,
     isElectron,
   });
   artistCollection = mediaCollection.artistCollection;
