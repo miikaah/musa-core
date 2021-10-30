@@ -11,7 +11,7 @@
     "postinstall": "npm run build"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "fuzzysort": "^1.1.4",
     "music-metadata": "^7.11.4",
