@@ -341,7 +341,7 @@ export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedA
   const padLen = pad < 2 ? 2 : pad;
 
   const mergedFiles = await Promise.all(
-    album.files.map(async ({ id, name: filename, fileUrl }) => {
+    album.files.map(async ({ id, name: filename, url, fileUrl }) => {
       const file = files.find((f) => f.path_id === id);
       const name = file?.metadata?.title || filename;
       const trackNo = `${file?.metadata?.track?.no || ""}`;
@@ -352,6 +352,7 @@ export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedA
         id: file?.path_id,
         name,
         track,
+        url,
         fileUrl,
         metadata: file?.metadata,
       };
