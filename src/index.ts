@@ -60,6 +60,7 @@ export type {
 } from "./media-separator";
 export type { Metadata } from "./metadata";
 export type { MediaCollectionAndFiles } from "./scanner";
+export type { DbAudio, DbAlbum, DbTheme } from "./db";
 export type { ApiAlbumWithFilesAndMetadata } from "./api/album";
 export type { ApiArtist } from "./api/artist";
 export type { ApiAudioWithMetadata } from "./api/audio";

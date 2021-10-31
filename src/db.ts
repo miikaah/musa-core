@@ -7,19 +7,24 @@ import { UrlSafeBase64, AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === "local";
 
-export type Audio = { path_id: string; modified_at: string; filename: string; metadata: Metadata };
-export type Album = { path_id: string; modified_at: string; metadata: Metadata };
-export type Theme = { colors: unknown; filename: string; path_id: string };
+export type DbAudio = {
+  path_id: string;
+  modified_at: string;
+  filename: string;
+  metadata: Metadata;
+};
+export type DbAlbum = { path_id: string; modified_at: string; metadata: Metadata };
+export type DbTheme = { colors: unknown; filename: string; path_id: string };
 
-let audioDb: Datastore<Audio>;
-let albumDb: Datastore<Album>;
-let themeDb: Datastore<Theme>;
+let audioDb: Datastore<DbAudio>;
+let albumDb: Datastore<DbAlbum>;
+let themeDb: Datastore<DbTheme>;
 let libPath: string;
 export const initDb = (libraryPath: string): void => {
   libPath = libraryPath;
 
   const audioDbFile = `${isDev ? ".dev" : ""}.musa.audio.v1.db`;
-  audioDb = new Datastore<Audio>({
+  audioDb = new Datastore<DbAudio>({
     filename: path.join(libraryPath, audioDbFile),
   });
   audioDb.loadDatabase();
@@ -158,7 +163,7 @@ const buildAlbumMetadata = (metadata: Metadata) => {
   };
 };
 
-export const getAudio = async (id: string): Promise<Audio> => {
+export const getAudio = async (id: string): Promise<DbAudio> => {
   return new Promise((resolve, reject) => {
     audioDb.findOne({ path_id: id }, (err, audio) => {
       if (err) {
@@ -170,9 +175,9 @@ export const getAudio = async (id: string): Promise<Audio> => {
   });
 };
 
-export const getAllAudios = async (): Promise<Audio[]> => {
+export const getAllAudios = async (): Promise<DbAudio[]> => {
   return new Promise((resolve, reject) => {
-    audioDb.find({}, (err: unknown, audios: Audio[]) => {
+    audioDb.find({}, (err: unknown, audios: DbAudio[]) => {
       if (err) {
         reject(err);
       } else {
@@ -182,9 +187,9 @@ export const getAllAudios = async (): Promise<Audio[]> => {
   });
 };
 
-export const getAudiosByIds = async (ids: string[]): Promise<Audio[]> => {
+export const getAudiosByIds = async (ids: string[]): Promise<DbAudio[]> => {
   return new Promise((resolve, reject) => {
-    audioDb.find({ path_id: { $in: ids } }, (err: unknown, audios: Audio[]) => {
+    audioDb.find({ path_id: { $in: ids } }, (err: unknown, audios: DbAudio[]) => {
       if (err) {
         reject(err);
       } else {
@@ -196,8 +201,8 @@ export const getAudiosByIds = async (ids: string[]): Promise<Audio[]> => {
 
 export const findAudios = async (
   limit: number,
-  comparatorFn: (self: Audio) => boolean
-): Promise<Audio[]> => {
+  comparatorFn: (self: DbAudio) => boolean
+): Promise<DbAudio[]> => {
   return new Promise((resolve, reject) => {
     audioDb
       .find({
@@ -206,7 +211,7 @@ export const findAudios = async (
         },
       })
       .limit(limit)
-      .exec((err: unknown, audios: Audio[]) => {
+      .exec((err: unknown, audios: DbAudio[]) => {
         if (err) {
           reject(err);
         } else {
@@ -219,19 +224,19 @@ export const findAudios = async (
 export const findAudiosByMetadataAndFilename = async (
   query: string,
   limit: number
-): Promise<Audio[]> => {
-  const audiosByExactTitle = await findAudios(limit, (self: Audio) => {
+): Promise<DbAudio[]> => {
+  const audiosByExactTitle = await findAudios(limit, (self: DbAudio) => {
     const title = (self?.metadata?.title || "").toLowerCase();
     const queryLc = query.toLowerCase();
 
     return title === queryLc;
   });
 
-  let audiosByFuzzyTitle: Audio[] = [];
+  let audiosByFuzzyTitle: DbAudio[] = [];
   let amountOfAudios = audiosByExactTitle.length;
 
   if (amountOfAudios < limit) {
-    audiosByFuzzyTitle = await findAudios(limit - amountOfAudios, (self: Audio) => {
+    audiosByFuzzyTitle = await findAudios(limit - amountOfAudios, (self: DbAudio) => {
       const title = (self?.metadata?.title || "").toLowerCase();
       const queryLc = query.toLowerCase();
 
@@ -239,11 +244,11 @@ export const findAudiosByMetadataAndFilename = async (
     });
   }
 
-  let audiosByExactFilename: Audio[] = [];
+  let audiosByExactFilename: DbAudio[] = [];
   amountOfAudios += audiosByFuzzyTitle.length;
 
   if (amountOfAudios < limit) {
-    audiosByExactFilename = await findAudios(limit - amountOfAudios, (self: Audio) => {
+    audiosByExactFilename = await findAudios(limit - amountOfAudios, (self: DbAudio) => {
       const filename = (self?.filename || "").toLowerCase();
       const queryLc = query.toLowerCase();
 
@@ -251,11 +256,11 @@ export const findAudiosByMetadataAndFilename = async (
     });
   }
 
-  let audiosByFuzzyFilename: Audio[] = [];
+  let audiosByFuzzyFilename: DbAudio[] = [];
   amountOfAudios += audiosByExactFilename.length;
 
   if (amountOfAudios < limit) {
-    audiosByFuzzyFilename = await findAudios(limit - amountOfAudios, (self: Audio) => {
+    audiosByFuzzyFilename = await findAudios(limit - amountOfAudios, (self: DbAudio) => {
       const filename = (self?.filename || "").toLowerCase();
       const queryLc = query.toLowerCase();
 
@@ -274,7 +279,7 @@ export const findAudiosByMetadataAndFilename = async (
   return Array.from(foundAudios.values());
 };
 
-export const getAlbum = async (id: string): Promise<Album> => {
+export const getAlbum = async (id: string): Promise<DbAlbum> => {
   return new Promise((resolve, reject) => {
     albumDb.findOne({ path_id: id }, (err, album) => {
       if (err) {
@@ -364,9 +369,9 @@ export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedA
   return mergedFiles;
 };
 
-export const getAllThemes = async (): Promise<Theme[]> => {
+export const getAllThemes = async (): Promise<DbTheme[]> => {
   return new Promise((resolve, reject) => {
-    themeDb.find({}, (err: unknown, themes: Theme[]) => {
+    themeDb.find({}, (err: unknown, themes: DbTheme[]) => {
       if (err) {
         reject(err);
       } else {
@@ -376,7 +381,7 @@ export const getAllThemes = async (): Promise<Theme[]> => {
   });
 };
 
-export const getTheme = async (id: string): Promise<Theme> => {
+export const getTheme = async (id: string): Promise<DbTheme> => {
   return new Promise((resolve, reject) => {
     themeDb.findOne({ path_id: id }, (err, theme) => {
       if (err) {
@@ -388,7 +393,7 @@ export const getTheme = async (id: string): Promise<Theme> => {
   });
 };
 
-export const insertTheme = async (id: string, colors: unknown): Promise<Theme> => {
+export const insertTheme = async (id: string, colors: unknown): Promise<DbTheme> => {
   const filename = UrlSafeBase64.decode(id);
 
   return new Promise((resolve, reject) => {
