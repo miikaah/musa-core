@@ -9,7 +9,7 @@ const isDev = NODE_ENV === "local";
 
 export type Audio = { path_id: string; modified_at: string; filename: string; metadata: Metadata };
 export type Album = { path_id: string; modified_at: string; metadata: Metadata };
-export type Theme = { colors: unknown; path_id: string };
+export type Theme = { colors: unknown; filename: string; path_id: string };
 
 let audioDb: Datastore<Audio>;
 let albumDb: Datastore<Album>;
