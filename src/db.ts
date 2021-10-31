@@ -30,7 +30,7 @@ export const initDb = (libraryPath: string): void => {
   });
   albumDb.loadDatabase();
 
-  const themeDbFile = `${isDev ? ".dev" : ""}.musa.theme.v1.db`;
+  const themeDbFile = `${isDev ? ".dev" : ""}.musa.theme.v2.db`;
   themeDb = new Datastore({
     filename: path.join(libraryPath, themeDbFile),
   });
@@ -388,13 +388,18 @@ export const getTheme = async (id: string): Promise<Theme> => {
   });
 };
 
-export const insertTheme = async (id: string, colors: unknown): Promise<Theme> => {
+export const insertTheme = async (
+  id: string,
+  filename: string,
+  colors: unknown
+): Promise<Theme> => {
   return new Promise((resolve, reject) => {
     themeDb.insert(
       {
         _id: id,
         path_id: id,
         modified_at: new Date().toISOString(),
+        filename,
         colors,
       },
       (err, newTheme) => {
