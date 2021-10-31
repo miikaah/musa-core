@@ -388,11 +388,9 @@ export const getTheme = async (id: string): Promise<Theme> => {
   });
 };
 
-export const insertTheme = async (
-  id: string,
-  filename: string,
-  colors: unknown
-): Promise<Theme> => {
+export const insertTheme = async (id: string, colors: unknown): Promise<Theme> => {
+  const filename = UrlSafeBase64.decode(id);
+
   return new Promise((resolve, reject) => {
     themeDb.insert(
       {
