@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs/promises";
-import Datastore from "nedb";
+import Datastore from "@seald-io/nedb";
 import { getMetadata, Metadata } from "./metadata";
 import { UrlSafeBase64, AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./";
 
