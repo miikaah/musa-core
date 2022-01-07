@@ -87,7 +87,7 @@ export const findRandom = async (): Promise<ApiFindResult> => {
   const foundAlbums = getRandomEntities(albumsForFind, albumIndices);
   const albums = await Promise.all(foundAlbums.map(async (a) => getAlbumById(a.id)));
 
-  const audioIndices = getRandomNumbers(0, albumsForFind.length, 6);
+  const audioIndices = getRandomNumbers(0, audiosForFind.length, 6);
   const foundAudios = getRandomEntities(audiosForFind, audioIndices);
   const audios = (
     await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.id })))
