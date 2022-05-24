@@ -13,7 +13,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@seald-io/nedb": "^2.2.0",
+    "@seald-io/nedb": "^3.0.0",
     "fuzzysort": "^1.1.4",
     "music-metadata": "^7.11.4",
     "urlsafe-base64": "^1.0.0"
