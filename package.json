@@ -15,13 +15,13 @@
   "license": "MIT",
   "dependencies": {
     "@seald-io/nedb": "^3.0.0",
-    "@swc/core": "^1.2.189",
-    "@swc/jest": "^0.2.21",
     "fuzzysort": "^2.0.1",
     "music-metadata": "^7.12.3",
     "urlsafe-base64": "^1.0.0"
   },
   "devDependencies": {
+    "@swc/core": "^1.2.189",
+    "@swc/jest": "^0.2.21",
     "@types/jest": "^27.5.1",
     "@types/nedb": "^1.8.12",
     "@types/node": "^17.0.35",
