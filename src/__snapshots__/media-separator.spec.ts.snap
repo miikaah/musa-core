@@ -2,7 +2,7 @@
 
 exports[`Media Separator createMediaCollection() should separate files to collections 1`] = `
 Object {
-  "albumsCol": Object {
+  "albumCollection": Object {
     "YXJ0aXN0L2FsYnVt": Object {
       "artistName": "artist",
       "artistUrl": "baseurl/artist/YXJ0aXN0",
@@ -26,7 +26,7 @@ Object {
       "name": "album",
     },
   },
-  "artistsCol": Object {
+  "artistCollection": Object {
     "YXJ0aXN0": Object {
       "albums": Array [
         Object {
@@ -60,7 +60,16 @@ Object {
       "url": "baseurl/artist/YXJ0aXN0",
     },
   },
-  "audioCol": Object {
+  "artistObject": Object {
+    "a": Array [
+      Object {
+        "id": "YXJ0aXN0",
+        "name": "artist",
+        "url": "baseurl/artist/YXJ0aXN0",
+      },
+    ],
+  },
+  "audioCollection": Object {
     "YXJ0aXN0L2FsYnVtL3NvbmcubXAz": Object {
       "albumId": "YXJ0aXN0L2FsYnVt",
       "albumName": "album",
@@ -80,7 +89,7 @@ Object {
       "url": "baseurl/file/YXJ0aXN0L3NvbmcubXAz",
     },
   },
-  "imagesCol": Object {
+  "imageCollection": Object {
     "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw": Object {
       "albumId": "YXJ0aXN0L2FsYnVt",
       "albumName": "album",
@@ -105,7 +114,7 @@ Object {
 
 exports[`Media Separator createMediaCollection() should separate files to collections for Electron 1`] = `
 Object {
-  "albumsCol": Object {
+  "albumCollection": Object {
     "YXJ0aXN0L2FsYnVt": Object {
       "artistName": "artist",
       "artistUrl": "",
@@ -129,7 +138,7 @@ Object {
       "name": "album",
     },
   },
-  "artistsCol": Object {
+  "artistCollection": Object {
     "YXJ0aXN0": Object {
       "albums": Array [
         Object {
@@ -163,7 +172,16 @@ Object {
       "url": "",
     },
   },
-  "audioCol": Object {
+  "artistObject": Object {
+    "a": Array [
+      Object {
+        "id": "YXJ0aXN0",
+        "name": "artist",
+        "url": "",
+      },
+    ],
+  },
+  "audioCollection": Object {
     "YXJ0aXN0L2FsYnVtL3NvbmcubXAz": Object {
       "albumId": "YXJ0aXN0L2FsYnVt",
       "albumName": "album",
@@ -183,7 +201,7 @@ Object {
       "url": "file:/baseurl/artist/song.mp3",
     },
   },
-  "imagesCol": Object {
+  "imageCollection": Object {
     "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw": Object {
       "albumId": "YXJ0aXN0L2FsYnVt",
       "albumName": "album",
