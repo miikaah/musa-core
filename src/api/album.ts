@@ -1,5 +1,5 @@
 import { AlbumWithFiles } from "../media-separator";
-import { Metadata } from "../metadata";
+import { Metadata } from "../metadata.types";
 import { getAlbum, enrichAlbumFiles, EnrichedAlbumFile } from "../db";
 import { albumCollection } from "../scanner";
 
@@ -9,11 +9,12 @@ export type ApiAlbumWithFilesAndMetadata = Omit<AlbumWithFiles, "files"> & {
   files: EnrichedAlbumFile[];
 };
 
-export const getAlbumById = async (id: string): Promise<ApiAlbumWithFilesAndMetadata> => {
+export const getAlbumById = async (
+  id: string
+): Promise<ApiAlbumWithFilesAndMetadata | Record<string, never>> => {
   const album = albumCollection[id];
 
   if (!album) {
-    // @ts-expect-error return empty
     return {};
   }
 

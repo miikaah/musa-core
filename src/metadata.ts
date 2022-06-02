@@ -1,43 +1,7 @@
 import * as musicMetadata from "music-metadata";
 import path from "path";
 import UrlSafeBase64 from "./urlsafe-base64";
-
-type FormatMetadata = {
-  bitrate: number;
-  duration: number;
-  sampleRate: number;
-};
-
-type CommonMetadata = {
-  track: NumberOf;
-  disk: NumberOf;
-  album: string;
-  year: number;
-  date: string;
-  replaygain_track_gain: ReplayGain;
-  replaygain_track_peak: ReplayGain;
-  replaygain_album_gain: ReplayGain;
-  replaygain_album_peak: ReplayGain;
-  title: string;
-  artists: string[];
-  artist: string;
-  encodersettings: string;
-  composer: string;
-  comment: string;
-  albumartist: string;
-  genre: string[];
-};
-
-type AudioMetadata = {
-  format: Partial<FormatMetadata>;
-  native: {
-    ID3v1?: { id: string; value: string }[];
-    "ID3v2.3"?: { id: string; value: string }[];
-    "ID3v2.4"?: { id: string; value: string }[];
-    vorbis?: { id: string; value: string }[];
-  };
-  common: Partial<CommonMetadata>;
-};
+import type { AudioMetadata, GetMetadataParams, Metadata } from "./metadata.types";
 
 export const readMetadata = async (filepath: string): Promise<AudioMetadata> => {
   let metadata = { format: {}, native: { "ID3v2.3": [] }, common: {} };
@@ -50,38 +14,6 @@ export const readMetadata = async (filepath: string): Promise<AudioMetadata> => 
   }
 
   return metadata;
-};
-
-export type Metadata = Partial<{
-  track: NumberOf;
-  disk: NumberOf;
-  album: string;
-  year: number;
-  date: string;
-  replayGainTrackGain: ReplayGain;
-  replayGainTrackPeak: ReplayGain;
-  replayGainAlbumGain: ReplayGain;
-  replayGainAlbumPeak: ReplayGain;
-  title: string;
-  artists: string[];
-  artist: string;
-  encoderSettings: string;
-  composer: string;
-  albumArtist: string;
-  genre: string[];
-  dynamicRange: string;
-  dynamicRangeAlbum: string;
-  bitrate: number;
-  duration: number;
-  sampleRate: number;
-}>;
-
-type NumberOf = { no: string | null; of: string | null };
-type ReplayGain = { dB: number; ratio: number };
-
-type GetMetadataParams = {
-  id: string;
-  quiet?: boolean;
 };
 
 export const getMetadata = async (

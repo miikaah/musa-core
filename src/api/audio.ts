@@ -1,5 +1,5 @@
 import { FileWithInfo } from "../media-separator";
-import { Metadata } from "../metadata";
+import { Metadata } from "../metadata.types";
 import { getAudio, DbAudio } from "../db";
 import { albumCollection, audioCollection } from "../scanner";
 
@@ -15,11 +15,10 @@ export const getAudioById = async ({
 }: {
   id: string;
   existingDbAudio?: DbAudio;
-}): Promise<ApiAudioWithMetadata> => {
+}): Promise<ApiAudioWithMetadata | Record<string, never>> => {
   const audio = audioCollection[id];
 
   if (!audio) {
-    // @ts-expect-error return empty
     return {};
   }
 

@@ -31,18 +31,18 @@ export const find = async ({ query }: { query: string }): Promise<ApiFindResult>
     };
   }
   const foundArtists = fuzzysort.go(query, artistsForFind, options);
-  const artists = await Promise.all(
+  const artists = (await Promise.all(
     foundArtists.map((a) => a.obj).map(async (a) => getArtistAlbums(a.id))
-  );
+  )) as ApiArtist[];
   const foundAlbums = fuzzysort.go(query, albumsForFind, options);
-  const albums = await Promise.all(
+  const albums = (await Promise.all(
     foundAlbums.map((a) => a.obj).map(async (a) => getAlbumById(a.id))
-  );
+  )) as ApiAlbumWithFilesAndMetadata[];
   const foundAudios = await findAudiosByMetadataAndFilename(query, 6);
   const audios = (
-    await Promise.all(
+    (await Promise.all(
       foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
-    )
+    )) as ApiAudioWithMetadata[]
   ).filter(({ id }) => !!audioCollection[id]);
 
   return {
@@ -81,16 +81,22 @@ function getRandomEntities(entitiesForFind: Entities, indices: number[]) {
 export const findRandom = async (): Promise<ApiFindResult> => {
   const artistIndices = getRandomNumbers(0, artistsForFind.length, 4);
   const foundArtists = getRandomEntities(artistsForFind, artistIndices);
-  const artists = await Promise.all(foundArtists.map(async (a) => getArtistAlbums(a.id)));
+  const artists = (await Promise.all(
+    foundArtists.map(async (a) => getArtistAlbums(a.id))
+  )) as ApiArtist[];
 
   const albumIndices = getRandomNumbers(0, albumsForFind.length, 4);
   const foundAlbums = getRandomEntities(albumsForFind, albumIndices);
-  const albums = await Promise.all(foundAlbums.map(async (a) => getAlbumById(a.id)));
+  const albums = (await Promise.all(
+    foundAlbums.map(async (a) => getAlbumById(a.id))
+  )) as ApiAlbumWithFilesAndMetadata[];
 
   const audioIndices = getRandomNumbers(0, audiosForFind.length, 6);
   const foundAudios = getRandomEntities(audiosForFind, audioIndices);
   const audios = (
-    await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.id })))
+    (await Promise.all(
+      foundAudios.map(async (a) => getAudioById({ id: a.id }))
+    )) as ApiAudioWithMetadata[]
   ).filter(({ id }) => !!audioCollection[id]);
 
   return {

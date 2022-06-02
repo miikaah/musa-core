@@ -1,7 +1,8 @@
 import path from "path";
 import fs from "fs/promises";
 import Datastore from "@seald-io/nedb";
-import { getMetadata, Metadata } from "./metadata";
+import { getMetadata } from "./metadata";
+import { Metadata } from "./metadata.types";
 import { UrlSafeBase64, AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./";
 
 const { NODE_ENV } = process.env;
@@ -381,7 +382,7 @@ export const getAllThemes = async (): Promise<DbTheme[]> => {
   });
 };
 
-export const getTheme = async (id: string): Promise<DbTheme> => {
+export const getTheme = async (id: string): Promise<DbTheme | undefined> => {
   return new Promise((resolve, reject) => {
     themeDb.findOne({ path_id: id }, (err, theme) => {
       if (err) {

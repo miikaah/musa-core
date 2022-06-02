@@ -20,11 +20,10 @@ export const getArtists = async (): Promise<ArtistObject> => {
 
 const byYear = (a: ArtistAlbum, b: ArtistAlbum) => Number(a.year) - Number(b.year);
 
-export const getArtistById = async (id: string): Promise<ApiArtist> => {
+export const getArtistById = async (id: string): Promise<ApiArtist | Record<string, never>> => {
   const artist = artistCollection[id];
 
   if (!artist) {
-    // @ts-expect-error return empty
     return {};
   }
 
@@ -56,11 +55,10 @@ export const getArtistById = async (id: string): Promise<ApiArtist> => {
   };
 };
 
-export const getArtistAlbums = async (id: string): Promise<ApiArtist> => {
+export const getArtistAlbums = async (id: string): Promise<ApiArtist | Record<string, never>> => {
   const artist = artistCollection[id];
 
   if (!artist) {
-    // @ts-expect-error return empty
     return {};
   }
 
