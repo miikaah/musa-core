@@ -1,72 +1,15 @@
 import path, { sep, ParsedPath } from "path";
+
 import { imageExts } from "./fs";
 import UrlSafeBase64 from "./urlsafe-base64";
 
-export type MediaCollection = {
-  artistCollection: ArtistCollection;
-  albumCollection: AlbumCollection;
-  audioCollection: FileCollection;
-  imageCollection: FileCollection;
-  artistObject: ArtistObject;
-};
-
-export type ArtistCollection = {
-  [x: string]: ArtistWithAlbums;
-};
-
-export type File = {
-  id: string;
-  name: string;
-  url: string;
-  fileUrl?: string;
-};
-
-export type AlbumFile = File & {
-  coverUrl?: string;
-  // Used for artist metadata creation
-  firstAlbumAudio?: {
-    id: string;
-    name: string;
-  };
-};
-
-export type ArtistWithAlbums = {
-  url: string;
-  name: string;
-  albums: AlbumFile[];
-  files: File[];
-  images: File[];
-};
-
-export type AlbumCollection = {
-  [x: string]: AlbumWithFiles;
-};
-
-export type AlbumWithFiles = {
-  artistName: string;
-  artistUrl: string;
-  name: string;
-  files: File[];
-  images: File[];
-  coverUrl?: string;
-};
-
-export type FileCollection = {
-  [x: string]: FileWithInfo;
-};
-
-export type FileWithInfo = File & {
-  artistName: string;
-  artistUrl: string;
-  albumId?: string;
-  albumName?: string;
-  albumUrl?: string;
-  albumCoverUrl?: string;
-};
-
-export type ArtistObject = {
-  [label: string]: { id: string; name: string; url: string }[];
-};
+import {
+  MediaCollection,
+  ArtistCollection,
+  AlbumCollection,
+  FileCollection,
+  ArtistObject,
+} from "./media-separator.types";
 
 export const createMediaCollection = ({
   files,

@@ -1,5 +1,6 @@
 import * as musicMetadata from "music-metadata";
 import path from "path";
+
 import UrlSafeBase64 from "./urlsafe-base64";
 import type { AudioMetadata, GetMetadataParams, Metadata } from "./metadata.types";
 

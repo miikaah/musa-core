@@ -1,18 +1,23 @@
 import { sep } from "path";
+
 import { traverseFileSystem, audioExts } from "./fs";
+import { createMediaCollection } from "./media-separator";
+import UrlSafeBase64 from "./urlsafe-base64";
+import * as Db from "./db";
+
 import {
-  createMediaCollection,
-  MediaCollection,
+  ArtistsForFind,
+  AlbumsForFind,
+  AudiosForFind,
+  IpcMainEvent,
+  MediaCollectionAndFiles,
+} from "./scanner.types";
+import {
   ArtistCollection,
   AlbumCollection,
   FileCollection,
   ArtistObject,
-  ArtistWithAlbums,
-  AlbumWithFiles,
-  FileWithInfo,
-} from "./media-separator";
-import UrlSafeBase64 from "./urlsafe-base64";
-import { Api } from "./";
+} from "./media-separator.types";
 
 const { DISABLE_SCANNING } = process.env;
 const isScanningDisabled = DISABLE_SCANNING === "true";
@@ -34,13 +39,6 @@ export let albumCollection: AlbumCollection = {};
 export let audioCollection: FileCollection = {};
 export let imageCollection: FileCollection = {};
 export let artistObject: ArtistObject;
-
-export type ArtistsForFind = ArtistWithId[];
-export type AlbumsForFind = AlbumWithId[];
-export type AudiosForFind = FileWithId[];
-export type ArtistWithId = ArtistWithAlbums & { id: string };
-export type AlbumWithId = AlbumWithFiles & { id: string };
-export type FileWithId = FileWithInfo & { id: string };
 
 export let artistsForFind: ArtistsForFind = [];
 export let albumsForFind: AlbumsForFind = [];
@@ -65,8 +63,6 @@ export const refresh = async ({
     scanColor,
   });
 };
-
-export type MediaCollectionAndFiles = MediaCollection & { files: string[] };
 
 export const init = async ({
   musicLibraryPath,
@@ -121,13 +117,6 @@ export const init = async ({
   };
 };
 
-type IpcMainEvent = {
-  sender: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    send: (...args: any) => void;
-  };
-};
-
 export const update = async ({
   event,
   scanColor,
@@ -144,7 +133,7 @@ export const update = async ({
   }
 
   const start = Date.now();
-  const audios = await Api.getAllAudios();
+  const audios = await Db.getAllAudios();
   const audioIdsInDb = audios.map((a) => a.path_id);
   const cleanFiles = files.filter((file) =>
     audioExts.some((ext) => file.toLowerCase().endsWith(ext))
@@ -188,10 +177,10 @@ export const update = async ({
   for (let i = 0; i < filesToInsert.length; i += 4) {
     try {
       await Promise.all([
-        Api.insertAudio(filesToInsert[i]),
-        Api.insertAudio(filesToInsert[i + 1]),
-        Api.insertAudio(filesToInsert[i + 2]),
-        Api.insertAudio(filesToInsert[i + 3]),
+        Db.insertAudio(filesToInsert[i]),
+        Db.insertAudio(filesToInsert[i + 1]),
+        Db.insertAudio(filesToInsert[i + 2]),
+        Db.insertAudio(filesToInsert[i + 3]),
       ]);
 
       if (process.stdout.clearLine) {
@@ -233,19 +222,19 @@ export const update = async ({
   for (let i = 0; i < filesToUpdate.length; i += 4) {
     try {
       await Promise.all([
-        Api.upsertAudio({
+        Db.upsertAudio({
           ...filesToUpdate[i],
           quiet: true,
         }),
-        Api.upsertAudio({
+        Db.upsertAudio({
           ...filesToUpdate[i + 1],
           quiet: true,
         }),
-        Api.upsertAudio({
+        Db.upsertAudio({
           ...filesToUpdate[i + 2],
           quiet: true,
         }),
-        Api.upsertAudio({
+        Db.upsertAudio({
           ...filesToUpdate[i + 3],
           quiet: true,
         }),
@@ -273,10 +262,10 @@ export const update = async ({
   for (let i = 0; i < albums.length; i += 4) {
     try {
       await Promise.all([
-        Api.upsertAlbum(albums[i]),
-        Api.upsertAlbum(albums[i + 1]),
-        Api.upsertAlbum(albums[i + 2]),
-        Api.upsertAlbum(albums[i + 3]),
+        Db.upsertAlbum(albums[i]),
+        Db.upsertAlbum(albums[i + 1]),
+        Db.upsertAlbum(albums[i + 2]),
+        Db.upsertAlbum(albums[i + 3]),
       ]);
 
       if (event) {

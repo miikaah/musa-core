@@ -1,21 +1,23 @@
 import path from "path";
 import fs from "fs/promises";
 import Datastore from "@seald-io/nedb";
+
+import UrlSafeBase64 from "./urlsafe-base64";
 import { getMetadata } from "./metadata";
+
+import { AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./media-separator.types";
 import { Metadata } from "./metadata.types";
-import { UrlSafeBase64, AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./";
+import {
+  DbAudio,
+  DbAlbum,
+  DbTheme,
+  AlbumUpsertOptions,
+  EnrichedAlbum,
+  EnrichedAlbumFile,
+} from "./db.types";
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === "local";
-
-export type DbAudio = {
-  path_id: string;
-  modified_at: string;
-  filename: string;
-  metadata: Metadata;
-};
-export type DbAlbum = { path_id: string; modified_at: string; metadata: Metadata };
-export type DbTheme = { colors: unknown; filename: string; path_id: string };
 
 let audioDb: Datastore<DbAudio>;
 let albumDb: Datastore<DbAlbum>;
@@ -99,14 +101,6 @@ export const upsertAudio = async (file: {
       }
     );
   }
-};
-
-type AlbumUpsertOptions = {
-  id: string;
-  album: {
-    name: string;
-    files: { id: string }[];
-  };
 };
 
 export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
@@ -292,14 +286,6 @@ export const getAlbum = async (id: string): Promise<DbAlbum> => {
   });
 };
 
-export type EnrichedAlbum = {
-  id: string;
-  name: string;
-  url: string;
-  coverUrl?: string;
-  year?: number | null;
-};
-
 export const enrichAlbums = async (
   albumCollection: AlbumCollection,
   artist: ArtistWithAlbums
@@ -328,14 +314,6 @@ export const enrichAlbums = async (
       };
     })
   );
-};
-
-export type EnrichedAlbumFile = {
-  id?: string;
-  name: string;
-  track: string;
-  fileUrl?: string;
-  metadata?: Metadata;
 };
 
 export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedAlbumFile[]> => {

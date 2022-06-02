@@ -3,18 +3,10 @@ import { getAlbumById } from "./api/album";
 import { getArtistById, getArtistAlbums, getArtists } from "./api/artist";
 import { getAudioById } from "./api/audio";
 import { find, findRandom } from "./api/find";
-import {
-  initDb,
-  getAllThemes,
-  getTheme,
-  insertTheme,
-  removeTheme,
-  getAllAudios,
-  insertAudio,
-  upsertAudio,
-  upsertAlbum,
-} from "./db";
+import { getAllThemes, getTheme, insertTheme, removeTheme } from "./api/theme";
+import { initDb } from "./db";
 import { init, update, refresh } from "./scanner";
+import { getState, setState } from "./fs-state";
 
 const Api = {
   getAlbumById,
@@ -28,10 +20,6 @@ const Api = {
   getTheme,
   insertTheme,
   removeTheme,
-  getAllAudios,
-  insertAudio,
-  upsertAudio,
-  upsertAlbum,
 };
 
 const Db = {
@@ -44,7 +32,12 @@ const Scanner = {
   refresh,
 };
 
-export { Api, Db, Scanner, UrlSafeBase64 };
+const Fs = {
+  getState,
+  setState,
+};
+
+export { Api, Db, Fs, Scanner, UrlSafeBase64 };
 
 export type {
   MediaCollection,
@@ -57,11 +50,12 @@ export type {
   ArtistWithAlbums,
   AlbumWithFiles,
   FileWithInfo,
-} from "./media-separator";
+} from "./media-separator.types";
 export type { Metadata } from "./metadata.types";
-export type { MediaCollectionAndFiles } from "./scanner";
-export type { DbAudio, DbAlbum, DbTheme } from "./db";
-export type { ApiAlbumWithFilesAndMetadata } from "./api/album";
-export type { ApiArtist } from "./api/artist";
-export type { ApiAudioWithMetadata } from "./api/audio";
-export type { ApiFindResult } from "./api/find";
+export type { MediaCollectionAndFiles } from "./scanner.types";
+export type { State } from "./fs-state.types";
+export type { AlbumWithFilesAndMetadata } from "./api/album.types";
+export type { Artist } from "./api/artist.types";
+export type { AudioWithMetadata } from "./api/audio.types";
+export type { FindResult } from "./api/find.types";
+export type { Theme } from "./api/theme.types";
