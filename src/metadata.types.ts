@@ -1,7 +1,16 @@
 export type FormatMetadata = {
   bitrate: number;
+  codec: string;
+  codecProfile: string;
+  container: string;
   duration: number;
+  lossless: boolean;
+  numberOfChannels: number;
   sampleRate: number;
+  tagTypes: string[];
+  tool: string;
+  trackInfo: string[];
+  trackPeakLevel: number | undefined;
 };
 
 export type CommonMetadata = {
@@ -22,6 +31,7 @@ export type CommonMetadata = {
   comment: string;
   albumartist: string;
   genre: string[];
+  movementIndex: unknown | Record<string, unknown>;
 };
 
 export type AudioMetadata = {
@@ -65,4 +75,5 @@ export type Metadata = Partial<{
   bitrate: number;
   duration: number;
   sampleRate: number;
+  comment: string;
 }>;
