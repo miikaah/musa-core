@@ -42,6 +42,7 @@ describe("Audio API tests", () => {
 
       expect(theme).toEqual(themeFixture);
       expect(Db.getTheme).toHaveBeenCalledTimes(1);
+      expect(Db.getTheme).toHaveBeenCalledWith(id);
     });
 
     it("should return empty object if theme does not exist", async () => {
@@ -49,6 +50,7 @@ describe("Audio API tests", () => {
 
       await expect(getTheme(id)).rejects.toThrow("Theme Not Found");
       expect(Db.getTheme).toHaveBeenCalledTimes(1);
+      expect(Db.getTheme).toHaveBeenCalledWith(id);
     });
 
     it("should throw if Db.getTheme throws", async () => {
@@ -58,6 +60,7 @@ describe("Audio API tests", () => {
 
       await expect(getTheme(id)).rejects.toThrow("err");
       expect(Db.getTheme).toHaveBeenCalledTimes(1);
+      expect(Db.getTheme).toHaveBeenCalledWith(id);
     });
   });
 
@@ -69,6 +72,7 @@ describe("Audio API tests", () => {
 
       expect(theme).toEqual(themeFixture);
       expect(Db.insertTheme).toHaveBeenCalledTimes(1);
+      expect(Db.insertTheme).toHaveBeenCalledWith(id, themeFixture.colors);
     });
 
     it("should throw if Db.insertTheme throws", async () => {
@@ -80,6 +84,7 @@ describe("Audio API tests", () => {
 
       await expect(insertTheme(id, themeFixture.colors)).rejects.toThrow("err");
       expect(Db.insertTheme).toHaveBeenCalledTimes(1);
+      expect(Db.insertTheme).toHaveBeenCalledWith(id, themeFixture.colors);
     });
   });
 
@@ -91,6 +96,7 @@ describe("Audio API tests", () => {
 
       expect(theme).toEqual(undefined);
       expect(Db.removeTheme).toHaveBeenCalledTimes(1);
+      expect(Db.removeTheme).toHaveBeenCalledWith(id);
     });
 
     it("should throw if Db.removeTheme throws", async () => {
@@ -102,6 +108,7 @@ describe("Audio API tests", () => {
 
       await expect(removeTheme(id)).rejects.toThrow("err");
       expect(Db.removeTheme).toHaveBeenCalledTimes(1);
+      expect(Db.removeTheme).toHaveBeenCalledWith(id);
     });
   });
 });
