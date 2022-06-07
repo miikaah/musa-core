@@ -44,6 +44,8 @@ describe("Album API tests", () => {
       });
 
       await expect(getAlbumById(id)).rejects.toThrow("err");
+      expect(getAlbum).toHaveBeenCalledTimes(1);
+      expect(enrichAlbumFiles).toHaveBeenCalledTimes(0);
     });
   });
 });
