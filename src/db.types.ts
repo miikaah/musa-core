@@ -6,7 +6,7 @@ export type DbAudio = {
   filename: string;
   metadata: Metadata;
 };
-export type DbAlbum = { path_id: string; modified_at: string; metadata: Metadata };
+export type DbAlbum = { path_id: string; modified_at: string; metadata: Partial<Metadata> };
 export type DbTheme = { colors: unknown; filename: string; path_id: string };
 
 export type AlbumUpsertOptions = {
@@ -29,6 +29,7 @@ export type EnrichedAlbumFile = {
   id?: string;
   name: string;
   track: string;
+  url?: string;
   fileUrl?: string;
   metadata?: Metadata;
 };
