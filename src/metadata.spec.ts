@@ -7,13 +7,13 @@ import UrlSafeBase64 from "./urlsafe-base64";
 const origConsoleErrorFn = console.error;
 
 describe("Metadata tests", () => {
-  // beforeAll(() => {
-  //   console.error = () => undefined;
-  // });
-  //
-  // afterAll(() => {
-  //   console.error = origConsoleErrorFn;
-  // });
+  beforeAll(() => {
+    console.error = () => undefined;
+  });
+
+  afterAll(() => {
+    console.error = origConsoleErrorFn;
+  });
 
   beforeEach(() => {
     jest.clearAllMocks();
