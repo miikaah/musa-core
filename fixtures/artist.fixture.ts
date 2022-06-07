@@ -1,14 +1,17 @@
-export const artistObjectFixture = [
-  {
-    A: {
+import { Artist } from "../src/api/artist.types";
+import { ArtistObject, ArtistCollection } from "../src/media-separator.types";
+
+export const artistObjectFixture: ArtistObject = {
+  A: [
+    {
       id: "QWxhbWFhaWxtYW4gdmFzYXJhdA",
       name: "Alamaailman vasarat",
       url: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
     },
-  },
-];
+  ],
+};
 
-export const artistCollectionFixture = {
+export const artistCollectionFixture: ArtistCollection = {
   QWxhbWFhaWxtYW4gdmFzYXJhdA: {
     url: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
     name: "Alamaailman vasarat",
@@ -19,7 +22,6 @@ export const artistCollectionFixture = {
         url: "http://100.95.164.23:4200/album/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lh",
         coverUrl:
           "http://100.95.164.23:4200/file/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhL1Zhc2FyYWFzaWEuanBn",
-        year: 2000,
         firstAlbumAudio: {
           id: "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz",
           name: "foo",
@@ -31,7 +33,6 @@ export const artistCollectionFixture = {
         url: "http://100.95.164.23:4200/album/QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YQ",
         coverUrl:
           "http://100.95.164.23:4200/file/QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YS9LYcyIYcyIcm1lbGF1dGFrdW50YS5qcGc",
-        year: 2003,
       },
     ],
     files: [],
@@ -39,7 +40,7 @@ export const artistCollectionFixture = {
   },
 };
 
-export const artistFixture = {
+export const artistFixture: Artist = {
   albums: [
     {
       id: "QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YQ",
@@ -64,7 +65,7 @@ export const artistFixture = {
   url: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
 };
 
-export const artistAlbumsFixture = {
+export const artistAlbumsFixture: Artist = {
   albums: [
     {
       coverUrl:
