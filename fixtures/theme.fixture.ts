@@ -29,4 +29,5 @@ export const themeDbFixture: DbTheme = {
     typographySecondary: "#fbfbfb",
     slider: [210, 83, 24],
   },
+  modified_at: "2022-06-08T15:00:16.896Z",
 };

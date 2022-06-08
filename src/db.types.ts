@@ -7,7 +7,7 @@ export type DbAudio = {
   metadata: Metadata;
 };
 export type DbAlbum = { path_id: string; modified_at: string; metadata: Partial<Metadata> };
-export type DbTheme = { colors: unknown; filename: string; path_id: string };
+export type DbTheme = { path_id: string; modified_at: string; colors: unknown; filename: string };
 
 export type AlbumUpsertOptions = {
   id: string;

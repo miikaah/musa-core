@@ -33,16 +33,29 @@ export const initDb = (libraryPath: string): void => {
   audioDb.loadDatabase();
 
   const albumDbFile = `${isDev ? ".dev" : ""}.musa.album.v1.db`;
-  albumDb = new Datastore({
+  albumDb = new Datastore<DbAlbum>({
     filename: path.join(libraryPath, albumDbFile),
   });
   albumDb.loadDatabase();
 
   const themeDbFile = `${isDev ? ".dev" : ""}.musa.theme.v2.db`;
-  themeDb = new Datastore({
+  themeDb = new Datastore<DbTheme>({
     filename: path.join(libraryPath, themeDbFile),
   });
   themeDb.loadDatabase();
+};
+
+export const initTestDb = () => {
+  libPath = "db-tests";
+
+  audioDb = new Datastore<DbAudio>();
+  audioDb.loadDatabase();
+  albumDb = new Datastore<DbAlbum>();
+  albumDb.loadDatabase();
+  themeDb = new Datastore<DbTheme>();
+  themeDb.loadDatabase();
+
+  return { audioDb, albumDb, themeDb };
 };
 
 export const insertAudio = async (file: { id: string; filename: string }): Promise<void> => {
@@ -52,7 +65,7 @@ export const insertAudio = async (file: { id: string; filename: string }): Promi
   const { id, filename } = file;
   const metadata = await getMetadata(libPath, { id, quiet: true });
 
-  audioDb.insert({
+  await audioDb.insertAsync({
     path_id: id,
     modified_at: new Date().toISOString(),
     filename,
@@ -103,95 +116,16 @@ export const upsertAudio = async (file: {
   }
 };
 
-export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
-  if (!file) {
-    return;
-  }
-  const { id, album } = file;
-  const albumAudioIds = album.files.map(({ id }) => id);
-  const dbAlbum = await getAlbum(id);
-  const dbAlbumAudios = await getAudiosByIds(albumAudioIds);
-  const modifiedAts = dbAlbumAudios.map(({ modified_at }) => new Date(modified_at).getTime());
-  const lastModificationTime = Math.max(...modifiedAts);
-  const dbAlbumAudio = dbAlbumAudios[0];
-
-  if (!dbAlbumAudio) {
-    return;
-  }
-
-  const metadata = buildAlbumMetadata(dbAlbumAudio.metadata);
-  if (!dbAlbum) {
-    albumDb.insert({
-      path_id: id,
-      modified_at: new Date().toISOString(),
-      filename: album.name,
-      metadata,
-    });
-  } else if (new Date(dbAlbum.modified_at).getTime() < lastModificationTime) {
-    console.log(
-      "Updating album",
-      album.name,
-      "because it was modified at",
-      new Date(lastModificationTime).toISOString()
-    );
-    albumDb.update(
-      { path_id: id },
-      {
-        modified_at: new Date().toISOString(),
-        filename: album.name,
-        metadata,
-      }
-    );
-  }
-};
-
-const buildAlbumMetadata = (metadata: Metadata) => {
-  const { year, album, artists, artist, albumArtist, genre, dynamicRangeAlbum } = metadata;
-  return {
-    year,
-    album,
-    artists,
-    artist,
-    albumArtist,
-    genre,
-    dynamicRangeAlbum,
-  };
-};
-
 export const getAudio = async (id: string): Promise<DbAudio> => {
-  return new Promise((resolve, reject) => {
-    audioDb.findOne({ path_id: id }, (err, audio) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(audio);
-      }
-    });
-  });
+  return audioDb.findOneAsync({ path_id: id });
 };
 
 export const getAllAudios = async (): Promise<DbAudio[]> => {
-  return new Promise((resolve, reject) => {
-    audioDb.find({}, (err: unknown, audios: DbAudio[]) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(audios);
-      }
-    });
-  });
+  return audioDb.findAsync({});
 };
 
 export const getAudiosByIds = async (ids: string[]): Promise<DbAudio[]> => {
-  return new Promise((resolve, reject) => {
-    audioDb.find({ path_id: { $in: ids } }, (err: unknown, audios: DbAudio[]) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(audios);
-      }
-    });
-  });
+  return audioDb.findAsync({ path_id: { $in: ids } });
 };
 
 export const findAudios = async (
@@ -274,16 +208,63 @@ export const findAudiosByMetadataAndFilename = async (
   return Array.from(foundAudios.values());
 };
 
-export const getAlbum = async (id: string): Promise<DbAlbum> => {
-  return new Promise((resolve, reject) => {
-    albumDb.findOne({ path_id: id }, (err, album) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(album);
-      }
+export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
+  if (!file) {
+    return;
+  }
+  const { id, album } = file;
+  const albumAudioIds = album.files.map(({ id }) => id);
+  const dbAlbum = await getAlbum(id);
+  const dbAlbumAudios = await getAudiosByIds(albumAudioIds);
+  const modifiedAts = dbAlbumAudios.map(({ modified_at }) => new Date(modified_at).getTime());
+  const lastModificationTime = Math.max(...modifiedAts);
+  const dbAlbumAudio = dbAlbumAudios[0];
+
+  if (!dbAlbumAudio) {
+    return;
+  }
+
+  const metadata = buildAlbumMetadata(dbAlbumAudio.metadata);
+  if (!dbAlbum) {
+    albumDb.insert({
+      path_id: id,
+      modified_at: new Date().toISOString(),
+      filename: album.name,
+      metadata,
     });
-  });
+  } else if (new Date(dbAlbum.modified_at).getTime() < lastModificationTime) {
+    console.log(
+      "Updating album",
+      album.name,
+      "because it was modified at",
+      new Date(lastModificationTime).toISOString()
+    );
+    albumDb.update(
+      { path_id: id },
+      {
+        modified_at: new Date().toISOString(),
+        filename: album.name,
+        metadata,
+      }
+    );
+  }
+};
+
+const buildAlbumMetadata = (metadata: Metadata) => {
+  const { year, album, artists, artist, albumArtist, genre, dynamicRangeAlbum } = metadata;
+  return {
+    year,
+    album,
+    artists,
+    artist,
+    albumArtist,
+    genre,
+    dynamicRangeAlbum,
+  };
+};
+
+export const getAlbum = async (id: string): Promise<DbAlbum> => {
+  return albumDb.findOneAsync({ path_id: id });
 };
 
 export const enrichAlbums = async (
@@ -349,65 +330,23 @@ export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedA
 };
 
 export const getAllThemes = async (): Promise<DbTheme[]> => {
-  return new Promise((resolve, reject) => {
-    themeDb.find({}, (err: unknown, themes: DbTheme[]) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(themes);
-      }
-    });
-  });
+  return themeDb.findAsync({});
 };
 
 export const getTheme = async (id: string): Promise<DbTheme | undefined> => {
-  return new Promise((resolve, reject) => {
-    themeDb.findOne({ path_id: id }, (err, theme) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(theme);
-      }
-    });
-  });
+  return themeDb.findOneAsync({ path_id: id });
 };
 
 export const insertTheme = async (id: string, colors: unknown): Promise<DbTheme> => {
-  const filename = UrlSafeBase64.decode(id);
-
-  return new Promise((resolve, reject) => {
-    themeDb.insert(
-      {
-        _id: id,
-        path_id: id,
-        modified_at: new Date().toISOString(),
-        filename,
-        colors,
-      },
-      (err, newTheme) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve(newTheme);
-        }
-      }
-    );
+  return themeDb.insertAsync({
+    _id: id,
+    path_id: id,
+    modified_at: new Date().toISOString(),
+    filename: UrlSafeBase64.decode(id),
+    colors,
   });
 };
 
-export const removeTheme = async (id: string): Promise<void> => {
-  return new Promise((resolve, reject) => {
-    themeDb.remove(
-      {
-        _id: id,
-      },
-      (err) => {
-        if (err) {
-          reject(err);
-        } else {
-          resolve();
-        }
-      }
-    );
-  });
+export const removeTheme = async (id: string): Promise<number> => {
+  return themeDb.removeAsync({ _id: id }, {});
 };
