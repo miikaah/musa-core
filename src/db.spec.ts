@@ -5,6 +5,7 @@ import {
   getAudio,
   getAllAudios,
   getAudiosByIds,
+  upsertAlbum,
   getAlbum,
   insertTheme,
   getAllThemes,
@@ -14,6 +15,7 @@ import {
 import UrlSafeBase64 from "./urlsafe-base64";
 import { parsedMetadataFixture } from "../fixtures/metadata.fixture";
 import { themeFixture } from "../fixtures/theme.fixture";
+import { albumFixture } from "../fixtures/album.fixture";
 
 jest.mock("./metadata");
 (getMetadata as jest.MockedFunction<typeof getMetadata>).mockResolvedValue(parsedMetadataFixture);
@@ -28,6 +30,8 @@ describe("DB tests", () => {
   let audioDbFindOneSpy: jest.SpyInstance;
   let audioDbFindSpy: jest.SpyInstance;
   let albumDbFindOneSpy: jest.SpyInstance;
+  let albumDbInsertSpy: jest.SpyInstance;
+  let albumDbUpdateSpy: jest.SpyInstance;
   let themeDbInsertSpy: jest.SpyInstance;
   let themeDbFindSpy: jest.SpyInstance;
   let themeDbFindOneSpy: jest.SpyInstance;
@@ -39,6 +43,8 @@ describe("DB tests", () => {
     audioDbFindOneSpy = jest.spyOn(testDbs.audioDb, "findOneAsync");
     audioDbFindSpy = jest.spyOn(testDbs.audioDb, "findAsync");
     albumDbFindOneSpy = jest.spyOn(testDbs.albumDb, "findOneAsync");
+    albumDbInsertSpy = jest.spyOn(testDbs.albumDb, "insertAsync");
+    albumDbUpdateSpy = jest.spyOn(testDbs.albumDb, "updateAsync");
     themeDbInsertSpy = jest.spyOn(testDbs.themeDb, "insertAsync");
     themeDbFindSpy = jest.spyOn(testDbs.themeDb, "findAsync");
     themeDbFindOneSpy = jest.spyOn(testDbs.themeDb, "findOneAsync");
@@ -151,15 +157,83 @@ describe("DB tests", () => {
   });
 
   describe("Album", () => {
-    // TODO: Proper test once there is a test for upsert
+    const id = "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lh";
+    const album = {
+      name: albumFixture.name,
+      files: albumFixture.files,
+    };
+    const expectedAlbum = {
+      filename: album.name,
+      metadata: {
+        album: "Ambiance",
+        albumArtist: undefined,
+        artist: "Miika Henttonen",
+        artists: ["Miika Henttonen"],
+        dynamicRangeAlbum: undefined,
+        genre: undefined,
+        year: 2017,
+      },
+      modified_at: expect.any(String),
+      path_id: id,
+    };
+
+    describe("upsertAlbum()", () => {
+      it("should insert album", async () => {
+        albumDbFindOneSpy.mockResolvedValueOnce(null);
+
+        await upsertAlbum({ id, album });
+
+        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
+        expect(albumDbInsertSpy).toHaveBeenCalledTimes(1);
+        expect(albumDbInsertSpy).toHaveBeenCalledWith(expectedAlbum);
+      });
+
+      it("should update album", async () => {
+        audioDbFindSpy.mockResolvedValueOnce([
+          {
+            filename: "foo",
+            metadata: parsedMetadataFixture,
+            modified_at: new Date().toISOString(),
+            path_id: id,
+          },
+        ]);
+
+        await upsertAlbum({ id, album });
+
+        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
+        expect(albumDbUpdateSpy).toHaveBeenCalledTimes(1);
+        expect(albumDbUpdateSpy).toHaveBeenCalledWith({ path_id: id }, expectedAlbum);
+      });
+
+      it("should early return if file is not passed in", async () => {
+        await upsertAlbum(<any>undefined);
+
+        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(0);
+        expect(albumDbInsertSpy).toHaveBeenCalledTimes(0);
+        expect(albumDbUpdateSpy).toHaveBeenCalledTimes(0);
+      });
+
+      it("should early return if album has 0 files", async () => {
+        audioDbFindSpy.mockResolvedValueOnce([]);
+
+        await upsertAlbum({ id, album });
+
+        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
+        expect(albumDbInsertSpy).toHaveBeenCalledTimes(0);
+        expect(albumDbUpdateSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+
     describe("getAlbum()", () => {
       it("should get album", async () => {
-        const id = "foo";
         const album = await getAlbum(id);
 
-        expect(album).toEqual(null);
+        expect(album).toEqual({
+          _id: expect.any(String),
+          ...expectedAlbum,
+        });
         expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
-        expect(albumDbFindOneSpy).toHaveBeenCalledWith({ path_id: "foo" });
+        expect(albumDbFindOneSpy).toHaveBeenCalledWith({ path_id: id });
       });
     });
   });

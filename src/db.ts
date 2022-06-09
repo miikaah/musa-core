@@ -225,13 +225,15 @@ export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
   }
 
   const metadata = buildAlbumMetadata(dbAlbumAudio.metadata);
+  const albumToUpsert = {
+    path_id: id,
+    modified_at: new Date().toISOString(),
+    filename: album.name,
+    metadata,
+  };
+
   if (!dbAlbum) {
-    albumDb.insert({
-      path_id: id,
-      modified_at: new Date().toISOString(),
-      filename: album.name,
-      metadata,
-    });
+    await albumDb.insertAsync(albumToUpsert);
   } else if (new Date(dbAlbum.modified_at).getTime() < lastModificationTime) {
     console.log(
       "Updating album",
@@ -239,14 +241,7 @@ export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
       "because it was modified at",
       new Date(lastModificationTime).toISOString()
     );
-    albumDb.update(
-      { path_id: id },
-      {
-        modified_at: new Date().toISOString(),
-        filename: album.name,
-        metadata,
-      }
-    );
+    await albumDb.updateAsync({ path_id: id }, albumToUpsert);
   }
 };
 
@@ -314,7 +309,7 @@ export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedA
       const track = `${diskNo ? `${diskNo}.` : ""}${trackNo.padStart(padLen, "0")}`;
 
       return {
-        id: file?.path_id,
+        id: file?.path_id || "",
         name,
         track,
         url,

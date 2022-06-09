@@ -26,7 +26,7 @@ export type EnrichedAlbum = {
 };
 
 export type EnrichedAlbumFile = {
-  id?: string;
+  id: string;
   name: string;
   track: string;
   url?: string;
