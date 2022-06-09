@@ -1,7 +1,10 @@
+import fs from "fs/promises";
+
 import { getMetadata } from "./metadata";
 import {
   initTestDb,
   insertAudio,
+  upsertAudio,
   getAudio,
   getAllAudios,
   getAudiosByIds,
@@ -23,10 +26,13 @@ jest.mock("./urlsafe-base64");
 (UrlSafeBase64.decode as jest.MockedFunction<typeof UrlSafeBase64.decode>).mockReturnValue(
   "fakedecoded"
 );
+jest.mock("fs/promises");
+(fs.stat as jest.MockedFunction<typeof fs.stat>).mockResolvedValue(<any>{ mtimeMs: Date.now() });
 
 describe("DB tests", () => {
   let testDbs;
   let audioDbInsertSpy: jest.SpyInstance;
+  let audioDbUpdateSpy: jest.SpyInstance;
   let audioDbFindOneSpy: jest.SpyInstance;
   let audioDbFindSpy: jest.SpyInstance;
   let albumDbFindOneSpy: jest.SpyInstance;
@@ -40,6 +46,7 @@ describe("DB tests", () => {
   beforeAll(() => {
     testDbs = initTestDb();
     audioDbInsertSpy = jest.spyOn(testDbs.audioDb, "insertAsync");
+    audioDbUpdateSpy = jest.spyOn(testDbs.audioDb, "updateAsync");
     audioDbFindOneSpy = jest.spyOn(testDbs.audioDb, "findOneAsync");
     audioDbFindSpy = jest.spyOn(testDbs.audioDb, "findAsync");
     albumDbFindOneSpy = jest.spyOn(testDbs.albumDb, "findOneAsync");
@@ -64,18 +71,19 @@ describe("DB tests", () => {
     const id =
       "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz";
     const filename = "foo";
+    const id2 = id + "2";
+    const filename2 = filename + "2";
 
     describe("insertAudio()", () => {
       it("should insert audio", async () => {
         await insertAudio({ id, filename });
-        await insertAudio({ id: id + "2", filename: filename + "2" });
 
-        expect(getMetadata).toHaveBeenCalledTimes(2);
+        expect(getMetadata).toHaveBeenCalledTimes(1);
         expect(getMetadata).toHaveBeenCalledWith("db-tests", {
           id,
           quiet: true,
         });
-        expect(audioDbInsertSpy).toHaveBeenCalledTimes(2);
+        expect(audioDbInsertSpy).toHaveBeenCalledTimes(1);
         expect(audioDbInsertSpy).toHaveBeenCalledWith({
           filename,
           metadata: parsedMetadataFixture,
@@ -89,6 +97,67 @@ describe("DB tests", () => {
 
         expect(getMetadata).toHaveBeenCalledTimes(0);
         expect(audioDbInsertSpy).toHaveBeenCalledTimes(0);
+      });
+    });
+
+    describe("upsertAudio()", () => {
+      it("should insert audio", async () => {
+        await upsertAudio({ id: id2, filename: filename2, quiet: true });
+
+        expect(getMetadata).toHaveBeenCalledTimes(1);
+        expect(getMetadata).toHaveBeenCalledWith("db-tests", {
+          id: id2,
+          quiet: true,
+        });
+        expect(audioDbInsertSpy).toHaveBeenCalledTimes(1);
+        expect(audioDbInsertSpy).toHaveBeenCalledWith({
+          filename: filename2,
+          metadata: parsedMetadataFixture,
+          modified_at: expect.any(String),
+          path_id: id2,
+        });
+      });
+
+      it("should update audio", async () => {
+        (fs.stat as jest.MockedFunction<typeof fs.stat>).mockResolvedValue(<any>{
+          mtimeMs: Date.now(),
+        });
+
+        await upsertAudio({ id: id2, filename: filename2, quiet: true });
+
+        expect(getMetadata).toHaveBeenCalledTimes(1);
+        expect(getMetadata).toHaveBeenCalledWith("db-tests", {
+          id: id2,
+          quiet: true,
+        });
+        expect(audioDbUpdateSpy).toHaveBeenCalledTimes(1);
+        expect(audioDbUpdateSpy).toHaveBeenCalledWith(
+          { path_id: id2 },
+          {
+            $set: {
+              filename: filename2,
+              metadata: parsedMetadataFixture,
+              modified_at: expect.any(String),
+            },
+          }
+        );
+      });
+
+      it("should not update audio if it has not been modified", async () => {
+        await upsertAudio({ id: id2, filename: filename2, quiet: true });
+
+        expect(getMetadata).toHaveBeenCalledTimes(0);
+        expect(audioDbUpdateSpy).toHaveBeenCalledTimes(0);
+        expect(audioDbInsertSpy).toHaveBeenCalledTimes(0);
+      });
+
+      it("should early return if file is incompatible", async () => {
+        await upsertAudio(<any>{});
+
+        expect(audioDbFindOneSpy).toHaveBeenCalledTimes(0);
+        expect(getMetadata).toHaveBeenCalledTimes(0);
+        expect(audioDbInsertSpy).toHaveBeenCalledTimes(0);
+        expect(audioDbUpdateSpy).toHaveBeenCalledTimes(0);
       });
     });
 
@@ -203,6 +272,23 @@ describe("DB tests", () => {
         expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
         expect(albumDbUpdateSpy).toHaveBeenCalledTimes(1);
         expect(albumDbUpdateSpy).toHaveBeenCalledWith({ path_id: id }, expectedAlbum);
+      });
+
+      it("should not update album if it has not been modified", async () => {
+        audioDbFindSpy.mockResolvedValueOnce([
+          {
+            filename: "foo",
+            metadata: parsedMetadataFixture,
+            modified_at: "2022-06-08T12:23:40.520Z",
+            path_id: id,
+          },
+        ]);
+
+        await upsertAlbum({ id, album });
+
+        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
+        expect(albumDbInsertSpy).toHaveBeenCalledTimes(0);
+        expect(albumDbUpdateSpy).toHaveBeenCalledTimes(0);
       });
 
       it("should early return if file is not passed in", async () => {

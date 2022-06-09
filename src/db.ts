@@ -93,7 +93,7 @@ export const upsertAudio = async (file: {
     const metadata = await getMetadata(libPath, { id, quiet });
 
     console.log("Inserting audio", id);
-    audioDb.insert({
+    await audioDb.insertAsync({
       path_id: id,
       modified_at: new Date().toISOString(),
       filename,
@@ -103,7 +103,7 @@ export const upsertAudio = async (file: {
     const metadata = await getMetadata(libPath, { id, quiet });
 
     console.log("Updating audio", filename, "because it was modified at", modifiedAt);
-    audioDb.update(
+    await audioDb.updateAsync(
       { path_id: id },
       {
         $set: {
