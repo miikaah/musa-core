@@ -1,7 +1,10 @@
 import fs from "fs/promises";
+import { constants } from "fs";
+import path from "path";
 
 import { getMetadata } from "./metadata";
 import {
+  initDb,
   initTestDb,
   insertAudio,
   upsertAudio,
@@ -10,6 +13,7 @@ import {
   getAudiosByIds,
   upsertAlbum,
   getAlbum,
+  enrichAlbums,
   insertTheme,
   getAllThemes,
   getTheme,
@@ -18,7 +22,10 @@ import {
 import UrlSafeBase64 from "./urlsafe-base64";
 import { parsedMetadataFixture } from "../fixtures/metadata.fixture";
 import { themeFixture } from "../fixtures/theme.fixture";
-import { albumFixture } from "../fixtures/album.fixture";
+import { albumFixture, albumCollectionFixture } from "../fixtures/album.fixture";
+import { artistCollectionFixture } from "../fixtures/artist.fixture";
+import { audioFixture } from "../fixtures/audio.fixture";
+import { enrichedAlbumsFixture } from "../fixtures/db.fixture";
 
 jest.mock("./metadata");
 (getMetadata as jest.MockedFunction<typeof getMetadata>).mockResolvedValue(parsedMetadataFixture);
@@ -26,8 +33,43 @@ jest.mock("./urlsafe-base64");
 (UrlSafeBase64.decode as jest.MockedFunction<typeof UrlSafeBase64.decode>).mockReturnValue(
   "fakedecoded"
 );
-jest.mock("fs/promises");
-(fs.stat as jest.MockedFunction<typeof fs.stat>).mockResolvedValue(<any>{ mtimeMs: Date.now() });
+jest.mock("fs/promises", () => ({
+  ...jest.requireActual("fs/promises"),
+  stat: jest.fn().mockResolvedValue(<any>{
+    mtimeMs: Date.now(),
+  }),
+}));
+
+const libraryPath = "db-test-artifacts";
+const audioDbPath = path.join(process.cwd(), libraryPath, ".musa.audio.v1.db");
+const albumDbPath = path.join(process.cwd(), libraryPath, ".musa.album.v1.db");
+const themeDbPath = path.join(process.cwd(), libraryPath, ".musa.theme.v2.db");
+const fileExists = (file: string) => {
+  return fs.access(file, constants.F_OK).then(
+    () => true,
+    () => false
+  );
+};
+
+describe("DB tests", () => {
+  describe("initDb()", () => {
+    it("should initialize database and write persistent files to disk", async () => {
+      await initDb(libraryPath);
+
+      expect(await fileExists(audioDbPath)).toBe(true);
+      expect(await fileExists(albumDbPath)).toBe(true);
+      expect(await fileExists(themeDbPath)).toBe(true);
+
+      await fs.rm(audioDbPath);
+      await fs.rm(albumDbPath);
+      await fs.rm(themeDbPath);
+
+      expect(await fileExists(audioDbPath)).toBe(false);
+      expect(await fileExists(albumDbPath)).toBe(false);
+      expect(await fileExists(themeDbPath)).toBe(false);
+    });
+  });
+});
 
 describe("DB tests", () => {
   let testDbs;
@@ -43,8 +85,8 @@ describe("DB tests", () => {
   let themeDbFindOneSpy: jest.SpyInstance;
   let themeDbRemoveSpy: jest.SpyInstance;
 
-  beforeAll(() => {
-    testDbs = initTestDb();
+  beforeAll(async () => {
+    testDbs = await initTestDb(libraryPath);
     audioDbInsertSpy = jest.spyOn(testDbs.audioDb, "insertAsync");
     audioDbUpdateSpy = jest.spyOn(testDbs.audioDb, "updateAsync");
     audioDbFindOneSpy = jest.spyOn(testDbs.audioDb, "findOneAsync");
@@ -79,7 +121,7 @@ describe("DB tests", () => {
         await insertAudio({ id, filename });
 
         expect(getMetadata).toHaveBeenCalledTimes(1);
-        expect(getMetadata).toHaveBeenCalledWith("db-tests", {
+        expect(getMetadata).toHaveBeenCalledWith(libraryPath, {
           id,
           quiet: true,
         });
@@ -105,7 +147,7 @@ describe("DB tests", () => {
         await upsertAudio({ id: id2, filename: filename2, quiet: true });
 
         expect(getMetadata).toHaveBeenCalledTimes(1);
-        expect(getMetadata).toHaveBeenCalledWith("db-tests", {
+        expect(getMetadata).toHaveBeenCalledWith(libraryPath, {
           id: id2,
           quiet: true,
         });
@@ -126,7 +168,7 @@ describe("DB tests", () => {
         await upsertAudio({ id: id2, filename: filename2, quiet: true });
 
         expect(getMetadata).toHaveBeenCalledTimes(1);
-        expect(getMetadata).toHaveBeenCalledWith("db-tests", {
+        expect(getMetadata).toHaveBeenCalledWith(libraryPath, {
           id: id2,
           quiet: true,
         });
@@ -320,6 +362,19 @@ describe("DB tests", () => {
         });
         expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
         expect(albumDbFindOneSpy).toHaveBeenCalledWith({ path_id: id });
+      });
+    });
+
+    describe("enrichAlbums()", () => {
+      it("should enrich artist's albums and its files with metadata", async () => {
+        audioDbFindSpy.mockResolvedValueOnce([audioFixture]);
+
+        const albums = await enrichAlbums(
+          albumCollectionFixture,
+          artistCollectionFixture["QWxhbWFhaWxtYW4gdmFzYXJhdA"]
+        );
+
+        expect(albums).toEqual(enrichedAlbumsFixture);
       });
     });
   });

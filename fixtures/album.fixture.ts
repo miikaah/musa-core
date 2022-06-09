@@ -87,7 +87,15 @@ export const albumCollectionFixture: AlbumCollection = {
     artistName: "Alamaailman vasarat",
     artistUrl: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
     name: "Vasaraasia",
-    files: [],
+    files: [
+      {
+        id: "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz",
+        name: "Mamelukki & Musta Leski",
+        url: "http://100.95.164.23:4200/audio/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz",
+        fileUrl:
+          "http://100.95.164.23:4200/file/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz",
+      },
+    ],
     images: [
       {
         id: "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhL1Zhc2FyYWFzaWEuanBn",
@@ -99,5 +107,14 @@ export const albumCollectionFixture: AlbumCollection = {
     ],
     coverUrl:
       "http://100.95.164.23:4200/file/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhL1Zhc2FyYWFzaWEuanBn",
+  },
+  QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YQ: {
+    artistName: "Alamaailman vasarat",
+    artistUrl: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
+    name: "Käärmelautakunta",
+    files: [],
+    images: [],
+    coverUrl:
+      "http://100.95.164.23:4200/file/QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YS9LYcyIYcyIcm1lbGF1dGFrdW50YS5qcGc",
   },
 };

@@ -23,37 +23,38 @@ let audioDb: Datastore<DbAudio>;
 let albumDb: Datastore<DbAlbum>;
 let themeDb: Datastore<DbTheme>;
 let libPath: string;
-export const initDb = (libraryPath: string): void => {
+
+export const initDb = async (libraryPath: string) => {
   libPath = libraryPath;
 
   const audioDbFile = `${isDev ? ".dev" : ""}.musa.audio.v1.db`;
   audioDb = new Datastore<DbAudio>({
     filename: path.join(libraryPath, audioDbFile),
   });
-  audioDb.loadDatabase();
+  await audioDb.loadDatabaseAsync();
 
   const albumDbFile = `${isDev ? ".dev" : ""}.musa.album.v1.db`;
   albumDb = new Datastore<DbAlbum>({
     filename: path.join(libraryPath, albumDbFile),
   });
-  albumDb.loadDatabase();
+  await albumDb.loadDatabaseAsync();
 
   const themeDbFile = `${isDev ? ".dev" : ""}.musa.theme.v2.db`;
   themeDb = new Datastore<DbTheme>({
     filename: path.join(libraryPath, themeDbFile),
   });
-  themeDb.loadDatabase();
+  await themeDb.loadDatabaseAsync();
 };
 
-export const initTestDb = () => {
-  libPath = "db-tests";
+export const initTestDb = async (libraryPath: string) => {
+  libPath = libraryPath;
 
   audioDb = new Datastore<DbAudio>();
-  audioDb.loadDatabase();
+  await audioDb.loadDatabaseAsync();
   albumDb = new Datastore<DbAlbum>();
-  albumDb.loadDatabase();
+  await albumDb.loadDatabaseAsync();
   themeDb = new Datastore<DbTheme>();
-  themeDb.loadDatabase();
+  await themeDb.loadDatabaseAsync();
 
   return { audioDb, albumDb, themeDb };
 };
