@@ -27,7 +27,7 @@ export type CommonMetadata = {
   artists: string[];
   artist: string;
   encodersettings: string;
-  composer: string;
+  composer: string[];
   comment: string[];
   albumartist: string;
   genre: string[];
@@ -67,7 +67,7 @@ export type Metadata = Partial<{
   artists: string[];
   artist: string;
   encoderSettings: string;
-  composer: string;
+  composer: string[];
   albumArtist: string;
   genre: string[];
   dynamicRange: string;
