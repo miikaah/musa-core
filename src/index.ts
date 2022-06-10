@@ -55,7 +55,7 @@ export type { Metadata } from "./metadata.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
 export type { State } from "./fs-state.types";
 export type { AlbumWithFilesAndMetadata } from "./api/album.types";
-export type { Artist } from "./api/artist.types";
+export type { Artist, ArtistWithEnrichedAlbums } from "./api/artist.types";
 export type { AudioWithMetadata } from "./api/audio.types";
 export type { FindResult } from "./api/find.types";
 export type { Theme } from "./api/theme.types";
