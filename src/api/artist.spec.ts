@@ -12,7 +12,9 @@ import { albumCollectionFixture } from "../../fixtures/album.fixture";
 
 jest.mock("../db");
 (getAudio as jest.MockedFunction<typeof getAudio>).mockResolvedValue(audioDbFixture);
-(enrichAlbums as jest.MockedFunction<typeof enrichAlbums>).mockResolvedValue(artistFixture.albums);
+(enrichAlbums as jest.MockedFunction<typeof enrichAlbums>).mockResolvedValue(
+  artistAlbumsFixture.albums
+);
 
 // @ts-expect-error it ain't read-only silly
 Scanner.artistObject = artistObjectFixture;

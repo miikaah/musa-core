@@ -10,5 +10,9 @@ export type ArtistAlbum = {
 };
 
 export type Artist = Omit<ArtistWithAlbums, "albums"> & {
+  albums: ArtistAlbum[];
+};
+
+export type ArtistWithEnrichedAlbums = Omit<ArtistWithAlbums, "albums"> & {
   albums: EnrichedAlbum[];
 };

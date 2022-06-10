@@ -1,4 +1,4 @@
-import { Artist } from "../src/api/artist.types";
+import { Artist, ArtistWithEnrichedAlbums } from "../src/api/artist.types";
 import { ArtistObject, ArtistCollection } from "../src/media-separator.types";
 
 export const artistObjectFixture: ArtistObject = {
@@ -65,7 +65,7 @@ export const artistFixture: Artist = {
   url: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
 };
 
-export const artistAlbumsFixture: Artist = {
+export const artistAlbumsFixture: ArtistWithEnrichedAlbums = {
   albums: [
     {
       coverUrl:
@@ -74,6 +74,7 @@ export const artistAlbumsFixture: Artist = {
       name: "Käärmelautakunta",
       url: "http://100.95.164.23:4200/album/QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YQ",
       year: null,
+      files: [],
     },
     {
       coverUrl:
@@ -82,6 +83,7 @@ export const artistAlbumsFixture: Artist = {
       name: "Vasaraasia",
       url: "http://100.95.164.23:4200/album/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lh",
       year: 2000,
+      files: [],
     },
   ],
   files: [],

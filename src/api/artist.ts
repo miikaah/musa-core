@@ -2,7 +2,7 @@ import { getAudio, enrichAlbums } from "../db";
 import { artistCollection, albumCollection, artistObject } from "../scanner";
 
 import { ArtistObject } from "../media-separator.types";
-import { ArtistAlbum, Artist } from "./artist.types";
+import { ArtistAlbum, Artist, ArtistWithEnrichedAlbums } from "./artist.types";
 
 export const getArtists = async (): Promise<ArtistObject> => {
   return artistObject;
@@ -17,7 +17,7 @@ export const getArtistById = async (id: string): Promise<Artist | Record<string,
     return {};
   }
 
-  const albums: ArtistAlbum[] = await Promise.all(
+  const albums = await Promise.all(
     artist.albums.map(async ({ id, name, url, coverUrl, firstAlbumAudio }) => {
       let year = null;
       let albumName = null;
@@ -45,7 +45,9 @@ export const getArtistById = async (id: string): Promise<Artist | Record<string,
   };
 };
 
-export const getArtistAlbums = async (id: string): Promise<Artist | Record<string, never>> => {
+export const getArtistAlbums = async (
+  id: string
+): Promise<ArtistWithEnrichedAlbums | Record<string, never>> => {
   const artist = artistCollection[id];
 
   if (!artist) {

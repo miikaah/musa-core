@@ -23,6 +23,7 @@ export type EnrichedAlbum = {
   url: string;
   coverUrl?: string;
   year?: number | null;
+  files: EnrichedAlbumFile[];
 };
 
 export type EnrichedAlbumFile = {
