@@ -57,6 +57,7 @@ export const albumFixture: AlbumWithFilesAndMetadata = {
         sampleRate: 44100,
         dynamicRange: "9",
         dynamicRangeAlbum: "10",
+        comment: ["asd"],
       },
     },
   ],
