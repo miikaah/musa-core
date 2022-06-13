@@ -2,7 +2,9 @@ import path from "path";
 
 import {
   mediaCollectionWin32Fixture,
-  mediaSeparatorElectronWin32Fixture,
+  mediaCollectionDarwinFixture,
+  mediaCollectionElectronWin32Fixture,
+  mediaCollectionElectronDarwinFixture,
 } from "../fixtures/media-separator.fixture";
 import { createMediaCollection } from "./media-separator";
 
@@ -21,15 +23,22 @@ describe("Media Separator", () => {
           mediaCollectionWin32Fixture
         );
       } else {
-        // TODO: put to fixture
-        expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toEqual(undefined);
+        expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toEqual(
+          mediaCollectionDarwinFixture
+        );
       }
     });
 
     it("should separate files to collections for Electron", async () => {
-      expect(
-        createMediaCollection({ files: fixture, baseUrl: "baseurl", isElectron: true })
-      ).toEqual(mediaSeparatorElectronWin32Fixture);
+      if (process.platform === "win32") {
+        expect(
+          createMediaCollection({ files: fixture, baseUrl: "baseurl", isElectron: true })
+        ).toEqual(mediaCollectionElectronWin32Fixture);
+      } else {
+        expect(
+          createMediaCollection({ files: fixture, baseUrl: "baseurl", isElectron: true })
+        ).toEqual(mediaCollectionElectronDarwinFixture);
+      }
     });
   });
 });
