@@ -1,22 +1,35 @@
+import path from "path";
+
+import {
+  mediaCollectionWin32Fixture,
+  mediaSeparatorElectronWin32Fixture,
+} from "../fixtures/media-separator.fixture";
 import { createMediaCollection } from "./media-separator";
 
 const fixture = [
-  "artist/album/cover.JPG",
-  "artist/album/song.mp3",
-  "artist/image.PNG",
-  "artist/song.mp3",
+  path.join("artist", "album", "cover.JPG"),
+  path.join("artist", "album", "song.mp3"),
+  path.join("artist", "image.PNG"),
+  path.join("artist", "song.mp3"),
 ];
 
 describe("Media Separator", () => {
   describe("createMediaCollection()", () => {
     it("should separate files to collections", async () => {
-      expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toMatchSnapshot();
+      if (process.platform === "win32") {
+        expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toEqual(
+          mediaCollectionWin32Fixture
+        );
+      } else {
+        // TODO: put to fixture
+        expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toEqual(undefined);
+      }
     });
 
     it("should separate files to collections for Electron", async () => {
       expect(
         createMediaCollection({ files: fixture, baseUrl: "baseurl", isElectron: true })
-      ).toMatchSnapshot();
+      ).toEqual(mediaSeparatorElectronWin32Fixture);
     });
   });
 });
