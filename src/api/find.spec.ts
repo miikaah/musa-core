@@ -13,13 +13,12 @@ jest.mock("./audio");
 (getAudioById as jest.MockedFunction<typeof getAudioById>).mockResolvedValue(audioFixture);
 
 const artistId = "QWxhbWFhaWxtYW4gdmFzYXJhdA";
-const albumId = "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lh";
 const audioId =
   "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz";
 // @ts-expect-error it ain't read-only silly
 Scanner.artistsForFind = [{ ...artistCollectionFixture[artistId], id: artistId }];
 // @ts-expect-error it ain't read-only silly
-Scanner.albumsForFind = [{ ...albumCollectionFixture[albumId], id: albumId }];
+Scanner.albumsForFind = Object.entries(albumCollectionFixture).map(([k, v]) => ({ id: k, ...v }));
 // @ts-expect-error it ain't read-only silly
 Scanner.audiosForFind = [{ ...audioCollectionFixture[audioId], id: audioId }];
 // @ts-expect-error it ain't read-only silly
