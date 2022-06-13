@@ -1,10 +1,12 @@
-import { sep } from "path";
+import path from "path";
+import fs from "fs/promises";
 
 import { traverseFileSystem, audioExts } from "./fs";
 import { createMediaCollection } from "./media-separator";
 import UrlSafeBase64 from "./urlsafe-base64";
 import * as Db from "./db";
 
+import { AlbumUpsertOptions } from "./db.types";
 import {
   ArtistsForFind,
   AlbumsForFind,
@@ -133,14 +135,14 @@ export const update = async ({
   }
 
   const start = Date.now();
-  const audios = await Db.getAllAudios();
-  const audioIdsInDb = audios.map((a) => a.path_id);
+  let audios = await Db.getAllAudios();
+  let audioIdsInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
   const cleanFiles = files.filter((file) =>
     audioExts.some((ext) => file.toLowerCase().endsWith(ext))
   );
   const filesWithIds = cleanFiles.map((file) => ({
     id: UrlSafeBase64.encode(file),
-    filename: file.split(sep).pop() || "",
+    filename: file.split(path.sep).pop() || "",
   }));
   const albums = Object.entries(albumCollection).map(([id, album]) => ({
     id,
@@ -148,11 +150,11 @@ export const update = async ({
   }));
 
   const filesToInsert = [];
-  const filesToUpdate = [];
+  const filesToCheck = [];
 
   for (const file of filesWithIds) {
-    if (audioIdsInDb.includes(file.id)) {
-      filesToUpdate.push(file);
+    if (audioIdsInDb.find(({ id }) => id === file.id)) {
+      filesToCheck.push(file);
     } else {
       filesToInsert.push(file);
     }
@@ -161,7 +163,7 @@ export const update = async ({
   console.log("Scanning file system audio files");
   console.log("----------------------");
   console.log(`Audios to insert: ${filesToInsert.length}`);
-  console.log(`Audios to update: ${filesToUpdate.length}`);
+  console.log(`Audios to update: ${filesToCheck.length}`);
   console.log(`Albums to update: ${albums.length}`);
   console.log("----------------------");
 
@@ -174,14 +176,9 @@ export const update = async ({
   }
 
   const startInsert = Date.now();
-  for (let i = 0; i < filesToInsert.length; i += 4) {
+  for (let i = 0; i < filesToInsert.length; i++) {
     try {
-      await Promise.all([
-        Db.insertAudio(filesToInsert[i]),
-        Db.insertAudio(filesToInsert[i + 1]),
-        Db.insertAudio(filesToInsert[i + 2]),
-        Db.insertAudio(filesToInsert[i + 3]),
-      ]);
+      await Db.insertAudio(filesToInsert[i]);
 
       if (process.stdout.clearLine) {
         process.stdout.clearLine(0);
@@ -215,41 +212,47 @@ export const update = async ({
 
   if (event) {
     event.sender.send("musa:scan:end");
-    event.sender.send("musa:scan:start", filesToUpdate.length, scanColor?.UPDATE || "#f00");
+    event.sender.send("musa:scan:start", filesToCheck.length, scanColor?.UPDATE || "#f00");
   }
 
   const startUpdate = Date.now();
-  for (let i = 0; i < filesToUpdate.length; i += 4) {
-    try {
-      await Promise.all([
-        Db.upsertAudio({
-          ...filesToUpdate[i],
-          quiet: true,
-        }),
-        Db.upsertAudio({
-          ...filesToUpdate[i + 1],
-          quiet: true,
-        }),
-        Db.upsertAudio({
-          ...filesToUpdate[i + 2],
-          quiet: true,
-        }),
-        Db.upsertAudio({
-          ...filesToUpdate[i + 3],
-          quiet: true,
-        }),
-      ]);
+  try {
+    const filesToUpdate = (
+      await Promise.all(
+        filesToCheck.map(async ({ id, filename }, i) => {
+          const { mtimeMs } = await fs.stat(
+            path.join(process.env.MUSA_SRC_PATH || "", UrlSafeBase64.decode(id))
+          );
+          const audioInDb = audioIdsInDb.find((a) => id === a.id);
+
+          if (!audioInDb) {
+            return;
+          }
+
+          if (event) {
+            event.sender.send("musa:scan:update", i);
+          }
+
+          if (Math.trunc(mtimeMs) > new Date(audioInDb.modifiedAt).getTime()) {
+            return { id, filename, modifiedAt: new Date(mtimeMs) };
+          }
+        })
+      )
+    ).filter(Boolean) as unknown as { id: string; filename: string; modifiedAt: Date }[];
+
+    for (let i = 0; i < filesToUpdate.length; i++) {
+      await Db.updateAudio(filesToUpdate[i]);
 
       if (event) {
         event.sender.send("musa:scan:update", i);
       }
-    } catch (err) {
-      console.error(err);
     }
+  } catch (error) {
+    console.error(error);
   }
   const timeForUpdateSec = (Date.now() - startUpdate) / 1000;
   const updatesPerSecond =
-    timeForUpdateSec > 0 ? Math.floor(filesToUpdate.length / timeForUpdateSec) : 0;
+    timeForUpdateSec > 0 ? Math.floor(filesToCheck.length / timeForUpdateSec) : 0;
   console.log(`Audio updates took: ${timeForUpdateSec} seconds`);
   console.log(`${updatesPerSecond} updates per second\n`);
 
@@ -259,14 +262,40 @@ export const update = async ({
   }
 
   const startAlbumUpdate = Date.now();
-  for (let i = 0; i < albums.length; i += 4) {
+  audios = await Db.getAllAudios();
+  audioIdsInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
+  const allAlbums = await Db.getAlbums();
+  const albumsToUpdate = (
+    await Promise.all(
+      albums.map((a) => {
+        const album = a.album;
+        const albumAudioIds = album.files.map(({ id }) => id);
+        const dbAlbumAudios = audioIdsInDb.filter(({ id }) => albumAudioIds.includes(id));
+        const modifiedAts = dbAlbumAudios.map(({ modifiedAt }) => new Date(modifiedAt).getTime());
+        const lastModificationTime = Math.max(...modifiedAts);
+
+        const a2 = allAlbums.find(({ path_id: id }) => id === a.id);
+
+        if (!a2) {
+          if (a.album.files.length) {
+            return a;
+          } else {
+            console.log("Empty album", a);
+            return;
+          }
+        }
+
+        if (lastModificationTime > new Date(a2.modified_at).getTime()) {
+          return a;
+        }
+      })
+    )
+  ).filter(Boolean) as unknown as AlbumUpsertOptions[];
+
+  console.log("albumsToUpdate", albumsToUpdate);
+  for (let i = 0; i < albumsToUpdate.length; i++) {
     try {
-      await Promise.all([
-        Db.upsertAlbum(albums[i]),
-        Db.upsertAlbum(albums[i + 1]),
-        Db.upsertAlbum(albums[i + 2]),
-        Db.upsertAlbum(albums[i + 3]),
-      ]);
+      await Db.upsertAlbumV2(albumsToUpdate[i]);
 
       if (event) {
         event.sender.send("musa:scan:update", i);

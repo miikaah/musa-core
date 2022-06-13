@@ -85,8 +85,7 @@ export const upsertAudio = async (file: {
     return;
   }
 
-  const filepath = path.join(libPath, UrlSafeBase64.decode(id));
-  const stats = await fs.stat(filepath);
+  const stats = await fs.stat(path.join(libPath, UrlSafeBase64.decode(id)));
   const modifiedAt = new Date(stats.mtimeMs);
   const dbAudio = await getAudio(id);
 
@@ -115,6 +114,31 @@ export const upsertAudio = async (file: {
       }
     );
   }
+};
+
+export const updateAudio = async (file: {
+  id: string;
+  filename: string;
+  modifiedAt: Date;
+}): Promise<void> => {
+  if (!file) {
+    return;
+  }
+
+  const { id, filename, modifiedAt } = file;
+  const metadata = await getMetadata(libPath, { id, quiet: true });
+
+  console.log("Updating audio", filename, "because it was modified at", modifiedAt);
+  await audioDb.updateAsync(
+    { path_id: id },
+    {
+      $set: {
+        modified_at: modifiedAt.toISOString(),
+        filename,
+        metadata,
+      },
+    }
+  );
 };
 
 export const getAudio = async (id: string): Promise<DbAudio> => {
@@ -246,6 +270,28 @@ export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
   }
 };
 
+export const upsertAlbumV2 = async (file: AlbumUpsertOptions): Promise<void> => {
+  if (!file) {
+    return;
+  }
+  const { id, album } = file;
+  const dbAlbumAudio = await getAudio(album.files[0].id);
+
+  if (!dbAlbumAudio) {
+    return;
+  }
+
+  const metadata = buildAlbumMetadata(dbAlbumAudio.metadata);
+  const albumToUpsert = {
+    path_id: id,
+    modified_at: new Date().toISOString(),
+    filename: album.name,
+    metadata,
+  };
+
+  await albumDb.updateAsync({ path_id: id }, albumToUpsert, { upsert: true });
+};
+
 const buildAlbumMetadata = (metadata: Metadata) => {
   const { year, album, artists, artist, albumArtist, genre, dynamicRangeAlbum } = metadata;
   return {
@@ -261,6 +307,10 @@ const buildAlbumMetadata = (metadata: Metadata) => {
 
 export const getAlbum = async (id: string): Promise<DbAlbum> => {
   return albumDb.findOneAsync({ path_id: id });
+};
+
+export const getAlbums = async (): Promise<DbAlbum[]> => {
+  return albumDb.findAsync({});
 };
 
 export const enrichAlbums = async (
