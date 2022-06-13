@@ -1,3 +1,5 @@
+import path from "path";
+
 import { traverseFileSystem } from "./fs";
 
 describe("fs", () => {
@@ -6,10 +8,10 @@ describe("fs", () => {
       const files = await traverseFileSystem(`${process.cwd()}/fixtures`);
 
       expect(files).toEqual([
-        "artist/album/cover.JPG",
-        "artist/album/song.mp3",
-        "artist/image.PNG",
-        "artist/song.mp3",
+        path.join("artist", "album", "cover.JPG"),
+        path.join("artist", "album", "song.mp3"),
+        path.join("artist", "image.PNG"),
+        path.join("artist", "song.mp3"),
       ]);
     });
   });
