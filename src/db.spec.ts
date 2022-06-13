@@ -304,7 +304,7 @@ describe("DB tests", () => {
           {
             filename: "foo",
             metadata: parsedMetadataFixture,
-            modified_at: new Date().toISOString(),
+            modified_at: new Date(Date.now() + 10000).toISOString(),
             path_id: id,
           },
         ]);
