@@ -61,6 +61,7 @@ export const refresh = async ({
 }): Promise<void> => {
   await init({ musicLibraryPath, baseUrl, isElectron });
   await update({
+    musicLibraryPath,
     event,
     scanColor,
   });
@@ -120,9 +121,11 @@ export const init = async ({
 };
 
 export const update = async ({
+  musicLibraryPath,
   event,
   scanColor,
 }: {
+  musicLibraryPath: string;
   event?: IpcMainEvent;
   scanColor?: { INSERT: string; UPDATE: string; ALBUM_UPDATE: string };
 }): Promise<void> => {
@@ -176,9 +179,16 @@ export const update = async ({
   }
 
   const startInsert = Date.now();
-  for (let i = 0; i < filesToInsert.length; i++) {
+  for (let i = 0; i < filesToInsert.length; i += 4) {
     try {
-      await Db.insertAudio(filesToInsert[i]);
+      // I don't know why but this concurrency speeds up the inserts
+      // compared to a single awaited promise and it doesn't lock up the thread even
+      await Promise.all([
+        Db.insertAudio(filesToInsert[i]),
+        Db.insertAudio(filesToInsert[i + 1]),
+        Db.insertAudio(filesToInsert[i + 2]),
+        Db.insertAudio(filesToInsert[i + 3]),
+      ]);
 
       if (process.stdout.clearLine) {
         process.stdout.clearLine(0);
@@ -212,17 +222,16 @@ export const update = async ({
 
   if (event) {
     event.sender.send("musa:scan:end");
-    event.sender.send("musa:scan:start", filesToCheck.length, scanColor?.UPDATE || "#f00");
+    event.sender.send("musa:scan:start", filesToCheck.length, scanColor?.UPDATE || "#ff0");
   }
 
   const startUpdate = Date.now();
-  try {
-    const filesToUpdate = (
-      await Promise.all(
-        filesToCheck.map(async ({ id, filename }, i) => {
-          const { mtimeMs } = await fs.stat(
-            path.join(process.env.MUSA_SRC_PATH || "", UrlSafeBase64.decode(id))
-          );
+  // TODO: Locks up the thread a little
+  const filesToUpdate = (
+    await Promise.all(
+      filesToCheck.map(async ({ id, filename }, i) => {
+        try {
+          const { mtimeMs } = await fs.stat(path.join(musicLibraryPath, UrlSafeBase64.decode(id)));
           const audioInDb = audioIdsInDb.find((a) => id === a.id);
 
           if (!audioInDb) {
@@ -236,20 +245,21 @@ export const update = async ({
           if (Math.trunc(mtimeMs) > new Date(audioInDb.modifiedAt).getTime()) {
             return { id, filename, modifiedAt: new Date(mtimeMs) };
           }
-        })
-      )
-    ).filter(Boolean) as unknown as { id: string; filename: string; modifiedAt: Date }[];
+        } catch (error) {
+          console.error(error);
+        }
+      })
+    )
+  ).filter(Boolean) as unknown as { id: string; filename: string; modifiedAt: Date }[];
 
-    for (let i = 0; i < filesToUpdate.length; i++) {
+  for (let i = 0; i < filesToUpdate.length; i++) {
+    try {
       await Db.updateAudio(filesToUpdate[i]);
-
-      if (event) {
-        event.sender.send("musa:scan:update", i);
-      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
   }
+
   const timeForUpdateSec = (Date.now() - startUpdate) / 1000;
   const updatesPerSecond =
     timeForUpdateSec > 0 ? Math.floor(filesToCheck.length / timeForUpdateSec) : 0;
@@ -258,16 +268,17 @@ export const update = async ({
 
   if (event) {
     event.sender.send("musa:scan:end");
-    event.sender.send("musa:scan:start", albums.length, scanColor?.ALBUM_UPDATE || "#f00");
+    event.sender.send("musa:scan:start", albums.length, scanColor?.ALBUM_UPDATE || "#0f0");
   }
 
   const startAlbumUpdate = Date.now();
   audios = await Db.getAllAudios();
   audioIdsInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
   const allAlbums = await Db.getAlbums();
+  // TODO: Locks up the thread a little
   const albumsToUpdate = (
     await Promise.all(
-      albums.map((a) => {
+      albums.map((a, i) => {
         const album = a.album;
         const albumAudioIds = album.files.map(({ id }) => id);
         const dbAlbumAudios = audioIdsInDb.filter(({ id }) => albumAudioIds.includes(id));
@@ -275,6 +286,10 @@ export const update = async ({
         const lastModificationTime = Math.max(...modifiedAts);
 
         const a2 = allAlbums.find(({ path_id: id }) => id === a.id);
+
+        if (event) {
+          event.sender.send("musa:scan:update", i);
+        }
 
         if (!a2) {
           if (a.album.files.length) {
@@ -292,14 +307,9 @@ export const update = async ({
     )
   ).filter(Boolean) as unknown as AlbumUpsertOptions[];
 
-  console.log("albumsToUpdate", albumsToUpdate);
   for (let i = 0; i < albumsToUpdate.length; i++) {
     try {
       await Db.upsertAlbumV2(albumsToUpdate[i]);
-
-      if (event) {
-        event.sender.send("musa:scan:update", i);
-      }
     } catch (err) {
       console.error(err);
     }
