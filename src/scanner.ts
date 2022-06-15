@@ -139,7 +139,7 @@ export const update = async ({
 
   const start = Date.now();
   let audios = await Db.getAllAudios();
-  let audioIdsInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
+  let audiosInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
   const cleanFiles = files.filter((file) =>
     audioExts.some((ext) => file.toLowerCase().endsWith(ext))
   );
@@ -156,7 +156,7 @@ export const update = async ({
   const filesToCheck = [];
 
   for (const file of filesWithIds) {
-    if (audioIdsInDb.find(({ id }) => id === file.id)) {
+    if (audiosInDb.find(({ id }) => id === file.id)) {
       filesToCheck.push(file);
     } else {
       filesToInsert.push(file);
@@ -232,7 +232,7 @@ export const update = async ({
       filesToCheck.map(async ({ id, filename }, i) => {
         try {
           const { mtimeMs } = await fs.stat(path.join(musicLibraryPath, UrlSafeBase64.decode(id)));
-          const audioInDb = audioIdsInDb.find((a) => id === a.id);
+          const audioInDb = audiosInDb.find((a) => id === a.id);
 
           if (!audioInDb) {
             return;
@@ -273,19 +273,18 @@ export const update = async ({
 
   const startAlbumUpdate = Date.now();
   audios = await Db.getAllAudios();
-  audioIdsInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
-  const allAlbums = await Db.getAlbums();
+  audiosInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
+  const albumsInDb = await Db.getAlbums();
   // TODO: Locks up the thread a little
   const albumsToUpdate = (
     await Promise.all(
       albums.map((a, i) => {
         const album = a.album;
         const albumAudioIds = album.files.map(({ id }) => id);
-        const dbAlbumAudios = audioIdsInDb.filter(({ id }) => albumAudioIds.includes(id));
+        const dbAlbumAudios = audiosInDb.filter(({ id }) => albumAudioIds.includes(id));
         const modifiedAts = dbAlbumAudios.map(({ modifiedAt }) => new Date(modifiedAt).getTime());
         const lastModificationTime = Math.max(...modifiedAts);
-
-        const a2 = allAlbums.find(({ path_id: id }) => id === a.id);
+        const a2 = albumsInDb.find(({ path_id: id }) => id === a.id);
 
         if (event) {
           event.sender.send("musa:scan:update", i);
@@ -309,7 +308,7 @@ export const update = async ({
 
   for (let i = 0; i < albumsToUpdate.length; i++) {
     try {
-      await Db.upsertAlbumV2(albumsToUpdate[i]);
+      await Db.upsertAlbum(albumsToUpdate[i]);
     } catch (err) {
       console.error(err);
     }

@@ -1,5 +1,4 @@
 import path from "path";
-import fs from "fs/promises";
 import Datastore from "@seald-io/nedb";
 
 import UrlSafeBase64 from "./urlsafe-base64";
@@ -72,48 +71,6 @@ export const insertAudio = async (file: { id: string; filename: string }): Promi
     filename,
     metadata,
   });
-};
-
-export const upsertAudio = async (file: {
-  id: string;
-  filename: string;
-  quiet: boolean;
-}): Promise<void> => {
-  const { id, filename, quiet = false } = file;
-
-  if (!id || !filename) {
-    return;
-  }
-
-  const stats = await fs.stat(path.join(libPath, UrlSafeBase64.decode(id)));
-  const modifiedAt = new Date(stats.mtimeMs);
-  const dbAudio = await getAudio(id);
-
-  if (!dbAudio) {
-    const metadata = await getMetadata(libPath, { id, quiet });
-
-    console.log("Inserting audio", id);
-    await audioDb.insertAsync({
-      path_id: id,
-      modified_at: new Date().toISOString(),
-      filename,
-      metadata,
-    });
-  } else if (modifiedAt.getTime() > new Date(dbAudio.modified_at).getTime()) {
-    const metadata = await getMetadata(libPath, { id, quiet });
-
-    console.log("Updating audio", filename, "because it was modified at", modifiedAt);
-    await audioDb.updateAsync(
-      { path_id: id },
-      {
-        $set: {
-          modified_at: modifiedAt.toISOString(),
-          filename,
-          metadata,
-        },
-      }
-    );
-  }
 };
 
 export const updateAudio = async (file: {
@@ -234,43 +191,6 @@ export const findAudiosByMetadataAndFilename = async (
 };
 
 export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
-  if (!file) {
-    return;
-  }
-  const { id, album } = file;
-  const albumAudioIds = album.files.map(({ id }) => id);
-  const dbAlbum = await getAlbum(id);
-  const dbAlbumAudios = await getAudiosByIds(albumAudioIds);
-  const modifiedAts = dbAlbumAudios.map(({ modified_at }) => new Date(modified_at).getTime());
-  const lastModificationTime = Math.max(...modifiedAts);
-  const dbAlbumAudio = dbAlbumAudios[0];
-
-  if (!dbAlbumAudio) {
-    return;
-  }
-
-  const metadata = buildAlbumMetadata(dbAlbumAudio.metadata);
-  const albumToUpsert = {
-    path_id: id,
-    modified_at: new Date().toISOString(),
-    filename: album.name,
-    metadata,
-  };
-
-  if (!dbAlbum) {
-    await albumDb.insertAsync(albumToUpsert);
-  } else if (new Date(dbAlbum.modified_at).getTime() < lastModificationTime) {
-    console.log(
-      "Updating album",
-      album.name,
-      "because it was modified at",
-      new Date(lastModificationTime).toISOString()
-    );
-    await albumDb.updateAsync({ path_id: id }, albumToUpsert);
-  }
-};
-
-export const upsertAlbumV2 = async (file: AlbumUpsertOptions): Promise<void> => {
   if (!file) {
     return;
   }

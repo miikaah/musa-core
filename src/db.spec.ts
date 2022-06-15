@@ -7,7 +7,7 @@ import {
   initDb,
   initTestDb,
   insertAudio,
-  upsertAudio,
+  updateAudio,
   getAudio,
   getAllAudios,
   getAudiosByIds,
@@ -119,13 +119,14 @@ describe("DB tests", () => {
     describe("insertAudio()", () => {
       it("should insert audio", async () => {
         await insertAudio({ id, filename });
+        await insertAudio({ id: id2, filename: filename2 });
 
-        expect(getMetadata).toHaveBeenCalledTimes(1);
+        expect(getMetadata).toHaveBeenCalledTimes(2);
         expect(getMetadata).toHaveBeenCalledWith(libraryPath, {
           id,
           quiet: true,
         });
-        expect(audioDbInsertSpy).toHaveBeenCalledTimes(1);
+        expect(audioDbInsertSpy).toHaveBeenCalledTimes(2);
         expect(audioDbInsertSpy).toHaveBeenCalledWith({
           filename,
           metadata: parsedMetadataFixture,
@@ -142,30 +143,9 @@ describe("DB tests", () => {
       });
     });
 
-    describe("upsertAudio()", () => {
-      it("should insert audio", async () => {
-        await upsertAudio({ id: id2, filename: filename2, quiet: true });
-
-        expect(getMetadata).toHaveBeenCalledTimes(1);
-        expect(getMetadata).toHaveBeenCalledWith(libraryPath, {
-          id: id2,
-          quiet: true,
-        });
-        expect(audioDbInsertSpy).toHaveBeenCalledTimes(1);
-        expect(audioDbInsertSpy).toHaveBeenCalledWith({
-          filename: filename2,
-          metadata: parsedMetadataFixture,
-          modified_at: expect.any(String),
-          path_id: id2,
-        });
-      });
-
+    describe("updateAudio()", () => {
       it("should update audio", async () => {
-        (fs.stat as jest.MockedFunction<typeof fs.stat>).mockResolvedValue(<any>{
-          mtimeMs: Date.now(),
-        });
-
-        await upsertAudio({ id: id2, filename: filename2, quiet: true });
+        await updateAudio({ id: id2, filename: filename2, modifiedAt: new Date() });
 
         expect(getMetadata).toHaveBeenCalledTimes(1);
         expect(getMetadata).toHaveBeenCalledWith(libraryPath, {
@@ -185,16 +165,8 @@ describe("DB tests", () => {
         );
       });
 
-      it("should not update audio if it has not been modified", async () => {
-        await upsertAudio({ id: id2, filename: filename2, quiet: true });
-
-        expect(getMetadata).toHaveBeenCalledTimes(0);
-        expect(audioDbUpdateSpy).toHaveBeenCalledTimes(0);
-        expect(audioDbInsertSpy).toHaveBeenCalledTimes(0);
-      });
-
-      it("should early return if file is incompatible", async () => {
-        await upsertAudio(<any>{});
+      it("should early return if file is not passed in", async () => {
+        await updateAudio(<any>null);
 
         expect(audioDbFindOneSpy).toHaveBeenCalledTimes(0);
         expect(getMetadata).toHaveBeenCalledTimes(0);
@@ -290,64 +262,26 @@ describe("DB tests", () => {
 
     describe("upsertAlbum()", () => {
       it("should insert album", async () => {
-        albumDbFindOneSpy.mockResolvedValueOnce(null);
-
         await upsertAlbum({ id, album });
 
-        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
-        expect(albumDbInsertSpy).toHaveBeenCalledTimes(1);
-        expect(albumDbInsertSpy).toHaveBeenCalledWith(expectedAlbum);
+        expect(albumDbUpdateSpy).toHaveBeenCalledTimes(1);
+        expect(albumDbUpdateSpy).toHaveBeenCalledWith({ path_id: id }, expectedAlbum, {
+          upsert: true,
+        });
       });
 
       it("should update album", async () => {
-        audioDbFindSpy.mockResolvedValueOnce([
-          {
-            filename: "foo",
-            metadata: parsedMetadataFixture,
-            modified_at: new Date(Date.now() + 10000).toISOString(),
-            path_id: id,
-          },
-        ]);
-
         await upsertAlbum({ id, album });
 
-        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
         expect(albumDbUpdateSpy).toHaveBeenCalledTimes(1);
-        expect(albumDbUpdateSpy).toHaveBeenCalledWith({ path_id: id }, expectedAlbum);
-      });
-
-      it("should not update album if it has not been modified", async () => {
-        audioDbFindSpy.mockResolvedValueOnce([
-          {
-            filename: "foo",
-            metadata: parsedMetadataFixture,
-            modified_at: "2022-06-08T12:23:40.520Z",
-            path_id: id,
-          },
-        ]);
-
-        await upsertAlbum({ id, album });
-
-        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
-        expect(albumDbInsertSpy).toHaveBeenCalledTimes(0);
-        expect(albumDbUpdateSpy).toHaveBeenCalledTimes(0);
+        expect(albumDbUpdateSpy).toHaveBeenCalledWith({ path_id: id }, expectedAlbum, {
+          upsert: true,
+        });
       });
 
       it("should early return if file is not passed in", async () => {
         await upsertAlbum(<any>undefined);
 
-        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(0);
-        expect(albumDbInsertSpy).toHaveBeenCalledTimes(0);
-        expect(albumDbUpdateSpy).toHaveBeenCalledTimes(0);
-      });
-
-      it("should early return if album has 0 files", async () => {
-        audioDbFindSpy.mockResolvedValueOnce([]);
-
-        await upsertAlbum({ id, album });
-
-        expect(albumDbFindOneSpy).toHaveBeenCalledTimes(1);
-        expect(albumDbInsertSpy).toHaveBeenCalledTimes(0);
         expect(albumDbUpdateSpy).toHaveBeenCalledTimes(0);
       });
     });
