@@ -12,9 +12,13 @@ import { AudioWithMetadata } from "./audio.types";
 import { ArtistWithId, AlbumWithId, FileWithId } from "../scanner.types";
 import { FindResult } from "./find.types";
 
-const options = { limit: 4, key: "name", threshold: -50 };
-
-export const find = async ({ query }: { query: string }): Promise<FindResult> => {
+export const find = async ({
+  query,
+  limit = 6,
+}: {
+  query: string;
+  limit?: number;
+}): Promise<FindResult> => {
   if (query.length < 1) {
     return {
       artists: [],
@@ -22,6 +26,7 @@ export const find = async ({ query }: { query: string }): Promise<FindResult> =>
       audios: [],
     };
   }
+  const options = { limit, key: "name", threshold: -50 };
   const foundArtists = fuzzysort.go(query, artistsForFind, options);
   const artists = (await Promise.all(
     foundArtists.map((a) => a.obj).map(async (a) => getArtistAlbums(a.id))
@@ -74,16 +79,16 @@ function lookupEntities<T>(entitiesForFind: T[], indices: number[]) {
   return entities.filter(Boolean) as T[];
 }
 
-export const findRandom = async (): Promise<FindResult> => {
-  const artistIndices = getRandomNumbers(artistsForFind.length, 4);
+export const findRandom = async ({ limit = 6 }: { limit?: number }): Promise<FindResult> => {
+  const artistIndices = getRandomNumbers(artistsForFind.length, limit);
   const foundArtists = lookupEntities<ArtistWithId>(artistsForFind, artistIndices);
   const artists = await Promise.all(foundArtists.map(async (a) => getArtistAlbums(a.id)));
 
-  const albumIndices = getRandomNumbers(albumsForFind.length, 4);
+  const albumIndices = getRandomNumbers(albumsForFind.length, limit);
   const foundAlbums = lookupEntities<AlbumWithId>(albumsForFind, albumIndices);
   const albums = await Promise.all(foundAlbums.map(async (a) => getAlbumById(a.id)));
 
-  const audioIndices = getRandomNumbers(audiosForFind.length, 6);
+  const audioIndices = getRandomNumbers(audiosForFind.length, limit);
   const foundAudios = lookupEntities<FileWithId>(audiosForFind, audioIndices);
   const audios = (
     await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.id })))

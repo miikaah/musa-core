@@ -31,7 +31,7 @@ describe("Find API tests", () => {
 
   describe("findRandom()", () => {
     it("should return random results", async () => {
-      expect(await findRandom()).toEqual({
+      expect(await findRandom({})).toEqual({
         albums: expect.any(Array),
         artists: expect.any(Array),
         audios: expect.any(Array),
