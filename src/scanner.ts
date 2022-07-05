@@ -46,6 +46,8 @@ export let artistsForFind: ArtistsForFind = [];
 export let albumsForFind: AlbumsForFind = [];
 export let audiosForFind: AudiosForFind = [];
 
+let cachedElectronFileProtocol = "";
+
 export const refresh = async ({
   musicLibraryPath,
   baseUrl,
@@ -59,7 +61,16 @@ export const refresh = async ({
   event?: IpcMainEvent;
   scanColor?: { INSERT: string; UPDATE: string; ALBUM_UPDATE: string };
 }): Promise<void> => {
-  await init({ musicLibraryPath, baseUrl, isElectron });
+  if (isElectron && !cachedElectronFileProtocol) {
+    throw new Error("Call init() first and set electronFileProtocol");
+  }
+
+  await init({
+    musicLibraryPath,
+    baseUrl,
+    isElectron,
+    electronFileProtocol: cachedElectronFileProtocol,
+  });
   await update({
     musicLibraryPath,
     event,
@@ -84,6 +95,8 @@ export const init = async ({
   imageUrlFragment?: string;
   electronFileProtocol?: string;
 }): Promise<MediaCollectionAndFiles> => {
+  cachedElectronFileProtocol = electronFileProtocol;
+
   const totalStart = Date.now();
 
   logOpStart("Traversing file system");
