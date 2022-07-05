@@ -49,7 +49,7 @@ export const createMediaCollection = ({
     const audioUrl = isElectron ? "" : getUrl(baseUrl, audioUrlFragment, fileId);
     const imageUrl = isElectron ? "" : getUrl(baseUrl, imageUrlFragment, fileId);
     const url = isElectron
-      ? getElectronUrl(electronFileProtocol, baseUrl, file)
+      ? getElectronUrl(electronFileProtocol, file)
       : getUrl(baseUrl, "file", fileId);
 
     if (!artistCollection[artistId]) {
@@ -223,8 +223,8 @@ const getUrl = (baseUrl: string, path: string, id: string): string => {
   return `${baseUrl}/${path}/${id}`;
 };
 
-const getElectronUrl = (protocol: string, baseUrl: string, filepath: string) => {
-  return path.join(protocol, baseUrl, filepath);
+const getElectronUrl = (protocol: string, filepath: string) => {
+  return path.join(protocol, filepath);
 };
 
 const isImage = (filename: string) => {
