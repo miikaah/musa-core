@@ -71,10 +71,18 @@ export const init = async ({
   musicLibraryPath,
   baseUrl,
   isElectron = false,
+  artistUrlFragment = "artist",
+  audioUrlFragment = "audio",
+  imageUrlFragment = "image",
+  electronFileProtocol = "",
 }: {
   musicLibraryPath: string;
   baseUrl?: string;
   isElectron: boolean;
+  artistUrlFragment?: string;
+  audioUrlFragment?: string;
+  imageUrlFragment?: string;
+  electronFileProtocol?: string;
 }): Promise<MediaCollectionAndFiles> => {
   const totalStart = Date.now();
 
@@ -89,6 +97,10 @@ export const init = async ({
     files,
     baseUrl: isElectron ? musicLibraryPath : `${baseUrl}`,
     isElectron,
+    artistUrlFragment,
+    audioUrlFragment,
+    imageUrlFragment,
+    electronFileProtocol,
   });
   artistCollection = mediaCollection.artistCollection;
   albumCollection = mediaCollection.albumCollection;
