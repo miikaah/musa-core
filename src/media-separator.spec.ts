@@ -32,11 +32,21 @@ describe("Media Separator", () => {
     it("should separate files to collections for Electron", async () => {
       if (process.platform === "win32") {
         expect(
-          createMediaCollection({ files: fixture, baseUrl: "baseurl", isElectron: true })
+          createMediaCollection({
+            files: fixture,
+            baseUrl: "baseurl",
+            isElectron: true,
+            electronFileProtocol: "media://",
+          })
         ).toEqual(mediaCollectionElectronWin32Fixture);
       } else {
         expect(
-          createMediaCollection({ files: fixture, baseUrl: "baseurl", isElectron: true })
+          createMediaCollection({
+            files: fixture,
+            baseUrl: "baseurl",
+            isElectron: true,
+            electronFileProtocol: "media://",
+          })
         ).toEqual(mediaCollectionElectronDarwinFixture);
       }
     });

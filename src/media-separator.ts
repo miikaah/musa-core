@@ -15,11 +15,25 @@ export const createMediaCollection = ({
   files,
   baseUrl,
   isElectron = false,
+  artistUrlFragment = "artist",
+  audioUrlFragment = "audio",
+  imageUrlFragment = "image",
+  electronFileProtocol = "",
 }: {
   files: string[];
   baseUrl: string;
   isElectron?: boolean;
+  artistUrlFragment?: string;
+  audioUrlFragment?: string;
+  imageUrlFragment?: string;
+  electronFileProtocol?: string;
 }): MediaCollection => {
+  if (isElectron) {
+    if (!electronFileProtocol) {
+      throw new Error("Specify file protocol for Electron e.g. media://");
+    }
+  }
+
   const artistCollection: ArtistCollection = {};
   const albumCollection: AlbumCollection = {};
   const audioCollection: FileCollection = {};
@@ -31,10 +45,12 @@ export const createMediaCollection = ({
     const [artistName, ...rest] = file.split(sep);
     const artistId = UrlSafeBase64.encode(artistName);
     const fileId = UrlSafeBase64.encode(file);
-    const artistUrl = isElectron ? "" : getUrl(baseUrl, "artist", artistId);
-    const audioUrl = isElectron ? "" : getUrl(baseUrl, "audio", fileId);
-    const imageUrl = isElectron ? "" : getUrl(baseUrl, "image", fileId);
-    const url = isElectron ? getElectronUrl(baseUrl, file) : getUrl(baseUrl, "file", fileId);
+    const artistUrl = isElectron ? "" : getUrl(baseUrl, artistUrlFragment, artistId);
+    const audioUrl = isElectron ? "" : getUrl(baseUrl, audioUrlFragment, fileId);
+    const imageUrl = isElectron ? "" : getUrl(baseUrl, imageUrlFragment, fileId);
+    const url = isElectron
+      ? getElectronUrl(electronFileProtocol, baseUrl, file)
+      : getUrl(baseUrl, "file", fileId);
 
     if (!artistCollection[artistId]) {
       artistCollection[artistId] = {
@@ -207,8 +223,8 @@ const getUrl = (baseUrl: string, path: string, id: string): string => {
   return `${baseUrl}/${path}/${id}`;
 };
 
-const getElectronUrl = (baseUrl: string, filepath: string) => {
-  return path.join("file://", baseUrl, filepath);
+const getElectronUrl = (protocol: string, baseUrl: string, filepath: string) => {
+  return path.join(protocol, baseUrl, filepath);
 };
 
 const isImage = (filename: string) => {

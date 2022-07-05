@@ -201,10 +201,10 @@ export const mediaCollectionElectronWin32Fixture = {
     YXJ0aXN0XGFsYnVt: {
       artistName: "artist",
       artistUrl: "",
-      coverUrl: "file:\\baseurl\\artist\\album\\cover.JPG",
+      coverUrl: "media:\\baseurl\\artist\\album\\cover.JPG",
       files: [
         {
-          fileUrl: "file:\\baseurl\\artist\\album\\song.mp3",
+          fileUrl: "media:\\baseurl\\artist\\album\\song.mp3",
           id: "YXJ0aXN0XGFsYnVtXHNvbmcubXAz",
           name: "song.mp3",
           url: "",
@@ -212,7 +212,7 @@ export const mediaCollectionElectronWin32Fixture = {
       ],
       images: [
         {
-          fileUrl: "file:\\baseurl\\artist\\album\\cover.JPG",
+          fileUrl: "media:\\baseurl\\artist\\album\\cover.JPG",
           id: "YXJ0aXN0XGFsYnVtXGNvdmVyLkpQRw",
           name: "cover.JPG",
           url: "",
@@ -225,7 +225,7 @@ export const mediaCollectionElectronWin32Fixture = {
     YXJ0aXN0: {
       albums: [
         {
-          coverUrl: "file:\\baseurl\\artist\\album\\cover.JPG",
+          coverUrl: "media:\\baseurl\\artist\\album\\cover.JPG",
           firstAlbumAudio: { id: "YXJ0aXN0XGFsYnVtXHNvbmcubXAz", name: "song.mp3" },
           id: "YXJ0aXN0XGFsYnVt",
           name: "album",
@@ -234,7 +234,7 @@ export const mediaCollectionElectronWin32Fixture = {
       ],
       files: [
         {
-          fileUrl: "file:\\baseurl\\artist\\song.mp3",
+          fileUrl: "media:\\baseurl\\artist\\song.mp3",
           id: "YXJ0aXN0XHNvbmcubXAz",
           name: "song.mp3",
           url: "",
@@ -242,7 +242,7 @@ export const mediaCollectionElectronWin32Fixture = {
       ],
       images: [
         {
-          fileUrl: "file:\\baseurl\\artist\\image.PNG",
+          fileUrl: "media:\\baseurl\\artist\\image.PNG",
           id: "YXJ0aXN0XGltYWdlLlBORw",
           name: "image.PNG",
           url: "",
@@ -262,15 +262,15 @@ export const mediaCollectionElectronWin32Fixture = {
       artistUrl: "",
       id: "YXJ0aXN0XGFsYnVtXHNvbmcubXAz",
       name: "song.mp3",
-      url: "file:\\baseurl\\artist\\album\\song.mp3",
+      url: "media:\\baseurl\\artist\\album\\song.mp3",
     },
     YXJ0aXN0XHNvbmcubXAz: {
       artistName: "artist",
       artistUrl: "",
-      fileUrl: "file:\\baseurl\\artist\\song.mp3",
+      fileUrl: "media:\\baseurl\\artist\\song.mp3",
       id: "YXJ0aXN0XHNvbmcubXAz",
       name: "song.mp3",
-      url: "file:\\baseurl\\artist\\song.mp3",
+      url: "media:\\baseurl\\artist\\song.mp3",
     },
   },
   imageCollection: {
@@ -282,15 +282,15 @@ export const mediaCollectionElectronWin32Fixture = {
       artistUrl: "",
       id: "YXJ0aXN0XGFsYnVtXGNvdmVyLkpQRw",
       name: "cover.JPG",
-      url: "file:\\baseurl\\artist\\album\\cover.JPG",
+      url: "media:\\baseurl\\artist\\album\\cover.JPG",
     },
     YXJ0aXN0XGltYWdlLlBORw: {
       artistName: "artist",
       artistUrl: "",
-      fileUrl: "file:\\baseurl\\artist\\image.PNG",
+      fileUrl: "media:\\baseurl\\artist\\image.PNG",
       id: "YXJ0aXN0XGltYWdlLlBORw",
       name: "image.PNG",
-      url: "file:\\baseurl\\artist\\image.PNG",
+      url: "media:\\baseurl\\artist\\image.PNG",
     },
   },
 };
