@@ -1,10 +1,12 @@
 import fuzzysort from "fuzzysort";
+import uniqBy from "lodash.uniqby";
 
 import { getArtistAlbums } from "./artist";
 import { getAlbumById } from "./album";
 import { getAudioById } from "./audio";
 import { findAudiosByMetadataAndFilename } from "../db";
 import { artistsForFind, albumsForFind, audiosForFind, audioCollection } from "../scanner";
+import { tokenize, calculateOkapiBm25Score } from "../full-text-search";
 
 import { Artist } from "./artist.types";
 import { AlbumWithFilesAndMetadata } from "./album.types";
@@ -29,27 +31,65 @@ export const find = async ({
   const options = { limit, key: "name", threshold: -50 };
   const foundArtists = fuzzysort.go(query, artistsForFind, options);
   const artists = (await Promise.all(
-    foundArtists.map((a) => a.obj).map(async (a) => getArtistAlbums(a.id))
+    foundArtists
+      .map((a) => a.obj)
+      .filter(Boolean)
+      .map(async (a) => getArtistAlbums(a.id))
   )) as Artist[];
 
   const foundAlbums = fuzzysort.go(query, albumsForFind, options);
+
+  if (foundAlbums.length < limit && artists.length > 0) {
+    artists.forEach((a) => {
+      // @ts-expect-error nope
+      foundAlbums.push(...a.albums);
+    });
+  }
+
   const albums = (await Promise.all(
-    foundAlbums.map((a) => a.obj).map(async (a) => getAlbumById(a.id))
+    foundAlbums
+      .map((a) => a.obj || a)
+      .filter(Boolean)
+      .map(async (a) => getAlbumById(a.id))
   )) as AlbumWithFilesAndMetadata[];
 
-  const foundAudios = await findAudiosByMetadataAndFilename(query, 6);
+  const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 4);
   const audios = (
     (await Promise.all(
       foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
     )) as AudioWithMetadata[]
   ).filter(({ id }) => !!audioCollection[id]);
 
+  const k1 = 1.2;
+  const b = 0.75;
+  const terms = tokenize(query);
+
   return {
-    artists,
-    albums,
-    audios,
+    artists: artists.sort(byOkapiBm25(terms, k1, b, true)),
+    albums: uniqBy(albums, ({ id }: { id: string }) => id).sort(byOkapiBm25(terms, k1, b)),
+    audios: audios.sort(byOkapiBm25(terms, k1, b)),
   };
 };
+
+function byOkapiBm25(terms: string[], k1: number, b: number, isArtist = false) {
+  // @ts-expect-error not useful here
+  return (a, c) => {
+    const tca = (isArtist ? a.name : a.metadata.title) || "";
+    const tcc = (isArtist ? c.name : c.metadata.title) || "";
+    const aScore = terms
+      .map((term) => calculateOkapiBm25Score(term, tca.length, k1, b))
+      .reduce((acc, score) => acc + score, 0);
+    const cScore = terms
+      .map((term) => calculateOkapiBm25Score(term, tcc.length, k1, b))
+      .reduce((acc, score) => acc + score, 0);
+
+    if (aScore === 0 && cScore === 0 && tca.toLowerCase().startsWith(terms[0])) {
+      return -1;
+    }
+
+    return cScore - aScore;
+  };
+}
 
 function getRandomNumber(max: number) {
   return Math.floor(Math.random() * max);

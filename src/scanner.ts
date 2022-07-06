@@ -5,6 +5,7 @@ import { traverseFileSystem, audioExts } from "./fs";
 import { createMediaCollection } from "./media-separator";
 import UrlSafeBase64 from "./urlsafe-base64";
 import * as Db from "./db";
+import { tokenize, updateTf, updateParams } from "./full-text-search";
 
 import { AlbumUpsertOptions } from "./db.types";
 import {
@@ -299,7 +300,7 @@ export const update = async ({
   const startAlbumUpdate = Date.now();
   audios = await Db.getAllAudios();
   audiosInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
-  const albumsInDb = await Db.getAlbums();
+  let albumsInDb = await Db.getAlbums();
   // TODO: Locks up the thread a little
   const albumsToUpdate = (
     await Promise.all(
@@ -341,15 +342,31 @@ export const update = async ({
   const timeForAlbumUpdateSec = (Date.now() - startAlbumUpdate) / 1000;
   const albumUpdatesPerSecond =
     timeForAlbumUpdateSec > 0 ? Math.floor(albums.length / timeForAlbumUpdateSec) : 0;
-  const totalTime = (Date.now() - start) / 1000;
 
   console.log(`Album updates took: ${timeForAlbumUpdateSec} seconds`);
   console.log(`${albumUpdatesPerSecond} updates per second\n`);
-  console.log(`Total time: ${totalTime} seconds`);
-  console.log("----------------------\n");
+
+  const startTfIdfCalculation = Date.now();
 
   if (event) {
     event.sender.send("musa:scan:end");
     event.sender.send("musa:scan:complete", Date.now());
   }
+
+  albumsInDb = await Db.getAlbums();
+  const albumNames = albumsInDb.map(({ metadata }) => (metadata.album || "").toLowerCase());
+  const audioNames = audios.map(({ metadata }) => (metadata.title || "").toLowerCase());
+  const documents = Object.keys(artistCollection).length + albumsInDb.length + audios.length;
+
+  updateTf(artistsForFind.map(({ name }) => tokenize(name)).flat(Infinity) as string[]);
+  updateTf(albumNames.map(tokenize).flat(Infinity) as string[]);
+  updateTf(audioNames.map(tokenize).flat(Infinity) as string[]);
+  updateParams(documents);
+
+  const timeForTfIdf = (Date.now() - startTfIdfCalculation) / 1000;
+  const totalTime = (Date.now() - start) / 1000;
+
+  console.log(`TF-IDF calculation took: ${timeForTfIdf} seconds`);
+  console.log(`Total time: ${totalTime} seconds`);
+  console.log("----------------------\n");
 };
