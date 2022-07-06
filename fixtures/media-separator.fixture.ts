@@ -300,10 +300,10 @@ export const mediaCollectionElectronDarwinFixture = {
     YXJ0aXN0L2FsYnVt: {
       artistName: "artist",
       artistUrl: "",
-      coverUrl: "file:/artist/album/cover.JPG",
+      coverUrl: "media:/artist/album/cover.JPG",
       files: [
         {
-          fileUrl: "file:/artist/album/song.mp3",
+          fileUrl: "media:/artist/album/song.mp3",
           id: "YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
           name: "song.mp3",
           url: "",
@@ -311,7 +311,7 @@ export const mediaCollectionElectronDarwinFixture = {
       ],
       images: [
         {
-          fileUrl: "file:/artist/album/cover.JPG",
+          fileUrl: "media:/artist/album/cover.JPG",
           id: "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
           name: "cover.JPG",
           url: "",
@@ -324,7 +324,7 @@ export const mediaCollectionElectronDarwinFixture = {
     YXJ0aXN0: {
       albums: [
         {
-          coverUrl: "file:/artist/album/cover.JPG",
+          coverUrl: "media:/artist/album/cover.JPG",
           firstAlbumAudio: { id: "YXJ0aXN0L2FsYnVtL3NvbmcubXAz", name: "song.mp3" },
           id: "YXJ0aXN0L2FsYnVt",
           name: "album",
@@ -333,7 +333,7 @@ export const mediaCollectionElectronDarwinFixture = {
       ],
       files: [
         {
-          fileUrl: "file:/artist/song.mp3",
+          fileUrl: "media:/artist/song.mp3",
           id: "YXJ0aXN0L3NvbmcubXAz",
           name: "song.mp3",
           url: "",
@@ -341,7 +341,7 @@ export const mediaCollectionElectronDarwinFixture = {
       ],
       images: [
         {
-          fileUrl: "file:/artist/image.PNG",
+          fileUrl: "media:/artist/image.PNG",
           id: "YXJ0aXN0L2ltYWdlLlBORw",
           name: "image.PNG",
           url: "",
@@ -361,15 +361,15 @@ export const mediaCollectionElectronDarwinFixture = {
       artistUrl: "",
       id: "YXJ0aXN0L2FsYnVtL3NvbmcubXAz",
       name: "song.mp3",
-      url: "file:/artist/album/song.mp3",
+      url: "media:/artist/album/song.mp3",
     },
     YXJ0aXN0L3NvbmcubXAz: {
       artistName: "artist",
       artistUrl: "",
-      fileUrl: "file:/artist/song.mp3",
+      fileUrl: "media:/artist/song.mp3",
       id: "YXJ0aXN0L3NvbmcubXAz",
       name: "song.mp3",
-      url: "file:/artist/song.mp3",
+      url: "media:/artist/song.mp3",
     },
   },
   imageCollection: {
@@ -381,15 +381,15 @@ export const mediaCollectionElectronDarwinFixture = {
       artistUrl: "",
       id: "YXJ0aXN0L2FsYnVtL2NvdmVyLkpQRw",
       name: "cover.JPG",
-      url: "file:/artist/album/cover.JPG",
+      url: "media:/artist/album/cover.JPG",
     },
     YXJ0aXN0L2ltYWdlLlBORw: {
       artistName: "artist",
       artistUrl: "",
-      fileUrl: "file:/artist/image.PNG",
+      fileUrl: "media:/artist/image.PNG",
       id: "YXJ0aXN0L2ltYWdlLlBORw",
       name: "image.PNG",
-      url: "file:/artist/image.PNG",
+      url: "media:/artist/image.PNG",
     },
   },
 };
