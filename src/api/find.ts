@@ -74,8 +74,13 @@ export const find = async ({
 function byOkapiBm25(terms: string[], k1: number, b: number, isArtist = false) {
   // @ts-expect-error not useful here
   return (a, c) => {
-    const tca = (isArtist ? a.name : a.metadata.title) || "";
-    const tcc = (isArtist ? c.name : c.metadata.title) || "";
+    const tca = (isArtist ? a.name : a?.metadata?.title) || "";
+    const tcc = (isArtist ? c.name : c?.metadata?.title) || "";
+
+    if (!tca || !tcc) {
+      return 1;
+    }
+
     const aScore = terms
       .map((term) => calculateOkapiBm25Score(term, tca.length, k1, b))
       .reduce((acc, score) => acc + score, 0);
