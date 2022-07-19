@@ -140,8 +140,8 @@ export const findRandom = async ({ limit = 6 }: { limit?: number }): Promise<Fin
   ).filter(({ id }) => !!audioCollection[id]);
 
   return {
-    artists,
-    albums,
-    audios,
+    artists: uniqBy(artists, (a) => a?.url),
+    albums: uniqBy(albums, (a) => a?.id),
+    audios: uniqBy(audios, (a) => a?.id),
   } as FindResult;
 };
