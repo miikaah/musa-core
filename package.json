@@ -1,6 +1,6 @@
 {
   "name": "musa-core",
-  "version": "7.1.1",
+  "version": "7.2.1",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
