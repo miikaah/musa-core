@@ -5,7 +5,7 @@ on:
     types: [created]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -15,8 +15,8 @@ jobs:
       - run: npm ci
       - run: npm test
 
-  publish-gpr:
-    needs: build
+  publish:
+    needs: test
     runs-on: ubuntu-latest
     permissions:
       packages: write
@@ -29,7 +29,6 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
       - run: npm run build
-      - run: ls -al
       - run: npm publish --registry=https://npm.pkg.github.com/
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
