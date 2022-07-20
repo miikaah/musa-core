@@ -1,5 +1,5 @@
 {
-  "name": "musa-core",
+  "name": "@miikaah/musa-core",
   "version": "7.2.1",
   "description": "",
   "main": "lib/index.js",
