@@ -44,7 +44,7 @@ const exec = async () => {
     entryPoints,
     outdir: "lib",
     platform: "node",
-    target: "es6",
+    target: "es2020",
     format: "cjs",
     plugins: [nodeExternalsPlugin()],
   });
