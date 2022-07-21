@@ -10,7 +10,7 @@
     "test": "jest --coverage",
     "test:w": "jest --watch"
   },
-  "author": "",
+  "author": "Miika Henttonen",
   "license": "MIT",
   "dependencies": {
     "@seald-io/nedb": "^3.0.0",
