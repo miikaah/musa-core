@@ -204,6 +204,54 @@ export const findAudiosByMetadataAndFilename = async (
   return Array.from(foundAudios.values());
 };
 
+export const findAlbums = async (
+  limit: number,
+  comparatorFn: (self: DbAlbum) => boolean
+): Promise<DbAlbum[]> => {
+  return new Promise((resolve, reject) => {
+    albumDb
+      .find({
+        $where: function () {
+          return comparatorFn(this);
+        },
+      })
+      .limit(limit)
+      .exec((err: unknown, albums: DbAlbum[]) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(albums);
+        }
+      });
+  });
+};
+
+export const findAlbumsByMetadata = async (query: string, limit: number): Promise<DbAlbum[]> => {
+  const albumsByExactTitle = await findAlbums(limit, (self: DbAlbum) => {
+    const title = (self?.metadata?.album || "").toLowerCase();
+    const queryLc = query.toLowerCase();
+
+    return title === queryLc;
+  });
+
+  let albumsByFuzzyTitle: DbAlbum[] = [];
+  const amountOfAudios = albumsByExactTitle.length;
+
+  if (amountOfAudios < limit) {
+    albumsByFuzzyTitle = await findAlbums(limit - amountOfAudios, (self: DbAlbum) => {
+      const title = (self?.metadata?.album || "").toLowerCase();
+      const queryLc = query.toLowerCase();
+
+      return title.includes(queryLc);
+    });
+  }
+
+  const foundAlbums = new Map();
+  [...albumsByExactTitle, ...albumsByFuzzyTitle].forEach((a) => foundAlbums.set(a.path_id, a));
+
+  return Array.from(foundAlbums.values());
+};
+
 export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
   if (!file) {
     return;

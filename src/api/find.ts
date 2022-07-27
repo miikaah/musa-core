@@ -4,7 +4,7 @@ import uniqBy from "lodash.uniqby";
 import { getArtistAlbums } from "./artist";
 import { getAlbumById } from "./album";
 import { getAudioById } from "./audio";
-import { findAudiosByMetadataAndFilename } from "../db";
+import { findAudiosByMetadataAndFilename, findAlbumsByMetadata } from "../db";
 import { artistsForFind, albumsForFind, audiosForFind, audioCollection } from "../scanner";
 import { tokenize, calculateOkapiBm25Score } from "../full-text-search";
 
@@ -21,7 +21,9 @@ export const find = async ({
   query: string;
   limit?: number;
 }): Promise<FindResult> => {
-  if (query.length < 1) {
+  query = query.toLowerCase();
+
+  if (query.length < 2) {
     return {
       artists: [],
       albums: [],
@@ -37,7 +39,7 @@ export const find = async ({
       .map(async (a) => getArtistAlbums(a.id))
   )) as Artist[];
 
-  const foundAlbums = fuzzysort.go(query, albumsForFind, options);
+  const foundAlbums = await findAlbumsByMetadata(query, limit);
 
   if (foundAlbums.length < limit && artists.length > 0) {
     artists.forEach((a) => {
@@ -48,12 +50,13 @@ export const find = async ({
 
   const albums = (await Promise.all(
     foundAlbums
-      .map((a) => a.obj || a)
       .filter(Boolean)
-      .map(async (a) => getAlbumById(a.id))
+      .slice(0, limit * 2)
+      // @ts-expect-error stfu
+      .map(async (a) => getAlbumById(a.id || a.path_id))
   )) as AlbumWithFilesAndMetadata[];
 
-  const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 4);
+  const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 2);
   const audios = (
     (await Promise.all(
       foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
@@ -140,8 +143,8 @@ export const findRandom = async ({ limit = 6 }: { limit?: number }): Promise<Fin
   ).filter(({ id }) => !!audioCollection[id]);
 
   return {
-    artists: uniqBy(artists, (a) => a?.url),
-    albums: uniqBy(albums, (a) => a?.id),
-    audios: uniqBy(audios, (a) => a?.id),
+    artists,
+    albums,
+    audios,
   } as FindResult;
 };
