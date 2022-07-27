@@ -1,4 +1,5 @@
 import path from "path";
+import fs from "fs/promises";
 import Datastore from "@seald-io/nedb";
 
 import UrlSafeBase64 from "./urlsafe-base64";
@@ -26,7 +27,7 @@ let libPath: string;
 export const initDb = async (libraryPath: string) => {
   libPath = libraryPath;
 
-  const audioDbFile = `${isDev ? ".dev" : ""}.musa.audio.v1.db`;
+  const audioDbFile = `${isDev ? ".dev" : ""}.musa.audio.v2.db`;
   audioDb = new Datastore<DbAudio>({
     filename: path.join(libraryPath, audioDbFile),
   });
@@ -43,6 +44,19 @@ export const initDb = async (libraryPath: string) => {
     filename: path.join(libraryPath, themeDbFile),
   });
   await themeDb.loadDatabaseAsync();
+
+  // @backwards_compatibility clean up old db files
+  const oldFiles = [
+    path.join(libraryPath, `${isDev ? ".dev" : ""}.musa.theme.v1.db`),
+    path.join(libraryPath, `${isDev ? ".dev" : ""}.musa.audio.v1.db`),
+  ];
+  oldFiles.forEach(async (p) => {
+    try {
+      await fs.unlink(p);
+    } catch (e) {
+      //
+    }
+  });
 };
 
 export const initTestDb = async (libraryPath: string) => {

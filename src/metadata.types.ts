@@ -72,8 +72,17 @@ export type Metadata = Partial<{
   genre: string[];
   dynamicRange: string;
   dynamicRangeAlbum: string;
+  comment: string[];
   bitrate: number;
   duration: number;
   sampleRate: number;
-  comment: string[];
+  codec: string;
+  codecProfile: string;
+  container: string;
+  lossless: boolean;
+  numberOfChannels: number;
+  tagTypes: string[];
+  tool: string;
 }>;
+
+export type Codec = "MP3" | "FLAC" | "VORBIS";

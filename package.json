@@ -16,7 +16,8 @@
     "@seald-io/nedb": "^3.0.0",
     "fuzzysort": "^2.0.1",
     "lodash.uniqby": "^4.7.0",
-    "music-metadata": "^7.12.3"
+    "music-metadata": "^7.12.3",
+    "node-id3": "^0.2.3"
   },
   "devDependencies": {
     "@swc/core": "^1.2.189",

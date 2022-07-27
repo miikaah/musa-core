@@ -1,8 +1,12 @@
-import * as musicMetadata from "music-metadata";
 import path from "path";
+import fs from "fs/promises";
+import * as musicMetadata from "music-metadata";
+import NodeID3 from "node-id3";
 
 import UrlSafeBase64 from "./urlsafe-base64";
-import type { AudioMetadata, GetMetadataParams, Metadata } from "./metadata.types";
+import * as Db from "./db";
+
+import type { AudioMetadata, GetMetadataParams, Metadata, Codec } from "./metadata.types";
 
 export const readMetadata = async (filepath: string): Promise<AudioMetadata> => {
   let metadata = { format: {}, native: { "ID3v2.3": [] }, common: {} };
@@ -34,7 +38,7 @@ export const getMetadata = async (
       dynamicRangeAlbum: (id3v2x.find((tag) => tag.id === "TXXX:ALBUM DYNAMIC RANGE") || {}).value,
     };
   } else if (vorbis.length) {
-    // flac
+    // flac, ogg
     dynamicRangeTags = {
       dynamicRange: (vorbis.find((tag) => tag.id === "DYNAMIC RANGE") || {}).value,
       dynamicRangeAlbum: (vorbis.find((tag) => tag.id === "ALBUM DYNAMIC RANGE") || {}).value,
@@ -66,7 +70,28 @@ export const getMetadata = async (
     albumartist: albumArtist,
     comment,
   } = common;
-  const { bitrate, duration, sampleRate } = format;
+
+  const {
+    bitrate,
+    duration,
+    sampleRate,
+    tagTypes,
+    lossless,
+    container,
+    codec,
+    numberOfChannels,
+    codecProfile,
+    tool,
+  } = format;
+
+  let dur = 0;
+  if (!duration && bitrate) {
+    const stats = await fs.stat(audioPath);
+    const { size } = stats;
+    console.log(audioPath, "does not have duration field in format, calculating...");
+
+    dur = size / (bitrate / 8);
+  }
 
   const metadata = {
     track,
@@ -87,10 +112,57 @@ export const getMetadata = async (
     albumArtist,
     comment,
     bitrate,
-    duration,
+    duration: duration || dur,
+    container,
+    codec,
+    codecProfile,
+    lossless,
+    numberOfChannels,
+    tool,
     sampleRate,
+    tagTypes,
     ...dynamicRangeTags,
   };
 
   return metadata;
+};
+
+const Codec: Record<Codec, Codec> = {
+  FLAC: "FLAC",
+  MP3: "MP3",
+  VORBIS: "VORBIS",
+};
+
+const getTypeOfCodec = (codec?: string): Codec | undefined => {
+  if (!codec) {
+    console.error("Unknown codec type. Can not update tags.");
+    throw new Error("UNKNOWN_CODEC");
+  }
+
+  if (codec.toLowerCase().startsWith("mpeg")) {
+    return Codec.MP3;
+  }
+
+  return undefined;
+};
+
+export const writeTags = async (
+  musicLibraryPath: string,
+  id: string,
+  tags: Record<string, unknown>
+) => {
+  const filename = UrlSafeBase64.decode(id);
+  const filepath = path.join(musicLibraryPath, filename);
+  const metadata = await getMetadata(musicLibraryPath, { id, quiet: true });
+
+  try {
+    switch (getTypeOfCodec(metadata.codec)) {
+      case Codec.MP3: {
+        NodeID3.update(tags, filepath);
+        await Db.updateAudio({ id, filename, modifiedAt: new Date() });
+      }
+    }
+  } catch (error) {
+    console.error("Errored during writeTags: ", error);
+  }
 };

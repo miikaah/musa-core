@@ -7,6 +7,7 @@ import { getAllThemes, getTheme, insertTheme, removeTheme } from "./api/theme";
 import { initDb } from "./db";
 import { init, update, refresh } from "./scanner";
 import { getState, setState } from "./fs-state";
+import { writeTags } from "./metadata";
 
 const Api = {
   getAlbumById,
@@ -20,6 +21,7 @@ const Api = {
   getTheme,
   insertTheme,
   removeTheme,
+  writeTags,
 };
 
 const Db = {
