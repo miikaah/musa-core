@@ -41,7 +41,7 @@ jest.mock("fs/promises", () => ({
 }));
 
 const libraryPath = "db-test-artifacts";
-const audioDbPath = path.join(process.cwd(), libraryPath, ".musa.audio.v1.db");
+const audioDbPath = path.join(process.cwd(), libraryPath, ".musa.audio.v2.db");
 const albumDbPath = path.join(process.cwd(), libraryPath, ".musa.album.v1.db");
 const themeDbPath = path.join(process.cwd(), libraryPath, ".musa.theme.v2.db");
 const fileExists = (file: string) => {
