@@ -20,6 +20,11 @@ export const getState = async (stateFile: string): Promise<Partial<State> | unde
 
   let state;
   try {
+    // HACK: There is some weird bug here that sometimes file is empty
+    //       maybe due to some race-condition? as a hack just try to get it again
+    if (!file) {
+      return getState(stateFile);
+    }
     state = JSON.parse(file);
   } catch (e) {
     console.error("State file is not JSON", e);
