@@ -48,13 +48,15 @@ export const find = async ({
     });
   }
 
-  const albums = (await Promise.all(
-    foundAlbums
-      .filter(Boolean)
-      .slice(0, limit * 2)
-      // @ts-expect-error stfu
-      .map(async (a) => getAlbumById(a.id || a.path_id))
-  )) as AlbumWithFilesAndMetadata[];
+  const albums = (
+    (await Promise.all(
+      foundAlbums
+        .filter(Boolean)
+        .slice(0, limit * 2)
+        // @ts-expect-error stfu
+        .map(async (a) => getAlbumById(a.id || a.path_id))
+    )) as AlbumWithFilesAndMetadata[]
+  ).filter(({ name }) => name);
 
   const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 2);
   const audios = (
