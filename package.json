@@ -6,7 +6,7 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "build": "shx rm -rf lib && ts-node --transpile-only esbuild.ts && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json",
-    "build:clean": "shx rm 'lib/**/*.types.js'",
+    "build:clean": "ts-node --transpile-only clean-build.ts",
     "tsc:w": "tsc --watch --noEmit",
     "test": "jest --coverage",
     "test:w": "jest --watch"
