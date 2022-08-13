@@ -78,7 +78,6 @@ describe("DB tests", () => {
   let audioDbFindOneSpy: jest.SpyInstance;
   let audioDbFindSpy: jest.SpyInstance;
   let albumDbFindOneSpy: jest.SpyInstance;
-  let albumDbInsertSpy: jest.SpyInstance;
   let albumDbUpdateSpy: jest.SpyInstance;
   let themeDbInsertSpy: jest.SpyInstance;
   let themeDbFindSpy: jest.SpyInstance;
@@ -92,7 +91,6 @@ describe("DB tests", () => {
     audioDbFindOneSpy = jest.spyOn(testDbs.audioDb, "findOneAsync");
     audioDbFindSpy = jest.spyOn(testDbs.audioDb, "findAsync");
     albumDbFindOneSpy = jest.spyOn(testDbs.albumDb, "findOneAsync");
-    albumDbInsertSpy = jest.spyOn(testDbs.albumDb, "insertAsync");
     albumDbUpdateSpy = jest.spyOn(testDbs.albumDb, "updateAsync");
     themeDbInsertSpy = jest.spyOn(testDbs.themeDb, "insertAsync");
     themeDbFindSpy = jest.spyOn(testDbs.themeDb, "findAsync");
