@@ -28,11 +28,11 @@ import { audioFixture } from "../fixtures/audio.fixture";
 import { enrichedAlbumsFixture } from "../fixtures/db.fixture";
 
 jest.mock("./metadata");
-(getMetadata as jest.MockedFunction<typeof getMetadata>).mockResolvedValue(parsedMetadataFixture);
+jest.mocked(getMetadata).mockResolvedValue(parsedMetadataFixture);
+
 jest.mock("./urlsafe-base64");
-(UrlSafeBase64.decode as jest.MockedFunction<typeof UrlSafeBase64.decode>).mockReturnValue(
-  "fakedecoded"
-);
+jest.mocked(UrlSafeBase64.decode).mockReturnValue("fakedecoded");
+
 jest.mock("fs/promises", () => ({
   ...jest.requireActual("fs/promises"),
   stat: jest.fn().mockResolvedValue(<any>{

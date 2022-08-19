@@ -4,10 +4,8 @@ import { getAlbumById } from "./album";
 import { albumDbFixture, albumFixture, albumCollectionFixture } from "../../fixtures/album.fixture";
 
 jest.mock("../db");
-(getAlbum as jest.MockedFunction<typeof getAlbum>).mockResolvedValue(albumDbFixture);
-(enrichAlbumFiles as jest.MockedFunction<typeof enrichAlbumFiles>).mockResolvedValue(
-  albumFixture.files
-);
+jest.mocked(getAlbum).mockResolvedValue(albumDbFixture);
+jest.mocked(enrichAlbumFiles).mockResolvedValue(albumFixture.files);
 
 // @ts-expect-error it ain't read-only silly
 Scanner.albumCollection = albumCollectionFixture;

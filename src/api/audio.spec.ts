@@ -5,7 +5,7 @@ import { audioDbFixture, audioFixture, audioCollectionFixture } from "../../fixt
 import { albumCollectionFixture } from "../../fixtures/album.fixture";
 
 jest.mock("../db");
-(getAudio as jest.MockedFunction<typeof getAudio>).mockResolvedValue(audioDbFixture);
+jest.mocked(getAudio).mockResolvedValue(audioDbFixture);
 
 // @ts-expect-error it ain't read-only silly
 Scanner.audioCollection = audioCollectionFixture;

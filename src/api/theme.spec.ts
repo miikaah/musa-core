@@ -3,11 +3,9 @@ import { getAllThemes, getTheme, insertTheme, removeTheme } from "./theme";
 import { themeFixture, themeDbFixture } from "../../fixtures/theme.fixture";
 
 jest.mock("../db");
-(Db.getAllThemes as jest.MockedFunction<typeof Db.getAllThemes>).mockResolvedValue([
-  themeDbFixture,
-]);
-(Db.getTheme as jest.MockedFunction<typeof Db.getTheme>).mockResolvedValue(themeDbFixture);
-(Db.insertTheme as jest.MockedFunction<typeof Db.insertTheme>).mockResolvedValue(themeDbFixture);
+jest.mocked(Db.getAllThemes).mockResolvedValue([themeDbFixture]);
+jest.mocked(Db.getTheme).mockResolvedValue(themeDbFixture);
+jest.mocked(Db.insertTheme).mockResolvedValue(themeDbFixture);
 
 describe("Audio API tests", () => {
   beforeEach(() => {

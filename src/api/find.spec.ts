@@ -10,7 +10,7 @@ import { audioCollectionFixture, audioFixture } from "../../fixtures/audio.fixtu
 jest.mock("./album");
 jest.mock("./artist");
 jest.mock("./audio");
-(getAudioById as jest.MockedFunction<typeof getAudioById>).mockResolvedValue(audioFixture);
+jest.mocked(getAudioById).mockResolvedValue(audioFixture);
 
 const artistId = "QWxhbWFhaWxtYW4gdmFzYXJhdA";
 const audioId =

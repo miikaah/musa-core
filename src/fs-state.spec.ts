@@ -4,9 +4,7 @@ import { stateFixture } from "../fixtures/state.fixture";
 import { setState, getState } from "./fs-state";
 
 jest.mock("fs/promises");
-(fs.readFile as jest.MockedFunction<typeof fs.readFile>).mockResolvedValue(
-  JSON.stringify(stateFixture)
-);
+jest.mocked(fs.readFile).mockResolvedValue(JSON.stringify(stateFixture));
 
 const origConsoleErrorFn = console.error;
 
