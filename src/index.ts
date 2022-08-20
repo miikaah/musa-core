@@ -4,6 +4,7 @@ import { getArtistById, getArtistAlbums, getArtists } from "./api/artist";
 import { getAudioById } from "./api/audio";
 import { find, findRandom } from "./api/find";
 import { getAllThemes, getTheme, insertTheme, removeTheme } from "./api/theme";
+import { getAllGenres } from "./api/genre";
 import { initDb } from "./db";
 import { init, update, refresh } from "./scanner";
 import { getState, setState } from "./fs-state";
@@ -21,6 +22,7 @@ const Api = {
   getTheme,
   insertTheme,
   removeTheme,
+  getAllGenres,
   writeTags,
 };
 

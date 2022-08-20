@@ -217,6 +217,19 @@ export const findAudiosByYear = async (query: number, limit: number): Promise<Db
   return Array.from(foundAudios.values());
 };
 
+export const findAudiosByGenre = async (query: string, limit: number): Promise<DbAudio[]> => {
+  const audios = await findAudios(limit, (self: DbAudio) => {
+    const genres = self?.metadata?.genre || [];
+
+    return genres.some((genre) => genre.toLowerCase() === query.toLowerCase());
+  });
+
+  const foundAudios = new Map();
+  audios.forEach((a) => foundAudios.set(a.path_id, a));
+
+  return Array.from(foundAudios.values());
+};
+
 export const findAlbums = async (
   limit: number,
   comparatorFn: (self: DbAlbum) => boolean
@@ -404,4 +417,21 @@ export const insertTheme = async (id: string, colors: unknown): Promise<DbTheme>
 
 export const removeTheme = async (id: string): Promise<number> => {
   return themeDb.removeAsync({ _id: id }, {});
+};
+
+export const getAllGenres = async (): Promise<string[]> => {
+  const genresInDb = (await audioDb.findAsync({}))
+    .map((a: DbAudio) => a.metadata.genre)
+    .flat(Infinity) as string[];
+  const processedGenres = genresInDb.filter(Boolean).map(capitalize);
+
+  return [...new Set(processedGenres)].sort((a, b) => a.localeCompare(b));
+};
+
+const capitalize = (str: string) => {
+  if (!str) {
+    return str;
+  }
+
+  return `${str[0].toUpperCase()}${str.substring(1, str.length)}`;
 };
