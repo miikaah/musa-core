@@ -4,7 +4,12 @@ import uniqBy from "lodash.uniqby";
 import { getArtistAlbums } from "./artist";
 import { getAlbumById } from "./album";
 import { getAudioById } from "./audio";
-import { findAudiosByMetadataAndFilename, findAlbumsByMetadata } from "../db";
+import {
+  findAudiosByMetadataAndFilename,
+  findAlbumsByMetadata,
+  findAlbumsByYear,
+  findAudiosByYear,
+} from "../db";
 import { artistsForFind, albumsForFind, audiosForFind, audioCollection } from "../scanner";
 import { tokenize, calculateOkapiBm25Score } from "../full-text-search";
 
@@ -13,6 +18,7 @@ import { AlbumWithFilesAndMetadata } from "./album.types";
 import { AudioWithMetadata } from "./audio.types";
 import { ArtistWithId, AlbumWithId, FileWithId } from "../scanner.types";
 import { FindResult } from "./find.types";
+import { DbAlbum, DbAudio } from "../db.types";
 
 export const find = async ({
   query,
@@ -30,6 +36,28 @@ export const find = async ({
       audios: [],
     };
   }
+
+  const queryAsNumber = parseInt(query, 10);
+
+  if (!isNaN(queryAsNumber)) {
+    const foundAlbums = await findAlbumsByYear(queryAsNumber, albumsForFind.length);
+    const albums = (
+      (await Promise.all(
+        foundAlbums
+          .filter(Boolean)
+          .slice(0, limit * 2)
+          // @ts-expect-error stfu
+          .map(async (a) => getAlbumById(a.id || a.path_id))
+      )) as AlbumWithFilesAndMetadata[]
+    ).filter(({ name }) => name);
+
+    return {
+      artists: [],
+      albums: uniqBy(albums, ({ id }: { id: string }) => id),
+      audios: [],
+    };
+  }
+
   const options = { limit, key: "name", threshold: -50 };
   const foundArtists = fuzzysort.go(query, artistsForFind, options);
   const artists = (await Promise.all(
@@ -129,7 +157,58 @@ function lookupEntities<T>(entitiesForFind: T[], indices: number[]) {
   return entities.filter(Boolean) as T[];
 }
 
-export const findRandom = async ({ limit = 6 }: { limit?: number }): Promise<FindResult> => {
+export const findRandom = async ({
+  limit = 6,
+  lockedSearchTerm,
+}: {
+  limit?: number;
+  lockedSearchTerm?: string;
+}): Promise<FindResult> => {
+  if (lockedSearchTerm) {
+    const query = parseInt(lockedSearchTerm, 10);
+
+    if (!isNaN(query)) {
+      const albumsInDb = await findAlbumsByYear(query, albumsForFind.length);
+      const albumIndices = getRandomNumbers(albumsInDb.length, limit);
+      const foundAlbums = lookupEntities<DbAlbum>(albumsInDb, albumIndices);
+      const albums = await Promise.all(foundAlbums.map(async (a) => getAlbumById(a.path_id)));
+
+      const audiosInDb = await findAudiosByYear(query, audiosForFind.length);
+      const audioIndices = getRandomNumbers(audiosInDb.length, limit);
+      const foundAudios = lookupEntities<DbAudio>(audiosInDb, audioIndices);
+      const audios = (
+        await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.path_id })))
+      ).filter(({ id }) => !!audioCollection[id]);
+
+      return {
+        artists: [],
+        albums,
+        audios,
+      } as FindResult;
+    }
+
+    const results = await find({ query: lockedSearchTerm, limit: 100 });
+
+    const artistIndices = getRandomNumbers(results.artists.length, limit);
+    const artists = lookupEntities<Artist>(results.artists, artistIndices);
+
+    const albumIndices = getRandomNumbers(results.albums.length, limit);
+    const foundAlbums = lookupEntities<AlbumWithFilesAndMetadata>(results.albums, albumIndices);
+    const albums = await Promise.all(foundAlbums.map(async (a) => getAlbumById(a.id)));
+
+    const audioIndices = getRandomNumbers(results.audios.length, limit);
+    const foundAudios = lookupEntities<FileWithId>(results.audios, audioIndices);
+    const audios = (
+      await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.id })))
+    ).filter(({ id }) => !!audioCollection[id]);
+
+    return {
+      artists,
+      albums,
+      audios,
+    } as FindResult;
+  }
+
   const artistIndices = getRandomNumbers(artistsForFind.length, limit);
   const foundArtists = lookupEntities<ArtistWithId>(artistsForFind, artistIndices);
   const artists = await Promise.all(foundArtists.map(async (a) => getArtistAlbums(a.id)));

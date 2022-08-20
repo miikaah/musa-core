@@ -204,6 +204,19 @@ export const findAudiosByMetadataAndFilename = async (
   return Array.from(foundAudios.values());
 };
 
+export const findAudiosByYear = async (query: number, limit: number): Promise<DbAudio[]> => {
+  const audios = await findAudios(limit, (self: DbAudio) => {
+    const title = self?.metadata?.year || "";
+
+    return title === query;
+  });
+
+  const foundAudios = new Map();
+  audios.forEach((a) => foundAudios.set(a.path_id, a));
+
+  return Array.from(foundAudios.values());
+};
+
 export const findAlbums = async (
   limit: number,
   comparatorFn: (self: DbAlbum) => boolean
@@ -248,6 +261,20 @@ export const findAlbumsByMetadata = async (query: string, limit: number): Promis
 
   const foundAlbums = new Map();
   [...albumsByExactTitle, ...albumsByFuzzyTitle].forEach((a) => foundAlbums.set(a.path_id, a));
+
+  return Array.from(foundAlbums.values());
+};
+
+export const findAlbumsByYear = async (query: number, limit: number): Promise<DbAlbum[]> => {
+  const albums = await findAlbums(limit, (self: DbAlbum) => {
+    const title = self?.metadata?.year || 0;
+    const queryLc = +query;
+
+    return title === queryLc;
+  });
+
+  const foundAlbums = new Map();
+  albums.forEach((a) => foundAlbums.set(a.path_id, a));
 
   return Array.from(foundAlbums.values());
 };
