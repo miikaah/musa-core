@@ -49,6 +49,17 @@ export let audiosForFind: AudiosForFind = [];
 
 let cachedElectronFileProtocol = "";
 
+type ScanProgressListener = (
+  ratio: number,
+  mode: "none" | "normal" | "indeterminate" | "error" | "paused"
+) => void;
+
+let scanProgressListener: ScanProgressListener;
+
+export const setScanProgressListener = (callback: ScanProgressListener) => {
+  scanProgressListener = callback;
+};
+
 export const refresh = async ({
   musicLibraryPath,
   baseUrl,
@@ -228,6 +239,9 @@ export const update = async ({
 
       if (event) {
         event.sender.send("musa:scan:update", i);
+      }
+      if (scanProgressListener) {
+        scanProgressListener(i / filesToInsert.length, "normal");
       }
     } catch (err) {
       console.error(err);

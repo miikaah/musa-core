@@ -6,7 +6,7 @@ import { find, findRandom } from "./api/find";
 import { getAllThemes, getTheme, insertTheme, removeTheme } from "./api/theme";
 import { getAllGenres } from "./api/genre";
 import { initDb } from "./db";
-import { init, update, refresh } from "./scanner";
+import { init, update, refresh, setScanProgressListener } from "./scanner";
 import { getState, setState } from "./fs-state";
 import { writeTags } from "./metadata";
 
@@ -34,6 +34,7 @@ const Scanner = {
   init,
   update,
   refresh,
+  setScanProgressListener,
 };
 
 const Fs = {
