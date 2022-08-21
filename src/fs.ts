@@ -5,6 +5,10 @@ export const imageExts = [".jpg", ".jpeg", ".png", ".webp"];
 export const audioExts = [".mp3", ".flac", ".ogg"];
 export const extensions = [...imageExts, ...audioExts];
 
+export const isDir = (filepath: string) => {
+  return !extensions.some((e) => filepath.toLowerCase().endsWith(e));
+};
+
 const satisfiesConstraints = (filename: string) => {
   return !filename.startsWith(".") && extensions.some((e) => filename.toLowerCase().endsWith(e));
 };

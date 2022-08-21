@@ -1,8 +1,11 @@
+import path, { sep } from "path";
 import { getAudio } from "../db";
 import { albumCollection, audioCollection } from "../scanner";
+import UrlSafeBase64 from "../urlsafe-base64";
+import { traverseFileSystem, isDir } from "../fs";
 
 import { DbAudio } from "../db.types";
-import { AudioWithMetadata } from "./audio.types";
+import { AudioReturnType } from "./audio.types";
 
 export const getAudioById = async ({
   id,
@@ -10,7 +13,7 @@ export const getAudioById = async ({
 }: {
   id: string;
   existingDbAudio?: DbAudio;
-}): Promise<AudioWithMetadata | Record<string, never>> => {
+}): Promise<AudioReturnType> => {
   const audio = audioCollection[id];
 
   if (!audio) {
@@ -32,4 +35,34 @@ export const getAudioById = async ({
     coverUrl: album?.coverUrl,
     metadata: dbAudio?.metadata,
   };
+};
+
+export const getAudiosByFilepaths = async (
+  paths: string[],
+  libPath: string
+): Promise<AudioReturnType[]> => {
+  const audios = await Promise.all(paths.map((filepath) => handleDirOrFile(filepath, libPath)));
+
+  return (audios.flat(Infinity) as AudioReturnType[]).filter(hasKeys);
+};
+
+const handleDirOrFile = async (filepath: string, libPath: string) => {
+  if (isDir(filepath)) {
+    const files = await traverseFileSystem(filepath);
+    const filesWithFullPath = files.map((file) => path.join(filepath, file));
+
+    return Promise.all(filesWithFullPath.map((file) => getAudioByFilepath(file, libPath)));
+  }
+
+  return getAudioByFilepath(filepath, libPath);
+};
+
+const getAudioByFilepath = (filepath: string, libPath: string) => {
+  const id = UrlSafeBase64.encode(filepath.replace(path.join(libPath, sep), ""));
+
+  return getAudioById({ id });
+};
+
+const hasKeys = (obj: AudioReturnType) => {
+  return Object.keys(obj).length > 0;
 };

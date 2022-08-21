@@ -1,7 +1,7 @@
 import UrlSafeBase64 from "./urlsafe-base64";
 import { getAlbumById } from "./api/album";
 import { getArtistById, getArtistAlbums, getArtists } from "./api/artist";
-import { getAudioById } from "./api/audio";
+import { getAudioById, getAudiosByFilepaths } from "./api/audio";
 import { find, findRandom } from "./api/find";
 import { getAllThemes, getTheme, insertTheme, removeTheme } from "./api/theme";
 import { getAllGenres } from "./api/genre";
@@ -16,6 +16,7 @@ const Api = {
   getArtistById,
   getArtistAlbums,
   getAudioById,
+  getAudiosByFilepaths,
   find,
   findRandom,
   getAllThemes,
