@@ -206,9 +206,9 @@ export const findAudiosByMetadataAndFilename = async (
 
 export const findAudiosByYear = async (query: number, limit: number): Promise<DbAudio[]> => {
   const audios = await findAudios(limit, (self: DbAudio) => {
-    const title = self?.metadata?.year || "";
+    const year = self?.metadata?.year || "";
 
-    return title === query;
+    return year === query;
   });
 
   const foundAudios = new Map();
@@ -280,10 +280,9 @@ export const findAlbumsByMetadata = async (query: string, limit: number): Promis
 
 export const findAlbumsByYear = async (query: number, limit: number): Promise<DbAlbum[]> => {
   const albums = await findAlbums(limit, (self: DbAlbum) => {
-    const title = self?.metadata?.year || 0;
-    const queryLc = +query;
+    const year = self?.metadata?.year || 0;
 
-    return title === queryLc;
+    return year === query;
   });
 
   const foundAlbums = new Map();
