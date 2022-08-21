@@ -28,7 +28,7 @@ export const find = async ({
   query: string;
   limit?: number;
 }): Promise<FindResult> => {
-  query = query.toLowerCase();
+  query = query.toLowerCase().trim();
 
   if (query.length < 2) {
     return {
@@ -206,6 +206,7 @@ export const findRandom = async ({
   lockedSearchTerm?: string;
 }): Promise<FindResult> => {
   if (lockedSearchTerm) {
+    lockedSearchTerm = lockedSearchTerm.trim();
     const query = parseInt(lockedSearchTerm, 10);
 
     // Year search
