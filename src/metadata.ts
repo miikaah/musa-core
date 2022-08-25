@@ -26,7 +26,23 @@ export const getMetadata = async (
   { id, quiet = false }: GetMetadataParams
 ): Promise<Metadata> => {
   const audioPath = path.join(libPath, UrlSafeBase64.decode(id));
-  const { format, native, common } = await readMetadata(audioPath);
+  const tags = await readMetadata(audioPath);
+
+  return getMetadataTags(audioPath, tags, quiet);
+};
+
+export const getMetadataByFilepath = async (filepath: string) => {
+  const tags = await readMetadata(filepath);
+
+  return getMetadataTags(filepath, tags, true);
+};
+
+const getMetadataTags = async (
+  audioPath: string,
+  tags: AudioMetadata,
+  quiet = false
+): Promise<Metadata> => {
+  const { format, native, common } = tags;
   const id3v2x = native["ID3v2.4"] || native["ID3v2.3"] || native["ID3v1"] || [];
   const { vorbis = [] } = native;
 

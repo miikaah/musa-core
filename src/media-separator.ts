@@ -223,7 +223,7 @@ const getUrl = (baseUrl: string, path: string, id: string): string => {
   return `${baseUrl}/${path}/${id}`;
 };
 
-const getElectronUrl = (protocol: string, filepath: string) => {
+export const getElectronUrl = (protocol: string, filepath: string) => {
   return path.join(protocol, filepath);
 };
 

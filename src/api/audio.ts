@@ -3,6 +3,8 @@ import { getAudio } from "../db";
 import { albumCollection, audioCollection } from "../scanner";
 import UrlSafeBase64 from "../urlsafe-base64";
 import { traverseFileSystem, isDir } from "../fs";
+import { getMetadataByFilepath } from "../metadata";
+import { getElectronUrl } from "../media-separator";
 
 import { DbAudio } from "../db.types";
 import { AudioReturnType } from "./audio.types";
@@ -39,14 +41,32 @@ export const getAudioById = async ({
 
 export const getAudiosByFilepaths = async (
   paths: string[],
-  libPath: string
+  libPath: string,
+  electronFileProtocol: string
 ): Promise<AudioReturnType[]> => {
-  const audios = await Promise.all(paths.map((filepath) => handleDirOrFile(filepath, libPath)));
+  const audios = await Promise.all(
+    paths.map((filepath) => handleDirOrFile(filepath, libPath, electronFileProtocol))
+  );
 
   return (audios.flat(Infinity) as AudioReturnType[]).filter(hasKeys);
 };
 
-const handleDirOrFile = async (filepath: string, libPath: string) => {
+const handleDirOrFile = async (filepath: string, libPath: string, electronFileProtocol: string) => {
+  const isExternal = !filepath.startsWith(libPath);
+
+  if (isExternal) {
+    if (isDir(filepath)) {
+      const files = await traverseFileSystem(filepath);
+      const filesWithFullPath = files.map((file) => path.join(filepath, file));
+
+      return Promise.all(
+        filesWithFullPath.map((file) => getAudioMetadata(file, electronFileProtocol))
+      );
+    }
+
+    return getAudioMetadata(filepath, electronFileProtocol);
+  }
+
   if (isDir(filepath)) {
     const files = await traverseFileSystem(filepath);
     const filesWithFullPath = files.map((file) => path.join(filepath, file));
@@ -55,6 +75,20 @@ const handleDirOrFile = async (filepath: string, libPath: string) => {
   }
 
   return getAudioByFilepath(filepath, libPath);
+};
+
+const getAudioMetadata = async (filepath: string, electronFileProtocol: string) => {
+  const metadata = await getMetadataByFilepath(filepath);
+  const filenameParts = filepath.split(sep);
+  const name = metadata.title || filenameParts[filenameParts.length - 1];
+
+  return {
+    name,
+    track: metadata?.track?.no,
+    fileUrl: getElectronUrl(electronFileProtocol, filepath),
+    coverUrl: null,
+    metadata,
+  };
 };
 
 const getAudioByFilepath = (filepath: string, libPath: string) => {
