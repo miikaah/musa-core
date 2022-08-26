@@ -11,6 +11,7 @@ import {
   DbAudio,
   DbAlbum,
   DbTheme,
+  DbExternalAudio,
   AlbumUpsertOptions,
   EnrichedAlbum,
   EnrichedAlbumFile,
@@ -22,6 +23,7 @@ const isDev = NODE_ENV === "local";
 let audioDb: Datastore<DbAudio>;
 let albumDb: Datastore<DbAlbum>;
 let themeDb: Datastore<DbTheme>;
+let externalAudioDb: Datastore<DbExternalAudio>;
 let libPath: string;
 
 export const initDb = async (libraryPath: string) => {
@@ -44,6 +46,12 @@ export const initDb = async (libraryPath: string) => {
     filename: path.join(libraryPath, themeDbFile),
   });
   await themeDb.loadDatabaseAsync();
+
+  const externalAudioDbFile = `${isDev ? ".dev" : ""}.musa.external-audio.v1.db`;
+  externalAudioDb = new Datastore<DbExternalAudio>({
+    filename: path.join(libraryPath, externalAudioDbFile),
+  });
+  await externalAudioDb.loadDatabaseAsync();
 
   // @backwards_compatibility clean up old db files
   const oldFiles = [
@@ -87,6 +95,23 @@ export const insertAudio = async (file: { id: string; filename: string }): Promi
   });
 };
 
+export const insertExternalAudio = async (file: {
+  id: string;
+  filename: string;
+  filepath: string;
+  metadata: Metadata;
+}): Promise<void> => {
+  const { id, filename, metadata, filepath } = file;
+
+  await externalAudioDb.insertAsync({
+    path_id: id,
+    modified_at: new Date().toISOString(),
+    filename,
+    filepath,
+    metadata,
+  });
+};
+
 export const updateAudio = async (file: {
   id: string;
   filename: string;
@@ -112,8 +137,33 @@ export const updateAudio = async (file: {
   );
 };
 
+export const updateExternalAudio = async (file: {
+  id: string;
+  filename: string;
+  metadata: Metadata;
+  modifiedAt: Date;
+}): Promise<void> => {
+  const { id, filename, modifiedAt, metadata } = file;
+
+  console.log("Updating external audio", filename, "because it was modified at", modifiedAt);
+  await externalAudioDb.updateAsync(
+    { path_id: id },
+    {
+      $set: {
+        modified_at: modifiedAt.toISOString(),
+        filename,
+        metadata,
+      },
+    }
+  );
+};
+
 export const getAudio = async (id: string): Promise<DbAudio> => {
   return audioDb.findOneAsync({ path_id: id });
+};
+
+export const getExternalAudio = async (id: string): Promise<DbAudio> => {
+  return externalAudioDb.findOneAsync({ path_id: id });
 };
 
 export const getAllAudios = async (): Promise<DbAudio[]> => {

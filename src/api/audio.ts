@@ -1,8 +1,9 @@
 import path, { sep } from "path";
-import { getAudio } from "../db";
+import fs from "fs/promises";
+import { getAudio, getExternalAudio, insertExternalAudio, updateExternalAudio } from "../db";
 import { albumCollection, audioCollection } from "../scanner";
 import UrlSafeBase64 from "../urlsafe-base64";
-import { traverseFileSystem, isDir } from "../fs";
+import { traverseFileSystem, isDir, audioExts } from "../fs";
 import { getMetadataByFilepath } from "../metadata";
 import { getElectronUrl } from "../media-separator";
 
@@ -78,12 +79,40 @@ const handleDirOrFile = async (filepath: string, libPath: string, electronFilePr
 };
 
 const getAudioMetadata = async (filepath: string, electronFileProtocol: string) => {
-  const metadata = await getMetadataByFilepath(filepath);
+  if (!audioExts.some((e) => filepath.toLowerCase().endsWith(e))) {
+    return {};
+  }
+  const id = UrlSafeBase64.encode(filepath);
+  const dbAudio = await getExternalAudio(id);
   const filenameParts = filepath.split(sep);
-  const name = metadata.title || filenameParts[filenameParts.length - 1];
+  const filename = filenameParts[filenameParts.length - 1];
+  const { mtimeMs } = await fs.stat(filepath);
+
+  let isUpdate = false;
+  if (dbAudio) {
+    if (Math.trunc(mtimeMs) <= new Date(dbAudio.modified_at).getTime()) {
+      return {
+        name: dbAudio?.metadata?.title || filename,
+        track: dbAudio?.metadata?.track?.no,
+        fileUrl: getElectronUrl(electronFileProtocol, filepath),
+        coverUrl: null,
+        metadata: dbAudio?.metadata,
+      };
+    }
+
+    isUpdate = true;
+  }
+
+  const metadata = await getMetadataByFilepath(filepath);
+
+  if (isUpdate) {
+    await updateExternalAudio({ id, filename, metadata, modifiedAt: new Date(mtimeMs) });
+  } else {
+    await insertExternalAudio({ id, filename, filepath, metadata });
+  }
 
   return {
-    name,
+    name: metadata.title || filename,
     track: metadata?.track?.no,
     fileUrl: getElectronUrl(electronFileProtocol, filepath),
     coverUrl: null,
@@ -92,6 +121,9 @@ const getAudioMetadata = async (filepath: string, electronFileProtocol: string) 
 };
 
 const getAudioByFilepath = (filepath: string, libPath: string) => {
+  if (!audioExts.some((e) => filepath.toLowerCase().endsWith(e))) {
+    return {};
+  }
   const id = UrlSafeBase64.encode(filepath.replace(path.join(libPath, sep), ""));
 
   return getAudioById({ id });
