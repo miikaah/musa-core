@@ -40,4 +40,5 @@ export type EnrichedAlbumFile = {
   url?: string;
   fileUrl?: string;
   metadata?: Metadata;
+  coverUrl?: string;
 };

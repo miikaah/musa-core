@@ -201,10 +201,9 @@ export const findAudiosByMetadataAndFilename = async (
   limit: number
 ): Promise<DbAudio[]> => {
   const audiosByExactTitle = await findAudios(limit, (self: DbAudio) => {
-    const title = (self?.metadata?.title || "").toLowerCase();
-    const queryLc = query.toLowerCase();
+    const title = self?.metadata?.title || "";
 
-    return title === queryLc;
+    return title.toLowerCase() === query.toLowerCase();
   });
 
   let audiosByFuzzyTitle: DbAudio[] = [];
@@ -212,10 +211,9 @@ export const findAudiosByMetadataAndFilename = async (
 
   if (amountOfAudios < limit) {
     audiosByFuzzyTitle = await findAudios(limit - amountOfAudios, (self: DbAudio) => {
-      const title = (self?.metadata?.title || "").toLowerCase();
-      const queryLc = query.toLowerCase();
+      const title = self?.metadata?.title || "";
 
-      return title.includes(queryLc);
+      return title.toLowerCase().includes(query.toLowerCase());
     });
   }
 
@@ -224,10 +222,9 @@ export const findAudiosByMetadataAndFilename = async (
 
   if (amountOfAudios < limit) {
     audiosByExactFilename = await findAudios(limit - amountOfAudios, (self: DbAudio) => {
-      const filename = (self?.filename || "").toLowerCase();
-      const queryLc = query.toLowerCase();
+      const filename = self?.filename || "";
 
-      return filename === queryLc;
+      return filename.toLowerCase() === query.toLowerCase();
     });
   }
 
@@ -236,10 +233,9 @@ export const findAudiosByMetadataAndFilename = async (
 
   if (amountOfAudios < limit) {
     audiosByFuzzyFilename = await findAudios(limit - amountOfAudios, (self: DbAudio) => {
-      const filename = (self?.filename || "").toLowerCase();
-      const queryLc = query.toLowerCase();
+      const filename = self?.filename || "";
 
-      return filename.includes(queryLc);
+      return filename.toLowerCase().includes(query.toLowerCase());
     });
   }
 
@@ -304,10 +300,9 @@ export const findAlbums = async (
 
 export const findAlbumsByMetadata = async (query: string, limit: number): Promise<DbAlbum[]> => {
   const albumsByExactTitle = await findAlbums(limit, (self: DbAlbum) => {
-    const title = (self?.metadata?.album || "").toLowerCase();
-    const queryLc = query.toLowerCase();
+    const title = self?.metadata?.album || "";
 
-    return title === queryLc;
+    return title.toLowerCase() === query.toLowerCase();
   });
 
   let albumsByFuzzyTitle: DbAlbum[] = [];
@@ -315,10 +310,9 @@ export const findAlbumsByMetadata = async (query: string, limit: number): Promis
 
   if (amountOfAudios < limit) {
     albumsByFuzzyTitle = await findAlbums(limit - amountOfAudios, (self: DbAlbum) => {
-      const title = (self?.metadata?.album || "").toLowerCase();
-      const queryLc = query.toLowerCase();
+      const title = self?.metadata?.album || "";
 
-      return title.includes(queryLc);
+      return title.toLowerCase().includes(query.toLowerCase());
     });
   }
 
@@ -437,6 +431,7 @@ export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedA
         url,
         fileUrl,
         metadata: file?.metadata,
+        coverUrl: album.coverUrl,
       };
     })
   );
