@@ -9,6 +9,9 @@ export const isDir = (filepath: string) => {
   return !extensions.some((e) => filepath.toLowerCase().endsWith(e));
 };
 
+export const isPathExternal = (pathname: string) =>
+  pathname.startsWith("/") || new RegExp(/^[A-Z]:\\\w/).test(pathname);
+
 const satisfiesConstraints = (filename: string) => {
   return !filename.startsWith(".") && extensions.some((e) => filename.toLowerCase().endsWith(e));
 };

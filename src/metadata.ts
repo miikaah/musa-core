@@ -5,6 +5,7 @@ import NodeID3 from "node-id3";
 
 import UrlSafeBase64 from "./urlsafe-base64";
 import * as Db from "./db";
+import { isPathExternal } from "./fs";
 
 import type { AudioMetadata, GetMetadataParams, Metadata, Codec } from "./metadata.types";
 
@@ -168,14 +169,22 @@ export const writeTags = async (
   tags: Record<string, unknown>
 ) => {
   const filename = UrlSafeBase64.decode(id);
-  const filepath = path.join(musicLibraryPath, filename);
-  const metadata = await getMetadata(musicLibraryPath, { id, quiet: true });
+  const isExternal = isPathExternal(filename);
+  const filepath = isExternal ? filename : path.join(musicLibraryPath, filename);
+  const metadata = isExternal
+    ? await getMetadataByFilepath(filename)
+    : await getMetadata(musicLibraryPath, { id, quiet: true });
 
   try {
     switch (getTypeOfCodec(metadata.codec)) {
       case Codec.MP3: {
         NodeID3.update(tags, filepath);
-        await Db.updateAudio({ id, filename, modifiedAt: new Date() });
+
+        if (isExternal) {
+          await Db.updateExternalAudio({ id, filename, metadata, modifiedAt: new Date() });
+        } else {
+          await Db.updateAudio({ id, filename, modifiedAt: new Date() });
+        }
       }
     }
   } catch (error) {

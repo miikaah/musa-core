@@ -92,6 +92,7 @@ const getAudioMetadata = async (filepath: string, electronFileProtocol: string) 
   if (dbAudio) {
     if (Math.trunc(mtimeMs) <= new Date(dbAudio.modified_at).getTime()) {
       return {
+        id,
         name: dbAudio?.metadata?.title || filename,
         track: dbAudio?.metadata?.track?.no,
         fileUrl: getElectronUrl(electronFileProtocol, filepath),
@@ -112,6 +113,7 @@ const getAudioMetadata = async (filepath: string, electronFileProtocol: string) 
   }
 
   return {
+    id,
     name: metadata.title || filename,
     track: metadata?.track?.no,
     fileUrl: getElectronUrl(electronFileProtocol, filepath),
