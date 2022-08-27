@@ -95,16 +95,20 @@ export const init = async ({
   baseUrl,
   isElectron = false,
   artistUrlFragment = "artist",
+  albumUrlFragment = "album",
   audioUrlFragment = "audio",
   imageUrlFragment = "image",
+  fileUrlFragment = "file",
   electronFileProtocol = "",
 }: {
   musicLibraryPath: string;
   baseUrl?: string;
   isElectron: boolean;
   artistUrlFragment?: string;
+  albumUrlFragment?: string;
   audioUrlFragment?: string;
   imageUrlFragment?: string;
+  fileUrlFragment?: string;
   electronFileProtocol?: string;
 }): Promise<MediaCollectionAndFiles> => {
   cachedElectronFileProtocol = electronFileProtocol;
@@ -123,8 +127,10 @@ export const init = async ({
     baseUrl: isElectron ? musicLibraryPath : `${baseUrl}`,
     isElectron,
     artistUrlFragment,
+    albumUrlFragment,
     audioUrlFragment,
     imageUrlFragment,
+    fileUrlFragment,
     electronFileProtocol,
   });
   artistCollection = mediaCollection.artistCollection;

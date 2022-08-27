@@ -16,16 +16,20 @@ export const createMediaCollection = ({
   baseUrl,
   isElectron = false,
   artistUrlFragment = "artist",
+  albumUrlFragment = "album",
   audioUrlFragment = "audio",
   imageUrlFragment = "image",
+  fileUrlFragment = "file",
   electronFileProtocol = "",
 }: {
   files: string[];
   baseUrl: string;
   isElectron?: boolean;
   artistUrlFragment?: string;
+  albumUrlFragment?: string;
   audioUrlFragment?: string;
   imageUrlFragment?: string;
+  fileUrlFragment?: string;
   electronFileProtocol?: string;
 }): MediaCollection => {
   if (isElectron) {
@@ -50,7 +54,7 @@ export const createMediaCollection = ({
     const imageUrl = isElectron ? "" : getUrl(baseUrl, imageUrlFragment, fileId);
     const url = isElectron
       ? getElectronUrl(electronFileProtocol, file)
-      : getUrl(baseUrl, "file", fileId);
+      : getUrl(baseUrl, fileUrlFragment, fileId);
 
     if (!artistCollection[artistId]) {
       artistCollection[artistId] = {
@@ -97,7 +101,7 @@ export const createMediaCollection = ({
       // This file is in an album folder
       const [albumName, ...albumRest] = rest;
       const albumId = UrlSafeBase64.encode(path.join(artistName, albumName));
-      const albumUrl = isElectron ? "" : getUrl(baseUrl, "album", albumId);
+      const albumUrl = isElectron ? "" : getUrl(baseUrl, albumUrlFragment, albumId);
       const fileName = albumRest[albumRest.length - 1];
 
       if (!albumCollection[albumId]) {
