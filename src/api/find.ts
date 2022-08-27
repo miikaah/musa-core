@@ -128,11 +128,19 @@ export const find = async ({
   ).filter(({ name }) => name);
 
   const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 2);
+
   const audios = (
     (await Promise.all(
       foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
     )) as AudioWithMetadata[]
   ).filter(({ id }) => !!audioCollection[id]);
+
+  if (audios.length < limit * 2) {
+    albums.forEach((a) => {
+      // @ts-expect-error nope
+      audios.push(...a.files);
+    });
+  }
 
   const k1 = 1.2;
   const b = 0.75;
@@ -141,7 +149,7 @@ export const find = async ({
   return {
     artists: artists.sort(byOkapiBm25(terms, k1, b, true)),
     albums: uniqBy(albums, ({ id }: { id: string }) => id).sort(byOkapiBm25(terms, k1, b)),
-    audios: audios.sort(byOkapiBm25(terms, k1, b)),
+    audios: uniqBy(audios, ({ id }: { id: string }) => id).sort(byOkapiBm25(terms, k1, b)),
   };
 };
 
