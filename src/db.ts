@@ -459,6 +459,32 @@ export const insertTheme = async (id: string, colors: unknown): Promise<DbTheme>
   });
 };
 
+export const updateTheme = async (id: string, colors: unknown): Promise<DbTheme> => {
+  const { affectedDocuments } = await themeDb.updateAsync(
+    { path_id: id },
+    {
+      $set: {
+        modified_at: new Date().toISOString(),
+        filename: UrlSafeBase64.decode(id),
+        colors,
+      },
+    },
+    {
+      returnUpdatedDocs: true,
+    }
+  );
+
+  if (!affectedDocuments) {
+    throw new Error("Theme not found");
+  }
+
+  if (!Array.isArray(affectedDocuments)) {
+    return affectedDocuments;
+  }
+
+  return affectedDocuments[0];
+};
+
 export const removeTheme = async (id: string): Promise<number> => {
   return themeDb.removeAsync({ _id: id }, {});
 };

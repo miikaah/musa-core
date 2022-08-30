@@ -21,6 +21,10 @@ export const insertTheme = async (id: string, colors: unknown) => {
   return toApiTheme(await Db.insertTheme(id, colors));
 };
 
+export const updateTheme = async (id: string, colors: unknown) => {
+  return toApiTheme(await Db.updateTheme(id, colors));
+};
+
 export const removeTheme = async (id: string) => {
   await Db.removeTheme(id);
 };

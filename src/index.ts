@@ -3,7 +3,7 @@ import { getAlbumById } from "./api/album";
 import { getArtistById, getArtistAlbums, getArtists } from "./api/artist";
 import { getAudioById, getAudiosByFilepaths } from "./api/audio";
 import { find, findRandom } from "./api/find";
-import { getAllThemes, getTheme, insertTheme, removeTheme } from "./api/theme";
+import { getAllThemes, getTheme, insertTheme, updateTheme, removeTheme } from "./api/theme";
 import { getAllGenres } from "./api/genre";
 import { initDb } from "./db";
 import { init, update, refresh, setScanProgressListener } from "./scanner";
@@ -22,6 +22,7 @@ const Api = {
   getAllThemes,
   getTheme,
   insertTheme,
+  updateTheme,
   removeTheme,
   getAllGenres,
   writeTags,
