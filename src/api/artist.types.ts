@@ -6,7 +6,7 @@ export type ArtistAlbum = {
   name: string;
   url: string;
   coverUrl?: string;
-  year?: number | null;
+  year?: number | string | null;
 };
 
 export type Artist = Omit<ArtistWithAlbums, "albums"> & {

@@ -19,6 +19,7 @@
     "@seald-io/nedb": "^3.0.0",
     "fuzzysort": "^2.0.1",
     "lodash.uniqby": "^4.7.0",
+    "metaflac-js": "^1.0.5",
     "music-metadata": "^7.12.3",
     "node-id3": "^0.2.3"
   },

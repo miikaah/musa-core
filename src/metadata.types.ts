@@ -57,7 +57,7 @@ export type Metadata = Partial<{
   track: NumberOf;
   disk: NumberOf;
   album: string;
-  year: number;
+  year: number | string;
   date: string;
   replayGainTrackGain: ReplayGain;
   replayGainTrackPeak: ReplayGain;
@@ -86,3 +86,32 @@ export type Metadata = Partial<{
 }>;
 
 export type Codec = "MP3" | "FLAC" | "VORBIS";
+
+export type Tags = {
+  artist: string;
+  title: string;
+  album: string;
+  year: string;
+  trackNumber: string;
+  partOfSet: string;
+  genre: string;
+  composer: string;
+  comment: {
+    language: string;
+    text: string;
+  };
+};
+
+export type TagsFlac = {
+  artist: string;
+  title: string;
+  album: string;
+  year: string;
+  trackNumber: string;
+  trackTotal: string;
+  diskNumber: string;
+  diskTotal: string;
+  genre: string;
+  composer: string;
+  comment: string;
+};
