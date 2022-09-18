@@ -4,21 +4,18 @@ import { stateFixture } from "../fixtures/state.fixture";
 import { setState, getState } from "./fs-state";
 
 jest.mock("fs/promises");
-jest.mocked(fs.readFile).mockResolvedValue(JSON.stringify(stateFixture));
 
 const origConsoleErrorFn = console.error;
 
 describe("File system state tests", () => {
-  beforeAll(() => {
+  beforeEach(() => {
+    jest.mock("fs/promises");
+    jest.mocked(fs.readFile).mockResolvedValue(JSON.stringify(stateFixture));
     console.error = () => undefined;
   });
 
   afterAll(() => {
     console.error = origConsoleErrorFn;
-  });
-
-  beforeEach(() => {
-    jest.clearAllMocks();
   });
 
   describe("setState()", () => {

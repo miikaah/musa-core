@@ -4,15 +4,14 @@ import { getAlbumById } from "./album";
 import { albumDbFixture, albumFixture, albumCollectionFixture } from "../../fixtures/album.fixture";
 
 jest.mock("../db");
-jest.mocked(getAlbum).mockResolvedValue(albumDbFixture);
-jest.mocked(enrichAlbumFiles).mockResolvedValue(albumFixture.files);
-
 // @ts-expect-error it ain't read-only silly
 Scanner.albumCollection = albumCollectionFixture;
 
 describe("Album API tests", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.mock("../db");
+    jest.mocked(getAlbum).mockResolvedValue(albumDbFixture);
+    jest.mocked(enrichAlbumFiles).mockResolvedValue(albumFixture.files);
   });
 
   describe("getAlbumById()", () => {

@@ -11,7 +11,11 @@
     "build:w": "ts-node --transpile-only esbuild.ts && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental",
     "tsc:w": "tsc --watch --noEmit",
     "test": "jest --coverage",
-    "test:w": "jest --watch"
+    "test:mocha": "ts-mocha",
+    "test:w": "jest --watch",
+    "test:heap": "jest --coverage --runInBand --logHeapUsage",
+    "test:debug": "node --inspect-brk --expose-gc ./node_modules/jest/bin/jest",
+    "test:debug:mocha": "node --inspect-brk --expose-gc ./node_modules/ts-mocha/bin/ts-mocha"
   },
   "author": "Miika Henttonen",
   "license": "MIT",
@@ -28,6 +32,7 @@
     "@swc/jest": "^0.2.21",
     "@types/jest": "^27.5.1",
     "@types/lodash.uniqby": "^4.7.7",
+    "@types/mocha": "^9.1.1",
     "@types/nedb": "^1.8.12",
     "@types/node": "^17.0.35",
     "@typescript-eslint/eslint-plugin": "^5.26.0",
@@ -41,6 +46,7 @@
     "nodemon": "^2.0.16",
     "prettier": "^2.6.2",
     "shx": "^0.3.4",
+    "ts-mocha": "^10.0.0",
     "ts-node": "^10.9.1",
     "typescript": "^4.6.4"
   },

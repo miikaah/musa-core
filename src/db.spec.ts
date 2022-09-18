@@ -28,11 +28,7 @@ import { audioFixture } from "../fixtures/audio.fixture";
 import { enrichedAlbumsFixture } from "../fixtures/db.fixture";
 
 jest.mock("./metadata");
-jest.mocked(getMetadata).mockResolvedValue(parsedMetadataFixture);
-
 jest.mock("./urlsafe-base64");
-jest.mocked(UrlSafeBase64.decode).mockReturnValue("fakedecoded");
-
 jest.mock("fs/promises", () => ({
   ...jest.requireActual("fs/promises"),
   stat: jest.fn().mockResolvedValue(<any>{
@@ -98,12 +94,23 @@ describe("DB tests", () => {
     themeDbRemoveSpy = jest.spyOn(testDbs.themeDb, "removeAsync");
   });
 
-  afterAll(() => {
-    testDbs = null;
+  beforeEach(() => {
+    jest.mock("./metadata");
+    jest.mocked(getMetadata).mockResolvedValue(parsedMetadataFixture);
+
+    jest.mock("./urlsafe-base64");
+    jest.mocked(UrlSafeBase64.decode).mockReturnValue("fakedecoded");
+
+    jest.mock("fs/promises", () => ({
+      ...jest.requireActual("fs/promises"),
+      stat: jest.fn().mockResolvedValue(<any>{
+        mtimeMs: Date.now(),
+      }),
+    }));
   });
 
-  beforeEach(() => {
-    jest.clearAllMocks();
+  afterAll(() => {
+    testDbs = null;
   });
 
   // NOTE: Order matters

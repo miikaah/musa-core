@@ -10,7 +10,6 @@ import { audioCollectionFixture, audioFixture } from "../../fixtures/audio.fixtu
 jest.mock("./album");
 jest.mock("./artist");
 jest.mock("./audio");
-jest.mocked(getAudioById).mockResolvedValue(audioFixture);
 
 const artistId = "QWxhbWFhaWxtYW4gdmFzYXJhdA";
 const audioId =
@@ -26,7 +25,10 @@ Scanner.audioCollection = audioCollectionFixture;
 
 describe("Find API tests", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.mock("./album");
+    jest.mock("./artist");
+    jest.mock("./audio");
+    jest.mocked(getAudioById).mockResolvedValue(audioFixture);
   });
 
   describe("findRandom()", () => {

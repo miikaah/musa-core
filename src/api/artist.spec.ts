@@ -11,9 +11,6 @@ import { audioDbFixture } from "../../fixtures/audio.fixture";
 import { albumCollectionFixture } from "../../fixtures/album.fixture";
 
 jest.mock("../db");
-jest.mocked(getAudio).mockResolvedValue(audioDbFixture);
-jest.mocked(enrichAlbums).mockResolvedValue(artistAlbumsFixture.albums);
-
 // @ts-expect-error it ain't read-only silly
 Scanner.artistObject = artistObjectFixture;
 // @ts-expect-error it ain't read-only silly
@@ -23,7 +20,9 @@ Scanner.albumCollection = albumCollectionFixture;
 
 describe("Artist API tests", () => {
   beforeEach(() => {
-    jest.clearAllMocks();
+    jest.mock("../db");
+    jest.mocked(getAudio).mockResolvedValue(audioDbFixture);
+    jest.mocked(enrichAlbums).mockResolvedValue(artistAlbumsFixture.albums);
   });
 
   describe("getArtists()", () => {
