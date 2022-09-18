@@ -56,7 +56,7 @@ describe("Artist API tests", () => {
     });
 
     it("should throw if getAudio throws", async () => {
-      (getAudio as jest.MockedFunction<typeof getAudio>).mockImplementationOnce(async () => {
+      jest.mocked(getAudio).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
@@ -84,11 +84,9 @@ describe("Artist API tests", () => {
     });
 
     it("should throw if enrichAlbums throws", async () => {
-      (enrichAlbums as jest.MockedFunction<typeof enrichAlbums>).mockImplementationOnce(
-        async () => {
-          throw new Error("err");
-        }
-      );
+      jest.mocked(enrichAlbums).mockImplementationOnce(async () => {
+        throw new Error("err");
+      });
 
       await expect(getArtistAlbums(id)).rejects.toThrow("err");
       expect(enrichAlbums).toHaveBeenCalledTimes(1);

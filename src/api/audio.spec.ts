@@ -36,7 +36,7 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if getAudio throws", async () => {
-      (getAudio as jest.MockedFunction<typeof getAudio>).mockImplementationOnce(async () => {
+      jest.mocked(getAudio).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 

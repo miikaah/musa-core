@@ -21,11 +21,9 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.getAllThemes throws", async () => {
-      (Db.getAllThemes as jest.MockedFunction<typeof Db.getAllThemes>).mockImplementationOnce(
-        async () => {
-          throw new Error("err");
-        }
-      );
+      jest.mocked(Db.getAllThemes).mockImplementationOnce(async () => {
+        throw new Error("err");
+      });
 
       await expect(getAllThemes()).rejects.toThrow("err");
       expect(Db.getAllThemes).toHaveBeenCalledTimes(1);
@@ -44,7 +42,7 @@ describe("Audio API tests", () => {
     });
 
     it("should return empty object if theme does not exist", async () => {
-      (Db.getTheme as jest.MockedFunction<typeof Db.getTheme>).mockResolvedValue(undefined);
+      jest.mocked(Db.getTheme).mockResolvedValue(undefined);
 
       await expect(getTheme(id)).rejects.toThrow("Theme Not Found");
       expect(Db.getTheme).toHaveBeenCalledTimes(1);
@@ -52,7 +50,7 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.getTheme throws", async () => {
-      (Db.getTheme as jest.MockedFunction<typeof Db.getTheme>).mockImplementationOnce(async () => {
+      jest.mocked(Db.getTheme).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
@@ -74,11 +72,9 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.insertTheme throws", async () => {
-      (Db.insertTheme as jest.MockedFunction<typeof Db.insertTheme>).mockImplementationOnce(
-        async () => {
-          throw new Error("err");
-        }
-      );
+      jest.mocked(Db.insertTheme).mockImplementationOnce(async () => {
+        throw new Error("err");
+      });
 
       await expect(insertTheme(id, themeFixture.colors)).rejects.toThrow("err");
       expect(Db.insertTheme).toHaveBeenCalledTimes(1);
@@ -98,11 +94,9 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.removeTheme throws", async () => {
-      (Db.removeTheme as jest.MockedFunction<typeof Db.removeTheme>).mockImplementationOnce(
-        async () => {
-          throw new Error("err");
-        }
-      );
+      jest.mocked(Db.removeTheme).mockImplementationOnce(async () => {
+        throw new Error("err");
+      });
 
       await expect(removeTheme(id)).rejects.toThrow("err");
       expect(Db.removeTheme).toHaveBeenCalledTimes(1);

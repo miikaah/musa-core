@@ -37,7 +37,7 @@ describe("File system state tests", () => {
     });
 
     it("should return empty JSON object if readFile throws", async () => {
-      (fs.readFile as jest.MockedFunction<typeof fs.readFile>).mockImplementationOnce(async () => {
+      jest.mocked(fs.readFile).mockImplementationOnce(async () => {
         throw new Error("");
       });
 

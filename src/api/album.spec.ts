@@ -36,7 +36,7 @@ describe("Album API tests", () => {
     });
 
     it("should throw if getAlbum throws", async () => {
-      (getAlbum as jest.MockedFunction<typeof getAlbum>).mockImplementationOnce(async () => {
+      jest.mocked(getAlbum).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
