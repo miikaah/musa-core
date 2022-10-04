@@ -8,7 +8,7 @@ const origConsoleErrorFn = console.error;
 
 describe("Metadata tests", () => {
   beforeEach(() => {
-    console.error = () => undefined;
+    // console.error = () => undefined;
   });
 
   afterAll(() => {

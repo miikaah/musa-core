@@ -34,17 +34,6 @@ export type CommonMetadata = {
   movementIndex: unknown | Record<string, unknown>;
 };
 
-export type AudioMetadata = {
-  format: Partial<FormatMetadata>;
-  native: {
-    ID3v1?: { id: string; value: string }[];
-    "ID3v2.3"?: { id: string; value: string }[];
-    "ID3v2.4"?: { id: string; value: string }[];
-    vorbis?: { id: string; value: string }[];
-  };
-  common: Partial<CommonMetadata>;
-};
-
 export type NumberOf = { no: string | number | null; of: string | number | null };
 export type ReplayGain = { dB: number; ratio: number };
 

@@ -24,10 +24,11 @@
     "fuzzysort": "^2.0.1",
     "lodash.uniqby": "^4.7.0",
     "metaflac-js": "^1.0.5",
-    "music-metadata": "^7.12.3",
+    "music-metadata": "^8.1.0",
     "node-id3": "^0.2.3"
   },
   "devDependencies": {
+    "@babel/preset-env": "^7.19.3",
     "@swc/core": "^1.2.189",
     "@swc/jest": "^0.2.21",
     "@types/jest": "^27.5.1",

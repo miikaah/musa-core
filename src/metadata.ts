@@ -1,28 +1,34 @@
 import path from "path";
 import fs from "fs/promises";
-import * as musicMetadata from "music-metadata";
 import NodeID3 from "node-id3";
 import Metaflac from "metaflac-js";
+const musicMetadata = import("music-metadata");
 
 import UrlSafeBase64 from "./urlsafe-base64";
 import * as Db from "./db";
 import { isPathExternal } from "./fs";
 
-import type {
-  AudioMetadata,
-  GetMetadataParams,
-  Metadata,
-  Codec,
-  Tags,
-  TagsFlac,
-} from "./metadata.types";
+import type { GetMetadataParams, Metadata, Codec, Tags, TagsFlac } from "./metadata.types";
+import type { IAudioMetadata } from "music-metadata";
 
-export const readMetadata = async (filepath: string): Promise<AudioMetadata> => {
-  let metadata = { format: {}, native: { "ID3v2.3": [] }, common: {} };
+export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
+  let metadata: IAudioMetadata = {
+    format: {
+      trackInfo: [],
+    },
+    native: { "ID3v2.3": [] },
+    common: {
+      track: { no: null, of: null },
+      disk: { no: null, of: null },
+      movementIndex: { no: undefined, of: undefined },
+    },
+    quality: {
+      warnings: [],
+    },
+  };
 
   try {
-    // @ts-expect-error wrongly typed in music-metadata
-    metadata = await musicMetadata.parseFile(filepath);
+    metadata = await (await musicMetadata).parseFile(filepath);
   } catch (error) {
     console.error("Error when reading music metadata", error);
   }
@@ -48,7 +54,7 @@ export const getMetadataByFilepath = async (filepath: string) => {
 
 const getMetadataTags = async (
   audioPath: string,
-  tags: AudioMetadata,
+  tags: IAudioMetadata,
   quiet = false
 ): Promise<Metadata> => {
   const { format, native, common } = tags;
