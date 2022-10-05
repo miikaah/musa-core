@@ -18,4 +18,4 @@ jobs:
           node-version: 16
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
-      - run: npm run test:mocha
+      - run: npm run test
