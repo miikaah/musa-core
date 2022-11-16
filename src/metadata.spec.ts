@@ -7,7 +7,7 @@ import UrlSafeBase64 from "./urlsafe-base64";
 const origConsoleErrorFn = console.error;
 
 describe("Metadata tests", () => {
-  beforeEach(() => {
+  beforeAll(() => {
     console.error = () => undefined;
   });
 
