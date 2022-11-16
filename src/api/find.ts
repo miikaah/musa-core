@@ -1,30 +1,30 @@
 import fuzzysort from "fuzzysort";
 import uniqBy from "lodash.uniqby";
 
-import { getArtistAlbums } from "./artist";
-import { getAlbumById } from "./album";
-import { getAudioById } from "./audio";
 import {
-  findAudiosByMetadataAndFilename,
   findAlbumsByMetadata,
   findAlbumsByYear,
-  findAudiosByYear,
   findAudiosByGenre,
+  findAudiosByMetadataAndFilename,
+  findAudiosByYear,
 } from "../db";
-import { tokenize, calculateOkapiBm25Score } from "../full-text-search";
+import { calculateOkapiBm25Score, tokenize } from "../full-text-search";
 import {
   findAudioInCollectionById,
   getAlbumsForFind,
   getArtistsForFind,
   getAudiosForFind,
 } from "../media-collection";
+import { getAlbumById } from "./album";
+import { getArtistAlbums } from "./artist";
+import { getAudioById } from "./audio";
 
-import { Artist } from "./artist.types";
-import { AlbumWithFilesAndMetadata } from "./album.types";
-import { AudioWithMetadata } from "./audio.types";
-import { ArtistWithId, AlbumWithId, FileWithId } from "../scanner.types";
-import { FindResult } from "./find.types";
 import { DbAlbum, DbAudio } from "../db.types";
+import { AlbumWithId, ArtistWithId, FileWithId } from "../scanner.types";
+import { AlbumWithFilesAndMetadata } from "./album.types";
+import { Artist } from "./artist.types";
+import { AudioWithMetadata } from "./audio.types";
+import { FindResult } from "./find.types";
 
 export const find = async ({
   query,

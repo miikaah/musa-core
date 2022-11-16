@@ -1,6 +1,6 @@
 import fs from "fs/promises";
-import path from "path";
 import os from "os";
+import path from "path";
 
 import { State } from "./fs-state.types";
 

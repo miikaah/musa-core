@@ -1,31 +1,31 @@
-import fs from "fs/promises";
 import { constants } from "fs";
+import fs from "fs/promises";
 import path from "path";
 
-import { getMetadata } from "./metadata";
-import {
-  initDb,
-  initTestDb,
-  insertAudio,
-  updateAudio,
-  getAudio,
-  getAllAudios,
-  getAudiosByIds,
-  upsertAlbum,
-  getAlbum,
-  enrichAlbums,
-  insertTheme,
-  getAllThemes,
-  getTheme,
-  removeTheme,
-} from "./db";
-import UrlSafeBase64 from "./urlsafe-base64";
-import { parsedMetadataFixture } from "../fixtures/metadata.fixture";
-import { themeFixture } from "../fixtures/theme.fixture";
-import { albumFixture, albumCollectionFixture } from "../fixtures/album.fixture";
+import { albumCollectionFixture, albumFixture } from "../fixtures/album.fixture";
 import { artistCollectionFixture } from "../fixtures/artist.fixture";
 import { audioFixture } from "../fixtures/audio.fixture";
 import { enrichedAlbumsFixture } from "../fixtures/db.fixture";
+import { parsedMetadataFixture } from "../fixtures/metadata.fixture";
+import { themeFixture } from "../fixtures/theme.fixture";
+import {
+  enrichAlbums,
+  getAlbum,
+  getAllAudios,
+  getAllThemes,
+  getAudio,
+  getAudiosByIds,
+  getTheme,
+  initDb,
+  initTestDb,
+  insertAudio,
+  insertTheme,
+  removeTheme,
+  updateAudio,
+  upsertAlbum,
+} from "./db";
+import { getMetadata } from "./metadata";
+import UrlSafeBase64 from "./urlsafe-base64";
 
 jest.mock("./metadata");
 jest.mock("./urlsafe-base64");

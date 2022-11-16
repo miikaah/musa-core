@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 
 import { stateFixture } from "../fixtures/state.fixture";
-import { setState, getState } from "./fs-state";
+import { getState, setState } from "./fs-state";
 
 jest.mock("fs/promises");
 

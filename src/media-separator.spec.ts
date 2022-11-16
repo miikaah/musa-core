@@ -1,10 +1,10 @@
 import path from "path";
 
 import {
-  mediaCollectionWin32Fixture,
   mediaCollectionDarwinFixture,
-  mediaCollectionElectronWin32Fixture,
   mediaCollectionElectronDarwinFixture,
+  mediaCollectionElectronWin32Fixture,
+  mediaCollectionWin32Fixture,
 } from "../fixtures/media-separator.fixture";
 import { createMediaCollection } from "./media-separator";
 

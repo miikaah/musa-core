@@ -1,11 +1,11 @@
-import { findRandom } from "./find";
-import { getArtistAlbums } from "./artist";
-import { getAlbumById } from "./album";
-import { getAudioById } from "./audio";
-import { artistCollectionFixture } from "../../fixtures/artist.fixture";
 import { albumCollectionFixture } from "../../fixtures/album.fixture";
+import { artistCollectionFixture } from "../../fixtures/artist.fixture";
 import { audioCollectionFixture, audioFixture } from "../../fixtures/audio.fixture";
 import { setPartialMediaCollectionForTest } from "../media-collection";
+import { getAlbumById } from "./album";
+import { getArtistAlbums } from "./artist";
+import { getAudioById } from "./audio";
+import { findRandom } from "./find";
 
 jest.mock("./album");
 jest.mock("./artist");

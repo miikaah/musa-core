@@ -1,8 +1,8 @@
 import {
-  MediaCollection,
-  ArtistWithAlbums,
   AlbumWithFiles,
+  ArtistWithAlbums,
   FileWithInfo,
+  MediaCollection,
 } from "./media-separator.types";
 
 export type ArtistWithId = ArtistWithAlbums & { id: string };

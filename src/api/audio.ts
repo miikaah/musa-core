@@ -1,11 +1,12 @@
-import path, { sep } from "path";
 import fs from "fs/promises";
+import path, { sep } from "path";
+
 import { getAudio, getExternalAudio, insertExternalAudio, updateExternalAudio } from "../db";
-import UrlSafeBase64 from "../urlsafe-base64";
-import { traverseFileSystem, isDir, audioExts } from "../fs";
-import { getMetadataByFilepath } from "../metadata";
+import { audioExts, isDir, traverseFileSystem } from "../fs";
+import { findAlbumInCollectionById, findAudioInCollectionById } from "../media-collection";
 import { getElectronUrl } from "../media-separator";
-import { findAudioInCollectionById, findAlbumInCollectionById } from "../media-collection";
+import { getMetadataByFilepath } from "../metadata";
+import UrlSafeBase64 from "../urlsafe-base64";
 
 import { DbAudio } from "../db.types";
 import { AudioReturnType } from "./audio.types";

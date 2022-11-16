@@ -1,21 +1,21 @@
-import path from "path";
-import fs from "fs/promises";
 import Datastore from "@seald-io/nedb";
+import fs from "fs/promises";
+import path from "path";
 
-import UrlSafeBase64 from "./urlsafe-base64";
 import { getMetadata } from "./metadata";
+import UrlSafeBase64 from "./urlsafe-base64";
 
-import { AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./media-separator.types";
-import { Metadata } from "./metadata.types";
 import {
-  DbAudio,
-  DbAlbum,
-  DbTheme,
-  DbExternalAudio,
   AlbumUpsertOptions,
+  DbAlbum,
+  DbAudio,
+  DbExternalAudio,
+  DbTheme,
   EnrichedAlbum,
   EnrichedAlbumFile,
 } from "./db.types";
+import { AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./media-separator.types";
+import { Metadata } from "./metadata.types";
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === "local";

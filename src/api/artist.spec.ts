@@ -1,14 +1,14 @@
-import { getAudio, enrichAlbums } from "../db";
-import { getArtists, getArtistById, getArtistAlbums } from "./artist";
+import { albumCollectionFixture } from "../../fixtures/album.fixture";
 import {
-  artistObjectFixture,
+  artistAlbumsFixture,
   artistCollectionFixture,
   artistFixture,
-  artistAlbumsFixture,
+  artistObjectFixture,
 } from "../../fixtures/artist.fixture";
 import { audioDbFixture } from "../../fixtures/audio.fixture";
-import { albumCollectionFixture } from "../../fixtures/album.fixture";
+import { enrichAlbums, getAudio } from "../db";
 import { setPartialMediaCollectionForTest } from "../media-collection";
+import { getArtistAlbums, getArtistById, getArtists } from "./artist";
 
 jest.mock("../db");
 

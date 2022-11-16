@@ -1,6 +1,6 @@
+import { themeDbFixture, themeFixture } from "../../fixtures/theme.fixture";
 import * as Db from "../db";
 import { getAllThemes, getTheme, insertTheme, removeTheme } from "./theme";
-import { themeFixture, themeDbFixture } from "../../fixtures/theme.fixture";
 
 jest.mock("../db");
 

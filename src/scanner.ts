@@ -1,20 +1,20 @@
-import path from "path";
 import fs from "fs/promises";
+import path from "path";
 
-import { traverseFileSystem, audioExts } from "./fs";
+import * as Db from "./db";
+import { audioExts, traverseFileSystem } from "./fs";
+import { tokenize, updateParams, updateTf } from "./full-text-search";
 import { createMediaCollection } from "./media-separator";
 import UrlSafeBase64 from "./urlsafe-base64";
-import * as Db from "./db";
-import { tokenize, updateTf, updateParams } from "./full-text-search";
 
 import { AlbumUpsertOptions } from "./db.types";
-import { IpcMainEvent, MediaCollectionAndFiles } from "./scanner.types";
 import {
   getAlbumCollection,
   getArtistCollection,
   getArtistsForFind,
   setMediaCollection,
 } from "./media-collection";
+import { IpcMainEvent, MediaCollectionAndFiles } from "./scanner.types";
 
 const { DISABLE_SCANNING } = process.env;
 const isScanningDisabled = DISABLE_SCANNING === "true";

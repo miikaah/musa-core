@@ -1,15 +1,15 @@
-import path from "path";
 import fs from "fs/promises";
-import NodeID3 from "node-id3";
 import Metaflac from "metaflac-js";
+import NodeID3 from "node-id3";
+import path from "path";
 const musicMetadata = import("music-metadata");
 
-import UrlSafeBase64 from "./urlsafe-base64";
 import * as Db from "./db";
 import { isPathExternal } from "./fs";
+import UrlSafeBase64 from "./urlsafe-base64";
 
-import type { GetMetadataParams, Metadata, Codec, Tags, TagsFlac } from "./metadata.types";
 import type { IAudioMetadata } from "music-metadata";
+import type { Codec, GetMetadataParams, Metadata, Tags, TagsFlac } from "./metadata.types";
 
 export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
   let metadata: IAudioMetadata = {

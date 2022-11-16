@@ -1,14 +1,14 @@
-import path, { sep, ParsedPath } from "path";
+import path, { ParsedPath, sep } from "path";
 
 import { imageExts } from "./fs";
 import UrlSafeBase64 from "./urlsafe-base64";
 
 import {
-  MediaCollection,
-  ArtistCollection,
   AlbumCollection,
-  FileCollection,
+  ArtistCollection,
   ArtistObject,
+  FileCollection,
+  MediaCollection,
 } from "./media-separator.types";
 
 export const createMediaCollection = ({

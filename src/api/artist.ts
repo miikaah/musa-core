@@ -1,12 +1,12 @@
+import { enrichAlbums, getAudio } from "../db";
 import {
   findArtistInCollectionById,
   getAlbumCollection,
   getArtistObject,
 } from "../media-collection";
-import { getAudio, enrichAlbums } from "../db";
 
 import { ArtistObject } from "../media-separator.types";
-import { ArtistAlbum, Artist, ArtistWithEnrichedAlbums } from "./artist.types";
+import { Artist, ArtistAlbum, ArtistWithEnrichedAlbums } from "./artist.types";
 
 export const getArtists = async (): Promise<ArtistObject> => {
   return getArtistObject();

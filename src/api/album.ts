@@ -1,5 +1,5 @@
+import { enrichAlbumFiles, getAlbum } from "../db";
 import { findAlbumInCollectionById } from "../media-collection";
-import { getAlbum, enrichAlbumFiles } from "../db";
 
 import { AlbumWithFilesAndMetadata } from "./album.types";
 
