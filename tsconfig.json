@@ -11,7 +11,8 @@
     "outDir": "lib",
     "baseUrl": ".",
     "declaration": true,
-    "declarationDir": "lib"
+    "declarationDir": "lib",
+    "skipLibCheck": true
   },
   "include": ["./src/**/*.ts"],
   "exclude": ["node_modules", "./src/jestSetup.ts"]

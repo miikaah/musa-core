@@ -1,5 +1,4 @@
 import { getAudio, enrichAlbums } from "../db";
-import * as Scanner from "../scanner";
 import { getArtists, getArtistById, getArtistAlbums } from "./artist";
 import {
   artistObjectFixture,
@@ -9,18 +8,18 @@ import {
 } from "../../fixtures/artist.fixture";
 import { audioDbFixture } from "../../fixtures/audio.fixture";
 import { albumCollectionFixture } from "../../fixtures/album.fixture";
+import { setPartialMediaCollectionForTest } from "../media-collection";
 
 jest.mock("../db");
-// @ts-expect-error it ain't read-only silly
-Scanner.artistObject = artistObjectFixture;
-// @ts-expect-error it ain't read-only silly
-Scanner.artistCollection = artistCollectionFixture;
-// @ts-expect-error it ain't read-only silly
-Scanner.albumCollection = albumCollectionFixture;
 
 describe("Artist API tests", () => {
-  beforeEach(() => {
-    jest.mock("../db");
+  beforeAll(() => {
+    setPartialMediaCollectionForTest({
+      artistCollection: artistCollectionFixture,
+      albumCollection: albumCollectionFixture,
+      artistObject: artistObjectFixture,
+    });
+
     jest.mocked(getAudio).mockResolvedValue(audioDbFixture);
     jest.mocked(enrichAlbums).mockResolvedValue(artistAlbumsFixture.albums);
   });
@@ -34,7 +33,7 @@ describe("Artist API tests", () => {
   });
 
   describe("getArtistById()", () => {
-    const id = "QWxhbWFhaWxtYW4gdmFzYXJhdA";
+    const id = Object.keys(artistCollectionFixture)[0];
 
     it("should return artist with albums sorted by year in ascending order", async () => {
       const artist = await getArtistById(id);

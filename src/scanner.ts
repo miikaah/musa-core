@@ -8,19 +8,13 @@ import * as Db from "./db";
 import { tokenize, updateTf, updateParams } from "./full-text-search";
 
 import { AlbumUpsertOptions } from "./db.types";
+import { IpcMainEvent, MediaCollectionAndFiles } from "./scanner.types";
 import {
-  ArtistsForFind,
-  AlbumsForFind,
-  AudiosForFind,
-  IpcMainEvent,
-  MediaCollectionAndFiles,
-} from "./scanner.types";
-import {
-  ArtistCollection,
-  AlbumCollection,
-  FileCollection,
-  ArtistObject,
-} from "./media-separator.types";
+  getAlbumCollection,
+  getArtistCollection,
+  getArtistsForFind,
+  setMediaCollection,
+} from "./media-collection";
 
 const { DISABLE_SCANNING } = process.env;
 const isScanningDisabled = DISABLE_SCANNING === "true";
@@ -37,15 +31,6 @@ const logOpReport = (start: number, collection: unknown[], name: string) => {
 };
 
 export let files: string[] = [];
-export let artistCollection: ArtistCollection = {};
-export let albumCollection: AlbumCollection = {};
-export let audioCollection: FileCollection = {};
-export let imageCollection: FileCollection = {};
-export let artistObject: ArtistObject;
-
-export let artistsForFind: ArtistsForFind = [];
-export let albumsForFind: AlbumsForFind = [];
-export let audiosForFind: AudiosForFind = [];
 
 let cachedElectronFileProtocol = "";
 
@@ -133,14 +118,13 @@ export const init = async ({
     fileUrlFragment,
     electronFileProtocol,
   });
-  artistCollection = mediaCollection.artistCollection;
-  albumCollection = mediaCollection.albumCollection;
-  audioCollection = mediaCollection.audioCollection;
-  imageCollection = mediaCollection.imageCollection;
-  artistObject = mediaCollection.artistObject;
-  artistsForFind = Object.entries(artistCollection).map(([id, a]) => ({ ...a, id }));
-  albumsForFind = Object.entries(albumCollection).map(([id, a]) => ({ ...a, id }));
-  audiosForFind = Object.entries(audioCollection).map(([id, a]) => ({ ...a, id }));
+  setMediaCollection(mediaCollection);
+
+  const artistCollection = mediaCollection.artistCollection;
+  const albumCollection = mediaCollection.albumCollection;
+  const audioCollection = mediaCollection.audioCollection;
+  const imageCollection = mediaCollection.imageCollection;
+  const artistObject = mediaCollection.artistObject;
 
   console.log(`Took: ${(Date.now() - start) / 1000} seconds`);
   console.log(`Found: ${Object.keys(artistCollection).length} artists`);
@@ -190,7 +174,7 @@ export const update = async ({
     id: UrlSafeBase64.encode(file),
     filename: file.split(path.sep).pop() || "",
   }));
-  const albums = Object.entries(albumCollection).map(([id, album]) => ({
+  const albums = Object.entries(getAlbumCollection()).map(([id, album]) => ({
     id,
     album,
   }));
@@ -376,9 +360,13 @@ export const update = async ({
   albumsInDb = await Db.getAlbums();
   const albumNames = albumsInDb.map(({ metadata }) => (metadata.album || "").toLowerCase());
   const audioNames = audios.map(({ metadata }) => (metadata.title || "").toLowerCase());
-  const documents = Object.keys(artistCollection).length + albumsInDb.length + audios.length;
+  const documents = Object.keys(getArtistCollection()).length + albumsInDb.length + audios.length;
 
-  updateTf(artistsForFind.map(({ name }) => tokenize(name)).flat(Infinity) as string[]);
+  updateTf(
+    getArtistsForFind()
+      .map(({ name }) => tokenize(name))
+      .flat(Infinity) as string[]
+  );
   updateTf(albumNames.map(tokenize).flat(Infinity) as string[]);
   updateTf(audioNames.map(tokenize).flat(Infinity) as string[]);
   updateParams(documents);

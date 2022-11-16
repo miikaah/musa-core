@@ -9,7 +9,6 @@ const origConsoleErrorFn = console.error;
 
 describe("File system state tests", () => {
   beforeEach(() => {
-    jest.mock("fs/promises");
     jest.mocked(fs.readFile).mockResolvedValue(JSON.stringify(stateFixture));
     console.error = () => undefined;
   });

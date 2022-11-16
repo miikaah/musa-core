@@ -1,17 +1,21 @@
+import {
+  findArtistInCollectionById,
+  getAlbumCollection,
+  getArtistObject,
+} from "../media-collection";
 import { getAudio, enrichAlbums } from "../db";
-import { artistCollection, albumCollection, artistObject } from "../scanner";
 
 import { ArtistObject } from "../media-separator.types";
 import { ArtistAlbum, Artist, ArtistWithEnrichedAlbums } from "./artist.types";
 
 export const getArtists = async (): Promise<ArtistObject> => {
-  return artistObject;
+  return getArtistObject();
 };
 
 const byYear = (a: ArtistAlbum, b: ArtistAlbum) => Number(a.year) - Number(b.year);
 
 export const getArtistById = async (id: string): Promise<Artist | Record<string, never>> => {
-  const artist = artistCollection[id];
+  const artist = findArtistInCollectionById(id);
 
   if (!artist) {
     return {};
@@ -48,13 +52,13 @@ export const getArtistById = async (id: string): Promise<Artist | Record<string,
 export const getArtistAlbums = async (
   id: string
 ): Promise<ArtistWithEnrichedAlbums | Record<string, never>> => {
-  const artist = artistCollection[id];
+  const artist = findArtistInCollectionById(id);
 
   if (!artist) {
     return {};
   }
 
-  const albums = await enrichAlbums(albumCollection, artist);
+  const albums = await enrichAlbums(getAlbumCollection(), artist);
   const files = await Promise.all(
     artist.files.map(async (file) => {
       const dbAudio = await getAudio(file.id);

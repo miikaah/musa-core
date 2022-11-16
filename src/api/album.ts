@@ -1,12 +1,12 @@
+import { findAlbumInCollectionById } from "../media-collection";
 import { getAlbum, enrichAlbumFiles } from "../db";
-import { albumCollection } from "../scanner";
 
 import { AlbumWithFilesAndMetadata } from "./album.types";
 
 export const getAlbumById = async (
   id: string
 ): Promise<AlbumWithFilesAndMetadata | Record<string, never>> => {
-  const album = albumCollection[id];
+  const album = findAlbumInCollectionById(id);
 
   if (!album) {
     return {};

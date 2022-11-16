@@ -11,8 +11,13 @@ import {
   findAudiosByYear,
   findAudiosByGenre,
 } from "../db";
-import { artistsForFind, albumsForFind, audiosForFind, audioCollection } from "../scanner";
 import { tokenize, calculateOkapiBm25Score } from "../full-text-search";
+import {
+  findAudioInCollectionById,
+  getAlbumsForFind,
+  getArtistsForFind,
+  getAudiosForFind,
+} from "../media-collection";
 
 import { Artist } from "./artist.types";
 import { AlbumWithFilesAndMetadata } from "./album.types";
@@ -39,6 +44,8 @@ export const find = async ({
   }
 
   const queryAsNumber = parseInt(query, 10);
+  const albumsForFind = getAlbumsForFind();
+  const artistsForFind = getArtistsForFind();
 
   //  TODO: Clean up
 
@@ -61,7 +68,7 @@ export const find = async ({
       (await Promise.all(
         foundAudios.map(async (a) => getAudioById({ id: a.id }))
       )) as AudioWithMetadata[]
-    ).filter(({ id }) => !!audioCollection[id]);
+    ).filter(({ id }) => !!findAudioInCollectionById(id));
 
     // TODO: Add artists
     return {
@@ -78,7 +85,7 @@ export const find = async ({
       (await Promise.all(
         foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
       )) as AudioWithMetadata[]
-    ).filter(({ id }) => !!audioCollection[id]);
+    ).filter(({ id }) => !!findAudioInCollectionById(id));
 
     const foundAlbums = audios.map((a) => ({ id: a.albumId }));
     const albums = (
@@ -133,7 +140,7 @@ export const find = async ({
     (await Promise.all(
       foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
     )) as AudioWithMetadata[]
-  ).filter(({ id }) => !!audioCollection[id]);
+  ).filter(({ id }) => !!findAudioInCollectionById(id));
 
   if (audios.length < limit * 2) {
     albums.forEach((a) => {
@@ -213,6 +220,10 @@ export const findRandom = async ({
   limit?: number;
   lockedSearchTerm?: string;
 }): Promise<FindResult> => {
+  const albumsForFind = getAlbumsForFind();
+  const artistsForFind = getArtistsForFind();
+  const audiosForFind = getAudiosForFind();
+
   if (lockedSearchTerm) {
     lockedSearchTerm = lockedSearchTerm.trim();
     const query = parseInt(lockedSearchTerm, 10);
@@ -229,7 +240,7 @@ export const findRandom = async ({
       const foundAudios = lookupEntities<DbAudio>(audiosInDb, audioIndices);
       const audios = (
         await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.path_id })))
-      ).filter(({ id }) => !!audioCollection[id]);
+      ).filter(({ id }) => !!findAudioInCollectionById(id));
 
       return {
         artists: [],
@@ -245,7 +256,7 @@ export const findRandom = async ({
       const foundAudios = lookupEntities<DbAudio>(audiosInDb, audioIndices);
       const audios = (
         await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.path_id })))
-      ).filter(({ id }) => !!audioCollection[id]);
+      ).filter(({ id }) => !!findAudioInCollectionById(id));
 
       const foundAlbums = audios.map((a) => ({ id: a.albumId || "" }));
       const albumIndices = getRandomNumbers(foundAlbums.length, limit);
@@ -275,7 +286,7 @@ export const findRandom = async ({
     const foundAudios = lookupEntities<FileWithId>(results.audios, audioIndices);
     const audios = (
       await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.id })))
-    ).filter(({ id }) => !!audioCollection[id]);
+    ).filter(({ id }) => !!findAudioInCollectionById(id));
 
     return {
       artists,
@@ -297,7 +308,7 @@ export const findRandom = async ({
   const foundAudios = lookupEntities<FileWithId>(audiosForFind, audioIndices);
   const audios = (
     await Promise.all(foundAudios.map(async (a) => getAudioById({ id: a.id })))
-  ).filter(({ id }) => !!audioCollection[id]);
+  ).filter(({ id }) => !!findAudioInCollectionById(id));
 
   return {
     artists,

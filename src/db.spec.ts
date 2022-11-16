@@ -94,19 +94,9 @@ describe("DB tests", () => {
     themeDbRemoveSpy = jest.spyOn(testDbs.themeDb, "removeAsync");
   });
 
-  beforeEach(() => {
-    jest.mock("./metadata");
+  beforeAll(() => {
     jest.mocked(getMetadata).mockResolvedValue(parsedMetadataFixture);
-
-    jest.mock("./urlsafe-base64");
     jest.mocked(UrlSafeBase64.decode).mockReturnValue("fakedecoded");
-
-    jest.mock("fs/promises", () => ({
-      ...jest.requireActual("fs/promises"),
-      stat: jest.fn().mockResolvedValue(<any>{
-        mtimeMs: Date.now(),
-      }),
-    }));
   });
 
   afterAll(() => {

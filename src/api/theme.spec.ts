@@ -5,8 +5,7 @@ import { themeFixture, themeDbFixture } from "../../fixtures/theme.fixture";
 jest.mock("../db");
 
 describe("Audio API tests", () => {
-  beforeEach(() => {
-    jest.mock("../db");
+  beforeAll(() => {
     jest.mocked(Db.getAllThemes).mockResolvedValue([themeDbFixture]);
     jest.mocked(Db.getTheme).mockResolvedValue(themeDbFixture);
     jest.mocked(Db.insertTheme).mockResolvedValue(themeDbFixture);

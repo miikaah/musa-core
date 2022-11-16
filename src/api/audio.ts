@@ -1,11 +1,11 @@
 import path, { sep } from "path";
 import fs from "fs/promises";
 import { getAudio, getExternalAudio, insertExternalAudio, updateExternalAudio } from "../db";
-import { albumCollection, audioCollection } from "../scanner";
 import UrlSafeBase64 from "../urlsafe-base64";
 import { traverseFileSystem, isDir, audioExts } from "../fs";
 import { getMetadataByFilepath } from "../metadata";
 import { getElectronUrl } from "../media-separator";
+import { findAudioInCollectionById, findAlbumInCollectionById } from "../media-collection";
 
 import { DbAudio } from "../db.types";
 import { AudioReturnType } from "./audio.types";
@@ -17,13 +17,13 @@ export const getAudioById = async ({
   id: string;
   existingDbAudio?: DbAudio;
 }): Promise<AudioReturnType> => {
-  const audio = audioCollection[id];
+  const audio = findAudioInCollectionById(id);
 
   if (!audio) {
     return {};
   }
 
-  const album = albumCollection[audio.albumId as string];
+  const album = findAlbumInCollectionById(audio.albumId);
   const dbAudio = existingDbAudio || (await getAudio(id));
   const name = dbAudio?.metadata?.title || audio.name;
   const trackNo = `${dbAudio?.metadata?.track?.no || ""}`;

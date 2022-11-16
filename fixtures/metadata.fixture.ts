@@ -1,6 +1,7 @@
-import type { AudioMetadata, Metadata } from "../src/metadata.types";
+import type { Metadata } from "../src/metadata.types";
+import type { IAudioMetadata } from "music-metadata";
 
-export const metadataFixture: AudioMetadata = {
+export const metadataFixture: Partial<IAudioMetadata> = {
   format: {
     bitrate: 320000,
     codec: "MPEG 1 Layer 3",

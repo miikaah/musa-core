@@ -1,21 +1,22 @@
 import { getAlbum, enrichAlbumFiles } from "../db";
-import * as Scanner from "../scanner";
 import { getAlbumById } from "./album";
 import { albumDbFixture, albumFixture, albumCollectionFixture } from "../../fixtures/album.fixture";
+import { setPartialMediaCollectionForTest } from "../media-collection";
 
 jest.mock("../db");
-// @ts-expect-error it ain't read-only silly
-Scanner.albumCollection = albumCollectionFixture;
 
 describe("Album API tests", () => {
-  beforeEach(() => {
-    jest.mock("../db");
+  beforeAll(() => {
+    setPartialMediaCollectionForTest({
+      albumCollection: albumCollectionFixture,
+    });
+
     jest.mocked(getAlbum).mockResolvedValue(albumDbFixture);
     jest.mocked(enrichAlbumFiles).mockResolvedValue(albumFixture.files);
   });
 
   describe("getAlbumById()", () => {
-    const id = "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lh";
+    const id = Object.keys(albumCollectionFixture)[0];
 
     it("should return album", async () => {
       const album = await getAlbumById(id);

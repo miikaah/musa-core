@@ -1,24 +1,23 @@
 import { getAudio } from "../db";
-import * as Scanner from "../scanner";
 import { getAudioById } from "./audio";
 import { audioDbFixture, audioFixture, audioCollectionFixture } from "../../fixtures/audio.fixture";
 import { albumCollectionFixture } from "../../fixtures/album.fixture";
+import { setPartialMediaCollectionForTest } from "../media-collection";
 
 jest.mock("../db");
-// @ts-expect-error it ain't read-only silly
-Scanner.audioCollection = audioCollectionFixture;
-// @ts-expect-error it ain't read-only silly
-Scanner.albumCollection = albumCollectionFixture;
 
 describe("Audio API tests", () => {
-  beforeEach(() => {
-    jest.mock("../db");
+  beforeAll(() => {
+    setPartialMediaCollectionForTest({
+      audioCollection: audioCollectionFixture,
+      albumCollection: albumCollectionFixture,
+    });
+
     jest.mocked(getAudio).mockResolvedValue(audioDbFixture);
   });
 
   describe("getAudioById()", () => {
-    const id =
-      "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz";
+    const id = Object.keys(audioCollectionFixture)[0];
 
     it("should return audio", async () => {
       const audio = await getAudioById({ id });
