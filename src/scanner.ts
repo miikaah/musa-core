@@ -237,6 +237,20 @@ export const update = async ({
       console.error(err);
     }
   }
+
+  if (scanProgressListener) {
+    if (filesToInsert.length) {
+      // Always set the progress bar to max value so that it doesn't look half empty
+      // when there are only a few files to insert
+      scanProgressListener(1, "normal");
+    }
+    // Wait a while to show the progress bar. When there is only a few files to insert
+    // it's hard to see the progress bar without this
+    setTimeout(() => {
+      scanProgressListener(-1, "normal");
+    }, 2000);
+  }
+
   const timeForInsertSec = (Date.now() - startInsert) / 1000;
   const insertsPerSecond =
     timeForInsertSec > 0 ? Math.floor(filesToInsert.length / timeForInsertSec) : 0;
