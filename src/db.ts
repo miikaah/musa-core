@@ -61,7 +61,7 @@ export const initDb = async (libraryPath: string) => {
   oldFiles.forEach(async (p) => {
     try {
       await fs.unlink(p);
-    } catch (e) {
+    } catch {
       //
     }
   });
@@ -442,7 +442,9 @@ export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedA
 };
 
 export const getAllThemes = async (): Promise<DbTheme[]> => {
-  return themeDb.findAsync({});
+  const themes = await themeDb.findAsync({});
+
+  return themes.sort((a: DbTheme, b: DbTheme) => a.filename.localeCompare(b.filename));
 };
 
 export const getTheme = async (id: string): Promise<DbTheme | undefined> => {
