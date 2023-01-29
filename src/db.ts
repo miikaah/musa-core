@@ -505,5 +505,13 @@ const capitalize = (str: string) => {
     return str;
   }
 
+  return str.split(" ").map(capitalizeToken).join(" ");
+};
+
+const capitalizeToken = (str: string) => {
+  if (!str) {
+    return str;
+  }
+
   return `${str[0].toUpperCase()}${str.substring(1, str.length)}`;
 };
