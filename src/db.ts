@@ -19,6 +19,7 @@ import { Metadata } from "./metadata.types";
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === "local";
+const devTagToPrepend = ".dev";
 
 let audioDb: Datastore<DbAudio>;
 let albumDb: Datastore<DbAlbum>;
@@ -29,25 +30,25 @@ let libPath: string;
 export const initDb = async (libraryPath: string) => {
   libPath = libraryPath;
 
-  const audioDbFile = `${isDev ? ".dev" : ""}.musa.audio.v2.db`;
+  const audioDbFile = `${isDev ? devTagToPrepend : ""}.musa.audio.v2.db`;
   audioDb = new Datastore<DbAudio>({
     filename: path.join(libraryPath, audioDbFile),
   });
   await audioDb.loadDatabaseAsync();
 
-  const albumDbFile = `${isDev ? ".dev" : ""}.musa.album.v1.db`;
+  const albumDbFile = `${isDev ? devTagToPrepend : ""}.musa.album.v1.db`;
   albumDb = new Datastore<DbAlbum>({
     filename: path.join(libraryPath, albumDbFile),
   });
   await albumDb.loadDatabaseAsync();
 
-  const themeDbFile = `${isDev ? ".dev" : ""}.musa.theme.v2.db`;
+  const themeDbFile = `${isDev ? devTagToPrepend : ""}.musa.theme.v2.db`;
   themeDb = new Datastore<DbTheme>({
     filename: path.join(libraryPath, themeDbFile),
   });
   await themeDb.loadDatabaseAsync();
 
-  const externalAudioDbFile = `${isDev ? ".dev" : ""}.musa.external-audio.v1.db`;
+  const externalAudioDbFile = `${isDev ? devTagToPrepend : ""}.musa.external-audio.v1.db`;
   externalAudioDb = new Datastore<DbExternalAudio>({
     filename: path.join(libraryPath, externalAudioDbFile),
   });
