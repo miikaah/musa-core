@@ -130,15 +130,19 @@ export const find = async ({
    * This is the case that an artist folder has multiple aliases inside of it
    */
   if (foundAlbums.length < limit) {
-    (await findAlbumsByArtist(query, limit)).forEach((a) => foundAlbums.push(a));
+    const albumsByArtist = await findAlbumsByArtist(query, limit);
+    albumsByArtist.forEach((a) => foundAlbums.push(a));
 
-    if (foundAlbums.length) {
-      const firstAlbum = foundAlbums[0];
+    if (albumsByArtist.length) {
+      const firstAlbum = albumsByArtist[0];
       const pathId = firstAlbum.id || firstAlbum.path_id;
-      const artistFolder = UrlSafeBase64.decode(pathId).split(path.sep)[0];
-      const artistId = UrlSafeBase64.encode(artistFolder);
-      const artist = (await getArtistAlbums(artistId)) as Artist;
-      artists.push(artist);
+
+      if (pathId) {
+        const artistFolder = UrlSafeBase64.decode(pathId).split(path.sep)[0];
+        const artistId = UrlSafeBase64.encode(artistFolder);
+        const artist = (await getArtistAlbums(artistId)) as Artist;
+        artists.push(artist);
+      }
     }
   }
 
@@ -169,13 +173,27 @@ export const find = async ({
   const k1 = 1.2;
   const b = 0.75;
   const terms = tokenize(query);
+  const uniqAlbums = uniqBy(albums, ({ id }) => id);
 
   return {
     artists: uniqBy(artists, ({ name }) => name).sort(byOkapiBm25(terms, k1, b, true)),
-    albums: uniqBy(albums, ({ id }) => id).sort(byOkapiBm25(terms, k1, b)),
-    audios: uniqBy(audios, ({ id }) => id).sort(byOkapiBm25(terms, k1, b)),
+    albums: uniqAlbums.sort(byOkapiBm25(terms, k1, b)),
+    audios: uniqBy(audios, ({ id }) => id).sort(
+      uniqAlbums.length > 1 ? byOkapiBm25(terms, k1, b) : byTrackAsc
+    ),
   };
 };
+
+function byTrackAsc(a: AudioWithMetadata, b: AudioWithMetadata) {
+  const aTrack = `${a.metadata.track?.no}`.padStart(2, "0");
+  const bTrack = `${b.metadata.track?.no}`.padStart(2, "0");
+  const aDisk = a.metadata.disk?.no;
+  const bDisk = b.metadata.disk?.no;
+  const aTrackNo = aDisk ? Number(`${aDisk}.${aTrack}`) : Number(aTrack);
+  const bTrackNo = bDisk ? Number(`${bDisk}.${bTrack}`) : Number(bTrack);
+
+  return aTrackNo - bTrackNo;
+}
 
 function byOkapiBm25(terms: string[], k1: number, b: number, isArtist = false) {
   // @ts-expect-error not useful here
