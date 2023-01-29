@@ -322,6 +322,19 @@ export const findAlbumsByMetadata = async (query: string, limit: number): Promis
   return Array.from(foundAlbums.values());
 };
 
+export const findAlbumsByArtist = async (query: string, limit: number): Promise<DbAlbum[]> => {
+  const albums = await findAlbums(limit, (self: DbAlbum) => {
+    const artist = self?.metadata?.artist || "";
+
+    return artist.toLowerCase().includes(query.toLowerCase());
+  });
+
+  const foundAlbums = new Map();
+  albums.forEach((a) => foundAlbums.set(a.path_id, a));
+
+  return Array.from(foundAlbums.values());
+};
+
 export const findAlbumsByYear = async (query: number, limit: number): Promise<DbAlbum[]> => {
   const albums = await findAlbums(limit, (self: DbAlbum) => {
     const year = self?.metadata?.year || 0;

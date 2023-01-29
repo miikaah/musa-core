@@ -1,7 +1,9 @@
 import fuzzysort from "fuzzysort";
 import uniqBy from "lodash.uniqby";
+import path from "path";
 
 import {
+  findAlbumsByArtist,
   findAlbumsByMetadata,
   findAlbumsByYear,
   findAudiosByGenre,
@@ -15,6 +17,7 @@ import {
   getArtistsForFind,
   getAudiosForFind,
 } from "../media-collection";
+import UrlSafeBase64 from "../urlsafe-base64";
 import { getAlbumById } from "./album";
 import { getArtistAlbums } from "./artist";
 import { getAudioById } from "./audio";
@@ -56,10 +59,7 @@ export const find = async ({
     );
     const albums = (
       (await Promise.all(
-        foundAlbums
-          .filter(Boolean)
-          // @ts-expect-error stfu
-          .map(async (a) => getAlbumById(a.id || a.path_id))
+        foundAlbums.filter(Boolean).map(async (a) => getAlbumById(a.id || a.path_id))
       )) as AlbumWithFilesAndMetadata[]
     ).filter(({ name }) => name);
 
@@ -126,12 +126,27 @@ export const find = async ({
     });
   }
 
+  /**
+   * This is the case that an artist folder has multiple aliases inside of it
+   */
+  if (foundAlbums.length < limit) {
+    (await findAlbumsByArtist(query, limit)).forEach((a) => foundAlbums.push(a));
+
+    if (foundAlbums.length) {
+      const firstAlbum = foundAlbums[0];
+      const pathId = firstAlbum.id || firstAlbum.path_id;
+      const artistFolder = UrlSafeBase64.decode(pathId).split(path.sep)[0];
+      const artistId = UrlSafeBase64.encode(artistFolder);
+      const artist = (await getArtistAlbums(artistId)) as Artist;
+      artists.push(artist);
+    }
+  }
+
   const albums = (
     (await Promise.all(
       foundAlbums
         .filter(Boolean)
         .slice(0, limit * 2)
-        // @ts-expect-error stfu
         .map(async (a) => getAlbumById(a.id || a.path_id))
     )) as AlbumWithFilesAndMetadata[]
   ).filter(({ name }) => name);
@@ -156,9 +171,9 @@ export const find = async ({
   const terms = tokenize(query);
 
   return {
-    artists: artists.sort(byOkapiBm25(terms, k1, b, true)),
-    albums: uniqBy(albums, ({ id }: { id: string }) => id).sort(byOkapiBm25(terms, k1, b)),
-    audios: uniqBy(audios, ({ id }: { id: string }) => id).sort(byOkapiBm25(terms, k1, b)),
+    artists: uniqBy(artists, ({ name }) => name).sort(byOkapiBm25(terms, k1, b, true)),
+    albums: uniqBy(albums, ({ id }) => id).sort(byOkapiBm25(terms, k1, b)),
+    audios: uniqBy(audios, ({ id }) => id).sort(byOkapiBm25(terms, k1, b)),
   };
 };
 
