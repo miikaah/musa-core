@@ -43,15 +43,17 @@ export const find = async ({
     };
   }
 
-  const queryAsNumber = parseInt(query, 10);
   const albumsForFind = getAlbumsForFind();
   const artistsForFind = getArtistsForFind();
 
   //  TODO: Clean up
 
   // Year search
-  if (!isNaN(queryAsNumber)) {
-    const foundAlbums = await findAlbumsByYear(queryAsNumber, albumsForFind.length);
+  if (query.startsWith("year:")) {
+    const foundAlbums = await findAlbumsByYear(
+      parseInt(query.replace("year:", ""), 10),
+      albumsForFind.length
+    );
     const albums = (
       (await Promise.all(
         foundAlbums
@@ -79,8 +81,8 @@ export const find = async ({
   }
 
   // Genre search
-  if (query.startsWith("g:")) {
-    const foundAudios = await findAudiosByGenre(query.replace("g:", ""), 1000);
+  if (query.startsWith("genre:") || query.startsWith("g:")) {
+    const foundAudios = await findAudiosByGenre(query.replace("genre:", ""), 1000);
     const audios = (
       (await Promise.all(
         foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
