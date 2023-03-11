@@ -107,6 +107,8 @@ export const find = async ({
     };
   }
 
+  query = query.replace("artist:", "").replace("album:", "");
+
   // Term search
   const options = { limit, key: "name", threshold: -50 };
   const foundArtists = fuzzysort.go(query, artistsForFind, options);
