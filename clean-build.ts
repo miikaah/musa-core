@@ -1,10 +1,17 @@
+import { Dirent } from "fs";
 import fs from "fs/promises";
 import path, { sep } from "path";
 
 const recursivelyBuildFileList = async (filepath: string, srcPath: string): Promise<string[]> => {
-  const dir = await fs.readdir(filepath, {
-    withFileTypes: true,
-  });
+  let dir: Dirent[] = [];
+
+  try {
+    dir = await fs.readdir(filepath, {
+      withFileTypes: true,
+    });
+  } catch {
+    // Output folder might not exist
+  }
 
   let files: string[] = [];
   for (const file of dir) {
