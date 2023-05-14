@@ -56,7 +56,10 @@ export type { AudioWithMetadata } from "./api/audio.types";
 export type { FindResult } from "./api/find.types";
 export type { Theme } from "./api/theme.types";
 export type { State } from "./fs-state.types";
-export * from "./infra/tailscale/tailscale.types";
+export type {
+  TailscaleDevice,
+  TailscaleListDevicesResponse,
+} from "./infra/tailscale/tailscale.types";
 export type {
   AlbumCollection,
   AlbumFile,

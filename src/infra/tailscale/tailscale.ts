@@ -79,7 +79,10 @@ export const listDevices = async ({
 
   listDevicesCache = response.devices;
   listDevicesCacheRefreshedAt = Date.now();
-  console.log("Refreshed Tailscale devices cache at ", listDevicesCacheRefreshedAt);
+  console.log(
+    "Refreshed Tailscale devices cache at",
+    new Date(listDevicesCacheRefreshedAt).toISOString()
+  );
 
   return response.devices;
 };
