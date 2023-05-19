@@ -1,9 +1,16 @@
 import { getAlbumById } from "./api/album";
 import { getArtistAlbums, getArtistById, getArtists } from "./api/artist";
-import { getAudioById, getAudiosByFilepaths } from "./api/audio";
+import { getAudioById, getAudiosByFilepaths, getAudiosByPlaylistId } from "./api/audio";
 import { find, findRandom } from "./api/find";
 import { getAllGenres } from "./api/genre";
-import { getAllThemes, getTheme, insertTheme, removeTheme, updateTheme } from "./api/theme";
+import { getPlaylist, insertPlaylist } from "./api/playlist";
+import {
+  getAllThemes,
+  getTheme,
+  insertTheme,
+  removeTheme,
+  updateTheme,
+} from "./api/theme";
 import { initDb } from "./db";
 import { getState, setState } from "./fsState";
 import { getCurrentProfileByIp, listDevices } from "./infra/tailscale";
@@ -18,6 +25,7 @@ const Api = {
   getArtistAlbums,
   getAudioById,
   getAudiosByFilepaths,
+  getAudiosByPlaylistId,
   find,
   findRandom,
   getAllThemes,
@@ -27,6 +35,8 @@ const Api = {
   removeTheme,
   getAllGenres,
   writeTags,
+  insertPlaylist,
+  getPlaylist,
 };
 
 const Db = {
@@ -54,6 +64,7 @@ export type { AlbumWithFilesAndMetadata } from "./api/album.types";
 export type { Artist, ArtistWithEnrichedAlbums } from "./api/artist.types";
 export type { AudioWithMetadata } from "./api/audio.types";
 export type { FindResult } from "./api/find.types";
+export type { Playlist } from "./api/playlist.types";
 export type { Theme } from "./api/theme.types";
 export type { State } from "./fsState.types";
 export type {

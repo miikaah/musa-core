@@ -11,11 +11,17 @@ import {
   DbAlbum,
   DbAudio,
   DbExternalAudio,
+  DbPlaylist,
   DbTheme,
   EnrichedAlbum,
   EnrichedAlbumFile,
 } from "./db.types";
-import { AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./mediaSeparator.types";
+import { generateRandomString } from "./generateRandomString";
+import {
+  AlbumCollection,
+  AlbumWithFiles,
+  ArtistWithAlbums,
+} from "./mediaSeparator.types";
 import { Metadata } from "./metadata.types";
 
 const { NODE_ENV } = process.env;
@@ -26,6 +32,7 @@ const homedir = os.homedir();
 let audioDb: Datastore<DbAudio>;
 let albumDb: Datastore<DbAlbum>;
 let themeDb: Datastore<DbTheme>;
+let playlistDb: Datastore<DbPlaylist>;
 let externalAudioDb: Datastore<DbExternalAudio>;
 let libPath: string;
 
@@ -51,6 +58,12 @@ export const initDb = async (libraryPath: string) => {
     filename: path.join(dbDir, themeDbFile),
   });
   await themeDb.loadDatabaseAsync();
+
+  const playlistDbFile = `${isDev ? devTagToPrepend : ""}.musa.playlist.v1.db`;
+  playlistDb = new Datastore<DbTheme>({
+    filename: path.join(dbDir, playlistDbFile),
+  });
+  await playlistDb.loadDatabaseAsync();
 
   const externalAudioDbFile = `${isDev ? devTagToPrepend : ""}.musa.external-audio.v1.db`;
   externalAudioDb = new Datastore<DbExternalAudio>({
@@ -85,7 +98,10 @@ export const initTestDb = async (libraryPath: string) => {
   return { audioDb, albumDb, themeDb };
 };
 
-export const insertAudio = async (file: { id: string; filename: string }): Promise<void> => {
+export const insertAudio = async (file: {
+  id: string;
+  filename: string;
+}): Promise<void> => {
   if (!file) {
     return;
   }
@@ -150,7 +166,12 @@ export const updateExternalAudio = async (file: {
 }): Promise<void> => {
   const { id, filename, modifiedAt, metadata } = file;
 
-  console.log("Updating external audio", filename, "because it was modified at", modifiedAt);
+  console.log(
+    "Updating external audio",
+    filename,
+    "because it was modified at",
+    modifiedAt
+  );
   await externalAudioDb.updateAsync(
     { path_id: id },
     {
@@ -255,7 +276,10 @@ export const findAudiosByMetadataAndFilename = async (
   return Array.from(foundAudios.values());
 };
 
-export const findAudiosByYear = async (query: number, limit: number): Promise<DbAudio[]> => {
+export const findAudiosByYear = async (
+  query: number,
+  limit: number
+): Promise<DbAudio[]> => {
   const audios = await findAudios(limit, (self: DbAudio) => {
     const year = self?.metadata?.year || "";
 
@@ -268,7 +292,10 @@ export const findAudiosByYear = async (query: number, limit: number): Promise<Db
   return Array.from(foundAudios.values());
 };
 
-export const findAudiosByGenre = async (query: string, limit: number): Promise<DbAudio[]> => {
+export const findAudiosByGenre = async (
+  query: string,
+  limit: number
+): Promise<DbAudio[]> => {
   const audios = await findAudios(limit, (self: DbAudio) => {
     const genres = self?.metadata?.genre || [];
 
@@ -303,7 +330,10 @@ export const findAlbums = async (
   });
 };
 
-export const findAlbumsByMetadata = async (query: string, limit: number): Promise<DbAlbum[]> => {
+export const findAlbumsByMetadata = async (
+  query: string,
+  limit: number
+): Promise<DbAlbum[]> => {
   const albumsByExactTitle = await findAlbums(limit, (self: DbAlbum) => {
     const title = self?.metadata?.album || "";
 
@@ -322,12 +352,17 @@ export const findAlbumsByMetadata = async (query: string, limit: number): Promis
   }
 
   const foundAlbums = new Map();
-  [...albumsByExactTitle, ...albumsByFuzzyTitle].forEach((a) => foundAlbums.set(a.path_id, a));
+  [...albumsByExactTitle, ...albumsByFuzzyTitle].forEach((a) =>
+    foundAlbums.set(a.path_id, a)
+  );
 
   return Array.from(foundAlbums.values());
 };
 
-export const findAlbumsByArtist = async (query: string, limit: number): Promise<DbAlbum[]> => {
+export const findAlbumsByArtist = async (
+  query: string,
+  limit: number
+): Promise<DbAlbum[]> => {
   const albums = await findAlbums(limit, (self: DbAlbum) => {
     const artist = self?.metadata?.artist || "";
 
@@ -340,7 +375,10 @@ export const findAlbumsByArtist = async (query: string, limit: number): Promise<
   return Array.from(foundAlbums.values());
 };
 
-export const findAlbumsByYear = async (query: number, limit: number): Promise<DbAlbum[]> => {
+export const findAlbumsByYear = async (
+  query: number,
+  limit: number
+): Promise<DbAlbum[]> => {
   const albums = await findAlbums(limit, (self: DbAlbum) => {
     const year = self?.metadata?.year || 0;
 
@@ -376,7 +414,8 @@ export const upsertAlbum = async (file: AlbumUpsertOptions): Promise<void> => {
 };
 
 const buildAlbumMetadata = (metadata: Metadata) => {
-  const { year, album, artists, artist, albumArtist, genre, dynamicRangeAlbum } = metadata;
+  const { year, album, artists, artist, albumArtist, genre, dynamicRangeAlbum } =
+    metadata;
   return {
     year,
     album,
@@ -426,7 +465,9 @@ export const enrichAlbums = async (
   );
 };
 
-export const enrichAlbumFiles = async (album: AlbumWithFiles): Promise<EnrichedAlbumFile[]> => {
+export const enrichAlbumFiles = async (
+  album: AlbumWithFiles
+): Promise<EnrichedAlbumFile[]> => {
   const audioIds = album.files.map(({ id }) => id);
   const files = await getAudiosByIds(audioIds);
   const trackNumbers = files.map((file) => Number(file?.metadata?.track?.no));
@@ -532,4 +573,32 @@ const capitalizeToken = (str: string) => {
   }
 
   return `${str[0].toUpperCase()}${str.substring(1, str.length)}`;
+};
+
+export const insertPlaylist = async ({
+  pathIds,
+  createdByUserId,
+}: {
+  pathIds: string[];
+  createdByUserId: string;
+}): Promise<DbPlaylist> => {
+  let id = generateRandomString(6);
+  let playlist = await getPlaylist(id);
+
+  for (let i = 1; playlist; i++) {
+    id = generateRandomString(6 + i);
+    playlist = await getPlaylist(id);
+  }
+
+  return playlistDb.insertAsync({
+    _id: id,
+    playlist_id: id,
+    modified_at: new Date().toISOString(),
+    path_ids: pathIds,
+    created_by_user_id: createdByUserId,
+  });
+};
+
+export const getPlaylist = async (id: string): Promise<DbPlaylist | undefined> => {
+  return playlistDb.findOneAsync({ playlist_id: id });
 };

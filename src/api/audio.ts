@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path, { sep } from "path";
 
-import { getAudio, getExternalAudio, insertExternalAudio, updateExternalAudio } from "../db";
+import * as Db from "../db";
 import { audioExts, isDir, traverseFileSystem } from "../fs";
 import { findAlbumInCollectionById, findAudioInCollectionById } from "../mediaCollection";
 import { getElectronUrl } from "../mediaSeparator";
@@ -18,6 +18,13 @@ export const getAudioById = async ({
   id: string;
   existingDbAudio?: DbAudio;
 }): Promise<AudioReturnType> => {
+  return toApiAudioResponse(id, existingDbAudio);
+};
+
+const toApiAudioResponse = async (
+  id: string,
+  existingDbAudio?: DbAudio
+): Promise<AudioReturnType> => {
   const audio = findAudioInCollectionById(id);
 
   if (!audio) {
@@ -25,7 +32,7 @@ export const getAudioById = async ({
   }
 
   const album = findAlbumInCollectionById(audio.albumId);
-  const dbAudio = existingDbAudio || (await getAudio(id));
+  const dbAudio = existingDbAudio || (await Db.getAudio(id));
   const name = dbAudio?.metadata?.title || audio.name;
   const trackNo = `${dbAudio?.metadata?.track?.no || ""}`;
   const diskNo = `${dbAudio?.metadata?.disk?.no || ""}`;
@@ -41,6 +48,31 @@ export const getAudioById = async ({
   };
 };
 
+export const getAudiosByPlaylistId = async ({
+  playlistId,
+}: {
+  playlistId: string;
+}): Promise<(AudioReturnType | undefined)[]> => {
+  const playlist = await Db.getPlaylist(playlistId);
+
+  if (!playlist) {
+    throw new Error("Playlist not found");
+  }
+
+  const pathIds = playlist.path_ids;
+  const audios = await Db.getAudiosByIds(pathIds);
+
+  const mappedAudios = await Promise.all(
+    audios.map((audio: DbAudio) => toApiAudioResponse(audio.path_id, audio))
+  );
+
+  const sortedAudios = playlist.path_ids.map((id) =>
+    mappedAudios.find(({ id: aid }) => aid === id)
+  );
+
+  return sortedAudios;
+};
+
 export const getAudiosByFilepaths = async (
   paths: string[],
   libPath: string,
@@ -53,7 +85,11 @@ export const getAudiosByFilepaths = async (
   return (audios.flat(Infinity) as AudioReturnType[]).filter(hasKeys);
 };
 
-const handleDirOrFile = async (filepath: string, libPath: string, electronFileProtocol: string) => {
+const handleDirOrFile = async (
+  filepath: string,
+  libPath: string,
+  electronFileProtocol: string
+) => {
   const isExternal = !filepath.startsWith(libPath);
 
   if (isExternal) {
@@ -73,7 +109,9 @@ const handleDirOrFile = async (filepath: string, libPath: string, electronFilePr
     const files = await traverseFileSystem(filepath);
     const filesWithFullPath = files.map((file) => path.join(filepath, file));
 
-    return Promise.all(filesWithFullPath.map((file) => getAudioByFilepath(file, libPath)));
+    return Promise.all(
+      filesWithFullPath.map((file) => getAudioByFilepath(file, libPath))
+    );
   }
 
   return getAudioByFilepath(filepath, libPath);
@@ -84,7 +122,7 @@ const getAudioMetadata = async (filepath: string, electronFileProtocol: string) 
     return {};
   }
   const id = UrlSafeBase64.encode(filepath);
-  const dbAudio = await getExternalAudio(id);
+  const dbAudio = await Db.getExternalAudio(id);
   const filenameParts = filepath.split(sep);
   const filename = filenameParts[filenameParts.length - 1];
   const { mtimeMs } = await fs.stat(filepath);
@@ -108,9 +146,14 @@ const getAudioMetadata = async (filepath: string, electronFileProtocol: string) 
   const metadata = await getMetadataByFilepath(filepath);
 
   if (isUpdate) {
-    await updateExternalAudio({ id, filename, metadata, modifiedAt: new Date(mtimeMs) });
+    await Db.updateExternalAudio({
+      id,
+      filename,
+      metadata,
+      modifiedAt: new Date(mtimeMs),
+    });
   } else {
-    await insertExternalAudio({ id, filename, filepath, metadata });
+    await Db.insertExternalAudio({ id, filename, filepath, metadata });
   }
 
   return {

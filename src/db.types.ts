@@ -20,6 +20,12 @@ export type DbExternalAudio = {
   filepath: string;
   metadata: Metadata;
 };
+export type DbPlaylist = {
+  playlist_id: string;
+  modified_at: string;
+  path_ids: string[];
+  created_by_user_id: string;
+};
 
 export type AlbumUpsertOptions = {
   id: string;
