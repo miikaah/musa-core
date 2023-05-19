@@ -1,5 +1,6 @@
 import Datastore from "@seald-io/nedb";
 import fs from "fs/promises";
+import os from "os";
 import path from "path";
 
 import { getMetadata } from "./metadata";
@@ -20,6 +21,7 @@ import { Metadata } from "./metadata.types";
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === "local";
 const devTagToPrepend = ".dev";
+const homedir = os.homedir();
 
 let audioDb: Datastore<DbAudio>;
 let albumDb: Datastore<DbAlbum>;
@@ -27,37 +29,37 @@ let themeDb: Datastore<DbTheme>;
 let externalAudioDb: Datastore<DbExternalAudio>;
 let libPath: string;
 
-export const initDb = async (libraryPath: string) => {
-  libPath = libraryPath;
+export const initDb = async (libraryPath?: string) => {
+  libPath = libraryPath || homedir;
 
   const audioDbFile = `${isDev ? devTagToPrepend : ""}.musa.audio.v2.db`;
   audioDb = new Datastore<DbAudio>({
-    filename: path.join(libraryPath, audioDbFile),
+    filename: path.join(libPath, audioDbFile),
   });
   await audioDb.loadDatabaseAsync();
 
   const albumDbFile = `${isDev ? devTagToPrepend : ""}.musa.album.v1.db`;
   albumDb = new Datastore<DbAlbum>({
-    filename: path.join(libraryPath, albumDbFile),
+    filename: path.join(libPath, albumDbFile),
   });
   await albumDb.loadDatabaseAsync();
 
   const themeDbFile = `${isDev ? devTagToPrepend : ""}.musa.theme.v2.db`;
   themeDb = new Datastore<DbTheme>({
-    filename: path.join(libraryPath, themeDbFile),
+    filename: path.join(libPath, themeDbFile),
   });
   await themeDb.loadDatabaseAsync();
 
   const externalAudioDbFile = `${isDev ? devTagToPrepend : ""}.musa.external-audio.v1.db`;
   externalAudioDb = new Datastore<DbExternalAudio>({
-    filename: path.join(libraryPath, externalAudioDbFile),
+    filename: path.join(libPath, externalAudioDbFile),
   });
   await externalAudioDb.loadDatabaseAsync();
 
   // @backwards_compatibility clean up old db files
   const oldFiles = [
-    path.join(libraryPath, `${isDev ? ".dev" : ""}.musa.theme.v1.db`),
-    path.join(libraryPath, `${isDev ? ".dev" : ""}.musa.audio.v1.db`),
+    path.join(libPath, `${isDev ? ".dev" : ""}.musa.theme.v1.db`),
+    path.join(libPath, `${isDev ? ".dev" : ""}.musa.audio.v1.db`),
   ];
   oldFiles.forEach(async (p) => {
     try {
