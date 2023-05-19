@@ -1,5 +1,5 @@
 import { Artist, ArtistWithEnrichedAlbums } from "../src/api/artist.types";
-import { ArtistObject, ArtistCollection } from "../src/media-separator.types";
+import { ArtistCollection, ArtistObject } from "../src/mediaSeparator.types";
 
 export const artistObjectFixture: ArtistObject = {
   A: [

@@ -1,4 +1,4 @@
-import { State } from "../src/fs-state.types";
+import { State } from "../src/fsState.types";
 
 export const stateFixture: State = {
   isInit: null,

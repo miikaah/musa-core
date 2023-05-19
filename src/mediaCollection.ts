@@ -4,7 +4,7 @@ import {
   ArtistObject,
   FileCollection,
   MediaCollection,
-} from "./media-separator.types";
+} from "./mediaSeparator.types";
 import { AlbumsForFind, ArtistsForFind, AudiosForFind } from "./scanner.types";
 
 let artistCollection: ArtistCollection = {};

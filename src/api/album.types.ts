@@ -1,5 +1,5 @@
 import { EnrichedAlbumFile } from "../db.types";
-import { AlbumWithFiles } from "../media-separator.types";
+import { AlbumWithFiles } from "../mediaSeparator.types";
 import { Metadata } from "../metadata.types";
 
 export type AlbumWithFilesAndMetadata = Omit<AlbumWithFiles, "files"> & {

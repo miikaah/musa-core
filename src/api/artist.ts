@@ -3,9 +3,9 @@ import {
   findArtistInCollectionById,
   getAlbumCollection,
   getArtistObject,
-} from "../media-collection";
+} from "../mediaCollection";
 
-import { ArtistObject } from "../media-separator.types";
+import { ArtistObject } from "../mediaSeparator.types";
 import { Artist, ArtistAlbum, ArtistWithEnrichedAlbums } from "./artist.types";
 
 export const getArtists = async (): Promise<ArtistObject> => {

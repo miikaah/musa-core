@@ -5,11 +5,11 @@ import { find, findRandom } from "./api/find";
 import { getAllGenres } from "./api/genre";
 import { getAllThemes, getTheme, insertTheme, removeTheme, updateTheme } from "./api/theme";
 import { initDb } from "./db";
-import { getState, setState } from "./fs-state";
+import { getState, setState } from "./fsState";
 import { getCurrentProfileByIp, listDevices } from "./infra/tailscale";
 import { writeTags } from "./metadata";
 import { init, refresh, setScanProgressListener, update } from "./scanner";
-import UrlSafeBase64 from "./urlsafe-base64";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 const Api = {
   getAlbumById,
@@ -55,7 +55,7 @@ export type { Artist, ArtistWithEnrichedAlbums } from "./api/artist.types";
 export type { AudioWithMetadata } from "./api/audio.types";
 export type { FindResult } from "./api/find.types";
 export type { Theme } from "./api/theme.types";
-export type { State } from "./fs-state.types";
+export type { State } from "./fsState.types";
 export type {
   TailscaleDevice,
   TailscaleListDevicesResponse,
@@ -71,7 +71,7 @@ export type {
   FileCollection,
   FileWithInfo,
   MediaCollection,
-} from "./media-separator.types";
+} from "./mediaSeparator.types";
 export type { Metadata } from "./metadata.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
 export { Api, Db, Fs, Scanner, UrlSafeBase64, Tailscale };

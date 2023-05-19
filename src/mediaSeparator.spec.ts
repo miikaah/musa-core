@@ -5,8 +5,8 @@ import {
   mediaCollectionElectronDarwinFixture,
   mediaCollectionElectronWin32Fixture,
   mediaCollectionWin32Fixture,
-} from "../fixtures/media-separator.fixture";
-import { createMediaCollection } from "./media-separator";
+} from "../fixtures/mediaSeparator.fixture";
+import { createMediaCollection } from "./mediaSeparator";
 
 const fixture = [
   path.join("artist", "album", "cover.JPG"),

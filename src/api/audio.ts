@@ -3,10 +3,10 @@ import path, { sep } from "path";
 
 import { getAudio, getExternalAudio, insertExternalAudio, updateExternalAudio } from "../db";
 import { audioExts, isDir, traverseFileSystem } from "../fs";
-import { findAlbumInCollectionById, findAudioInCollectionById } from "../media-collection";
-import { getElectronUrl } from "../media-separator";
+import { findAlbumInCollectionById, findAudioInCollectionById } from "../mediaCollection";
+import { getElectronUrl } from "../mediaSeparator";
 import { getMetadataByFilepath } from "../metadata";
-import UrlSafeBase64 from "../urlsafe-base64";
+import UrlSafeBase64 from "../urlSafeBase64";
 
 import { DbAudio } from "../db.types";
 import { AudioReturnType } from "./audio.types";

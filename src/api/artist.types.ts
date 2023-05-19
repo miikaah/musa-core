@@ -1,5 +1,5 @@
 import { EnrichedAlbum } from "../db.types";
-import { ArtistWithAlbums } from "../media-separator.types";
+import { ArtistWithAlbums } from "../mediaSeparator.types";
 
 export type ArtistAlbum = {
   id: string;

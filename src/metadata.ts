@@ -6,7 +6,7 @@ const musicMetadata = import("music-metadata");
 
 import * as Db from "./db";
 import { isPathExternal } from "./fs";
-import UrlSafeBase64 from "./urlsafe-base64";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 import type { IAudioMetadata } from "music-metadata";
 import type { Codec, GetMetadataParams, Metadata, Tags, TagsFlac } from "./metadata.types";

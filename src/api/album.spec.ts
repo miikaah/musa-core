@@ -1,6 +1,6 @@
 import { albumCollectionFixture, albumDbFixture, albumFixture } from "../../fixtures/album.fixture";
 import { enrichAlbumFiles, getAlbum } from "../db";
-import { setPartialMediaCollectionForTest } from "../media-collection";
+import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getAlbumById } from "./album";
 
 jest.mock("../db");

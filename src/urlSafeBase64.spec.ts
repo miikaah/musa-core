@@ -1,4 +1,4 @@
-import UrlSafeBase64 from "./urlsafe-base64";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 describe("UrlSafeBase64", () => {
   const pangramPlain = "The quick brown fox jumps over the lazy dog";

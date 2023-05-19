@@ -3,9 +3,9 @@ import path from "path";
 
 import * as Db from "./db";
 import { audioExts, traverseFileSystem } from "./fs";
-import { tokenize, updateParams, updateTf } from "./full-text-search";
-import { createMediaCollection } from "./media-separator";
-import UrlSafeBase64 from "./urlsafe-base64";
+import { tokenize, updateParams, updateTf } from "./fullTextSearch";
+import { createMediaCollection } from "./mediaSeparator";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 import { AlbumUpsertOptions } from "./db.types";
 import {
@@ -13,7 +13,7 @@ import {
   getArtistCollection,
   getArtistsForFind,
   setMediaCollection,
-} from "./media-collection";
+} from "./mediaCollection";
 import { IpcMainEvent, MediaCollectionAndFiles } from "./scanner.types";
 
 const { DISABLE_SCANNING } = process.env;

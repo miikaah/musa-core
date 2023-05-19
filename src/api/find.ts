@@ -10,14 +10,14 @@ import {
   findAudiosByMetadataAndFilename,
   findAudiosByYear,
 } from "../db";
-import { calculateOkapiBm25Score, tokenize } from "../full-text-search";
+import { calculateOkapiBm25Score, tokenize } from "../fullTextSearch";
 import {
   findAudioInCollectionById,
   getAlbumsForFind,
   getArtistsForFind,
   getAudiosForFind,
-} from "../media-collection";
-import UrlSafeBase64 from "../urlsafe-base64";
+} from "../mediaCollection";
+import UrlSafeBase64 from "../urlSafeBase64";
 import { getAlbumById } from "./album";
 import { getArtistAlbums } from "./artist";
 import { getAudioById } from "./audio";

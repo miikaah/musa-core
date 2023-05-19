@@ -1,7 +1,7 @@
 import path, { ParsedPath, sep } from "path";
 
 import { imageExts } from "./fs";
-import UrlSafeBase64 from "./urlsafe-base64";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 import {
   AlbumCollection,
@@ -9,7 +9,7 @@ import {
   ArtistObject,
   FileCollection,
   MediaCollection,
-} from "./media-separator.types";
+} from "./mediaSeparator.types";
 
 export const createMediaCollection = ({
   files,

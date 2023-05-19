@@ -1,4 +1,4 @@
-import { FileWithInfo } from "../media-separator.types";
+import { FileWithInfo } from "../mediaSeparator.types";
 import { Metadata } from "../metadata.types";
 
 export type AudioWithMetadata = FileWithInfo & {

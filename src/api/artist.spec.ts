@@ -7,7 +7,7 @@ import {
 } from "../../fixtures/artist.fixture";
 import { audioDbFixture } from "../../fixtures/audio.fixture";
 import { enrichAlbums, getAudio } from "../db";
-import { setPartialMediaCollectionForTest } from "../media-collection";
+import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getArtistAlbums, getArtistById, getArtists } from "./artist";
 
 jest.mock("../db");

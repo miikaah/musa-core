@@ -3,7 +3,7 @@ import fs from "fs/promises";
 import path from "path";
 
 import { getMetadata } from "./metadata";
-import UrlSafeBase64 from "./urlsafe-base64";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 import {
   AlbumUpsertOptions,
@@ -14,7 +14,7 @@ import {
   EnrichedAlbum,
   EnrichedAlbumFile,
 } from "./db.types";
-import { AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./media-separator.types";
+import { AlbumCollection, AlbumWithFiles, ArtistWithAlbums } from "./mediaSeparator.types";
 import { Metadata } from "./metadata.types";
 
 const { NODE_ENV } = process.env;

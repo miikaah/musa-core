@@ -1,6 +1,6 @@
-import { FileCollection } from "../src/media-separator.types";
-import { DbAudio } from "../src/db.types";
 import { AudioWithMetadata } from "../src/api/audio.types";
+import { DbAudio } from "../src/db.types";
+import { FileCollection } from "../src/mediaSeparator.types";
 
 export const audioFixture: AudioWithMetadata = {
   id: "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz",

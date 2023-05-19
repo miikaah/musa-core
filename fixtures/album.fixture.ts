@@ -1,6 +1,6 @@
-import { AlbumCollection } from "../src/media-separator.types";
-import { DbAlbum } from "../src/db.types";
 import { AlbumWithFilesAndMetadata } from "../src/api/album.types";
+import { DbAlbum } from "../src/db.types";
+import { AlbumCollection } from "../src/mediaSeparator.types";
 
 export const albumDbFixture: DbAlbum = {
   path_id: "foo",

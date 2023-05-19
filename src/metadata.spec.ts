@@ -2,7 +2,7 @@ import path from "path";
 
 import { metadataFixture, parsedMetadataFixture } from "../fixtures/metadata.fixture";
 import { getMetadata, readMetadata } from "./metadata";
-import UrlSafeBase64 from "./urlsafe-base64";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 const origConsoleErrorFn = console.error;
 

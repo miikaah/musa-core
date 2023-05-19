@@ -1,7 +1,7 @@
 import { albumCollectionFixture } from "../../fixtures/album.fixture";
 import { artistCollectionFixture } from "../../fixtures/artist.fixture";
 import { audioCollectionFixture, audioFixture } from "../../fixtures/audio.fixture";
-import { setPartialMediaCollectionForTest } from "../media-collection";
+import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getAlbumById } from "./album";
 import { getArtistAlbums } from "./artist";
 import { getAudioById } from "./audio";

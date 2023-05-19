@@ -25,10 +25,10 @@ import {
   upsertAlbum,
 } from "./db";
 import { getMetadata } from "./metadata";
-import UrlSafeBase64 from "./urlsafe-base64";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 jest.mock("./metadata");
-jest.mock("./urlsafe-base64");
+jest.mock("./urlsafeBase64");
 jest.mock("fs/promises", () => ({
   ...jest.requireActual("fs/promises"),
   stat: jest.fn().mockResolvedValue(<any>{
@@ -36,7 +36,7 @@ jest.mock("fs/promises", () => ({
   }),
 }));
 
-const libraryPath = "db-test-artifacts";
+const libraryPath = "dbTestArtifacts";
 const audioDbPath = path.join(process.cwd(), libraryPath, ".musa.audio.v2.db");
 const albumDbPath = path.join(process.cwd(), libraryPath, ".musa.album.v1.db");
 const themeDbPath = path.join(process.cwd(), libraryPath, ".musa.theme.v2.db");
