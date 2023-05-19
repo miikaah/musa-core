@@ -32,34 +32,36 @@ let libPath: string;
 export const initDb = async (libraryPath: string) => {
   libPath = libraryPath;
 
+  const dbDir = NODE_ENV === "test" ? libraryPath : homedir;
+
   const audioDbFile = `${isDev ? devTagToPrepend : ""}.musa.audio.v2.db`;
   audioDb = new Datastore<DbAudio>({
-    filename: path.join(homedir, audioDbFile),
+    filename: path.join(dbDir, audioDbFile),
   });
   await audioDb.loadDatabaseAsync();
 
   const albumDbFile = `${isDev ? devTagToPrepend : ""}.musa.album.v1.db`;
   albumDb = new Datastore<DbAlbum>({
-    filename: path.join(homedir, albumDbFile),
+    filename: path.join(dbDir, albumDbFile),
   });
   await albumDb.loadDatabaseAsync();
 
   const themeDbFile = `${isDev ? devTagToPrepend : ""}.musa.theme.v2.db`;
   themeDb = new Datastore<DbTheme>({
-    filename: path.join(homedir, themeDbFile),
+    filename: path.join(dbDir, themeDbFile),
   });
   await themeDb.loadDatabaseAsync();
 
   const externalAudioDbFile = `${isDev ? devTagToPrepend : ""}.musa.external-audio.v1.db`;
   externalAudioDb = new Datastore<DbExternalAudio>({
-    filename: path.join(homedir, externalAudioDbFile),
+    filename: path.join(dbDir, externalAudioDbFile),
   });
   await externalAudioDb.loadDatabaseAsync();
 
   // @backwards_compatibility clean up old db files
   const oldFiles = [
-    path.join(homedir, `${isDev ? ".dev" : ""}.musa.theme.v1.db`),
-    path.join(homedir, `${isDev ? ".dev" : ""}.musa.audio.v1.db`),
+    path.join(dbDir, `${isDev ? ".dev" : ""}.musa.theme.v1.db`),
+    path.join(dbDir, `${isDev ? ".dev" : ""}.musa.audio.v1.db`),
   ];
   oldFiles.forEach(async (p) => {
     try {
