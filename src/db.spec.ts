@@ -28,7 +28,7 @@ import { getMetadata } from "./metadata";
 import UrlSafeBase64 from "./urlSafeBase64";
 
 jest.mock("./metadata");
-jest.mock("./urlsafeBase64");
+jest.mock("./urlSafeBase64");
 jest.mock("fs/promises", () => ({
   ...jest.requireActual("fs/promises"),
   stat: jest.fn().mockResolvedValue(<any>{
