@@ -107,6 +107,7 @@ export const find = async ({
     };
   }
 
+  const isArtistSearch = query.startsWith("artist:");
   query = query.replace("artist:", "").replace("album:", "");
 
   // Term search
@@ -118,7 +119,9 @@ export const find = async ({
       .filter(Boolean)
       .map(async (a) => getArtistAlbums(a.id))
   )) as Artist[];
-  const artistAlbums = artists.find(({ name }) => name.toLowerCase() === query)?.albums;
+  const artist = artists.find(({ name }) => name.toLowerCase() === query);
+  const artistAlbums = artist?.albums;
+  const artistFiles = artist?.files;
 
   let albums: AlbumWithFilesAndMetadata[] = [];
   if (Array.isArray(artistAlbums) && artistAlbums.length) {
@@ -132,31 +135,44 @@ export const find = async ({
     ).filter(({ name }) => name);
   }
 
-  const foundAlbums = await findAlbumsByMetadata(query, limit);
-
-  if (foundAlbums.length < limit && artists.length > 0) {
-    artists.forEach((a) => {
-      // @ts-expect-error nope
-      foundAlbums.push(...a.albums);
-    });
+  let audios: AudioWithMetadata[] = [];
+  if (Array.isArray(artistFiles) && artistFiles.length) {
+    audios = (
+      (await Promise.all(
+        artistFiles.map(async (a) => getAudioById({ id: a.id }))
+      )) as AudioWithMetadata[]
+    ).filter(({ id }) => !!findAudioInCollectionById(id));
   }
 
-  /**
-   * This is the case that an artist folder has multiple aliases inside of it
-   */
-  if (foundAlbums.length < limit) {
-    const albumsByArtist = await findAlbumsByArtist(query, limit);
-    albumsByArtist.forEach((a) => foundAlbums.push(a));
+  let foundAlbums: DbAlbum[] = [];
 
-    if (albumsByArtist.length) {
-      const firstAlbum = albumsByArtist[0];
-      const pathId = firstAlbum.id || firstAlbum.path_id;
+  if (!isArtistSearch) {
+    foundAlbums = await findAlbumsByMetadata(query, limit);
 
-      if (pathId) {
-        const artistFolder = UrlSafeBase64.decode(pathId).split(path.sep)[0];
-        const artistId = UrlSafeBase64.encode(artistFolder);
-        const artist = (await getArtistAlbums(artistId)) as Artist;
-        artists.push(artist);
+    if (foundAlbums.length < limit && artists.length > 0) {
+      artists.forEach((a) => {
+        // @ts-expect-error nope
+        foundAlbums.push(...a.albums);
+      });
+    }
+
+    /**
+     * This is the case that an artist folder has multiple aliases inside of it
+     */
+    if (foundAlbums.length < limit) {
+      const albumsByArtist = await findAlbumsByArtist(query, limit);
+      albumsByArtist.forEach((a) => foundAlbums.push(a));
+
+      if (albumsByArtist.length) {
+        const firstAlbum = albumsByArtist[0];
+        const pathId = firstAlbum.id || firstAlbum.path_id;
+
+        if (pathId) {
+          const artistFolder = UrlSafeBase64.decode(pathId).split(path.sep)[0];
+          const artistId = UrlSafeBase64.encode(artistFolder);
+          const artist = (await getArtistAlbums(artistId)) as Artist;
+          artists.push(artist);
+        }
       }
     }
   }
@@ -172,15 +188,17 @@ export const find = async ({
 
   albums.push(...restAlbums);
 
-  const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 2);
+  if (!isArtistSearch) {
+    const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 2);
 
-  const audios = (
-    (await Promise.all(
-      foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
-    )) as AudioWithMetadata[]
-  ).filter(({ id }) => !!findAudioInCollectionById(id));
+    audios = (
+      (await Promise.all(
+        foundAudios.map(async (a) => getAudioById({ id: a.path_id, existingDbAudio: a }))
+      )) as AudioWithMetadata[]
+    ).filter(({ id }) => !!findAudioInCollectionById(id));
+  }
 
-  if (audios.length < limit * 2) {
+  if (isArtistSearch || audios.length < limit * 2) {
     albums.forEach((a) => {
       // @ts-expect-error nope
       audios.push(...a.files);
@@ -196,10 +214,37 @@ export const find = async ({
     artists: uniqBy(artists, ({ name }) => name).sort(byOkapiBm25(terms, k1, b, true)),
     albums: uniqAlbums.sort(byOkapiBm25(terms, k1, b)),
     audios: uniqBy(audios, ({ id }) => id).sort(
-      uniqAlbums.length > 1 ? byOkapiBm25(terms, k1, b) : byTrackAsc
+      getAudioSortFn({
+        isArtistSearch,
+        uniqAlbums,
+        terms,
+        k1,
+        b,
+      })
     ),
   };
 };
+
+function getAudioSortFn({
+  isArtistSearch,
+  uniqAlbums,
+  terms,
+  k1,
+  b,
+}: {
+  isArtistSearch: boolean;
+  uniqAlbums: AlbumWithFilesAndMetadata[];
+  terms: string[];
+  k1: number;
+  b: number;
+}) {
+  if (isArtistSearch) {
+    // Disable sorting when using artist search
+    return () => 0;
+  } else {
+    return uniqAlbums.length > 1 ? byOkapiBm25(terms, k1, b) : byTrackAsc;
+  }
+}
 
 function byTrackAsc(a: AudioWithMetadata, b: AudioWithMetadata) {
   const aTrack = `${a.metadata.track?.no}`.padStart(2, "0");
