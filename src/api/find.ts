@@ -108,6 +108,7 @@ export const find = async ({
   }
 
   const isArtistSearch = query.startsWith("artist:");
+  const isAlbumSearch = query.startsWith("album:");
   query = query.replace("artist:", "").replace("album:", "");
 
   // Term search
@@ -188,7 +189,7 @@ export const find = async ({
 
   albums.push(...restAlbums);
 
-  if (!isArtistSearch) {
+  if (!isArtistSearch && !isAlbumSearch) {
     const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 2);
 
     audios = (
@@ -216,6 +217,7 @@ export const find = async ({
     audios: uniqBy(audios, ({ id }) => id).sort(
       getAudioSortFn({
         isArtistSearch,
+        isAlbumSearch,
         uniqAlbums,
         terms,
         k1,
@@ -227,19 +229,21 @@ export const find = async ({
 
 function getAudioSortFn({
   isArtistSearch,
+  isAlbumSearch,
   uniqAlbums,
   terms,
   k1,
   b,
 }: {
   isArtistSearch: boolean;
+  isAlbumSearch: boolean;
   uniqAlbums: AlbumWithFilesAndMetadata[];
   terms: string[];
   k1: number;
   b: number;
 }) {
-  if (isArtistSearch) {
-    // Disable sorting when using artist search
+  if (isArtistSearch || isAlbumSearch) {
+    // Disable sorting when using artist or album search
     return () => 0;
   } else {
     return uniqAlbums.length > 1 ? byOkapiBm25(terms, k1, b) : byTrackAsc;
