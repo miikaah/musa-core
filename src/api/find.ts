@@ -118,6 +118,19 @@ export const find = async ({
       .filter(Boolean)
       .map(async (a) => getArtistAlbums(a.id))
   )) as Artist[];
+  const artistAlbums = artists.find(({ name }) => name.toLowerCase() === query)?.albums;
+
+  let albums: AlbumWithFilesAndMetadata[] = [];
+  if (Array.isArray(artistAlbums) && artistAlbums.length) {
+    albums = (
+      (await Promise.all(
+        artistAlbums
+          .filter(Boolean)
+          .slice(0, limit * 2)
+          .map(async (a) => getAlbumById(a.id))
+      )) as AlbumWithFilesAndMetadata[]
+    ).filter(({ name }) => name);
+  }
 
   const foundAlbums = await findAlbumsByMetadata(query, limit);
 
@@ -148,7 +161,7 @@ export const find = async ({
     }
   }
 
-  const albums = (
+  const restAlbums = (
     (await Promise.all(
       foundAlbums
         .filter(Boolean)
@@ -156,6 +169,8 @@ export const find = async ({
         .map(async (a) => getAlbumById(a.id || a.path_id))
     )) as AlbumWithFilesAndMetadata[]
   ).filter(({ name }) => name);
+
+  albums.push(...restAlbums);
 
   const foundAudios = await findAudiosByMetadataAndFilename(query, limit * 2);
 
@@ -270,7 +285,9 @@ export const findRandom = async ({
       const albumsInDb = await findAlbumsByYear(query, albumsForFind.length);
       const albumIndices = getRandomNumbers(albumsInDb.length, limit);
       const foundAlbums = lookupEntities<DbAlbum>(albumsInDb, albumIndices);
-      const albums = await Promise.all(foundAlbums.map(async (a) => getAlbumById(a.path_id)));
+      const albums = await Promise.all(
+        foundAlbums.map(async (a) => getAlbumById(a.path_id))
+      );
 
       const audiosInDb = await findAudiosByYear(query, audiosForFind.length);
       const audioIndices = getRandomNumbers(audiosInDb.length, limit);
@@ -288,7 +305,10 @@ export const findRandom = async ({
 
     // Genre search
     if (lockedSearchTerm.startsWith("g:")) {
-      const audiosInDb = await findAudiosByGenre(lockedSearchTerm.replace("g:", ""), 1000);
+      const audiosInDb = await findAudiosByGenre(
+        lockedSearchTerm.replace("g:", ""),
+        1000
+      );
       const audioIndices = getRandomNumbers(audiosInDb.length, limit);
       const foundAudios = lookupEntities<DbAudio>(audiosInDb, audioIndices);
       const audios = (
@@ -298,7 +318,9 @@ export const findRandom = async ({
       const foundAlbums = audios.map((a) => ({ id: a.albumId || "" }));
       const albumIndices = getRandomNumbers(foundAlbums.length, limit);
       const albumsToFetch = lookupEntities<{ id: string }>(foundAlbums, albumIndices);
-      const albums = await Promise.all(albumsToFetch.map(async (a) => getAlbumById(a.id)));
+      const albums = await Promise.all(
+        albumsToFetch.map(async (a) => getAlbumById(a.id))
+      );
 
       // TODO: Add artists
       return {
@@ -316,7 +338,10 @@ export const findRandom = async ({
     const artists = lookupEntities<Artist>(results.artists, artistIndices);
 
     const albumIndices = getRandomNumbers(results.albums.length, limit);
-    const foundAlbums = lookupEntities<AlbumWithFilesAndMetadata>(results.albums, albumIndices);
+    const foundAlbums = lookupEntities<AlbumWithFilesAndMetadata>(
+      results.albums,
+      albumIndices
+    );
     const albums = await Promise.all(foundAlbums.map(async (a) => getAlbumById(a.id)));
 
     const audioIndices = getRandomNumbers(results.audios.length, limit);
