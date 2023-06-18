@@ -125,7 +125,7 @@ export const find = async ({
   const artistFiles = artist?.files;
 
   let albums: AlbumWithFilesAndMetadata[] = [];
-  if (Array.isArray(artistAlbums) && artistAlbums.length) {
+  if (!isAlbumSearch && Array.isArray(artistAlbums) && artistAlbums.length) {
     albums = (
       (await Promise.all(
         artistAlbums
@@ -150,7 +150,7 @@ export const find = async ({
   if (!isArtistSearch) {
     foundAlbums = await findAlbumsByMetadata(query, limit);
 
-    if (foundAlbums.length < limit && artists.length > 0) {
+    if (!isAlbumSearch && foundAlbums.length < limit && artists.length > 0) {
       artists.forEach((a) => {
         // @ts-expect-error nope
         foundAlbums.push(...a.albums);
@@ -160,7 +160,7 @@ export const find = async ({
     /**
      * This is the case that an artist folder has multiple aliases inside of it
      */
-    if (foundAlbums.length < limit) {
+    if (!isAlbumSearch && foundAlbums.length < limit) {
       const albumsByArtist = await findAlbumsByArtist(query, limit);
       albumsByArtist.forEach((a) => foundAlbums.push(a));
 
