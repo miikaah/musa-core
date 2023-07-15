@@ -10,7 +10,7 @@ type FileTreeNode = {
 
 const recursivelyBuildFileTree = async (
   srcPath = "",
-  currentPath = ""
+  currentPath = "",
 ): Promise<FileTreeNode[]> => {
   const filepath = path.join(srcPath, currentPath);
 
@@ -34,7 +34,8 @@ const endsWith = ["spec.ts"];
 const excluded = ["jestSetup.ts"];
 
 const outExcluded = (f: FileTreeNode) =>
-  !endsWith.map((ew) => f.file.name.endsWith(ew)).some(Boolean) && !excluded.includes(f.file.name);
+  !endsWith.map((ew) => f.file.name.endsWith(ew)).some(Boolean) &&
+  !excluded.includes(f.file.name);
 
 const exec = async () => {
   const srcPath = "src";

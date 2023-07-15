@@ -1,5 +1,5 @@
-import type { Metadata } from "../src/metadata.types";
 import type { IAudioMetadata } from "music-metadata";
+import type { Metadata } from "../src/metadata.types";
 
 export const metadataFixture: Partial<IAudioMetadata> = {
   format: {

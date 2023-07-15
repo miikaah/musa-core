@@ -72,7 +72,10 @@ describe("Artist API tests", () => {
 
       expect(artist).toEqual(artistAlbumsFixture);
       expect(enrichAlbums).toHaveBeenCalledTimes(1);
-      expect(enrichAlbums).toHaveBeenCalledWith(expect.any(Object), artistCollectionFixture[id]);
+      expect(enrichAlbums).toHaveBeenCalledWith(
+        expect.any(Object),
+        artistCollectionFixture[id]
+      );
     });
 
     it("should return empty object if artist does not exist", async () => {

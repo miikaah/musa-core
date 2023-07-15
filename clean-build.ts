@@ -2,7 +2,10 @@ import { Dirent } from "fs";
 import fs from "fs/promises";
 import path, { sep } from "path";
 
-const recursivelyBuildFileList = async (filepath: string, srcPath: string): Promise<string[]> => {
+const recursivelyBuildFileList = async (
+  filepath: string,
+  srcPath: string,
+): Promise<string[]> => {
   let dir: Dirent[] = [];
 
   try {

@@ -198,7 +198,11 @@ export const update = async ({
   console.log("----------------------");
 
   if (event) {
-    event.sender.send("musa:scan:start", filesToInsert.length, scanColor?.INSERT || "#f00");
+    event.sender.send(
+      "musa:scan:start",
+      filesToInsert.length,
+      scanColor?.INSERT || "#f00"
+    );
   }
 
   if (filesToInsert.length) {
@@ -266,7 +270,11 @@ export const update = async ({
 
   if (event) {
     event.sender.send("musa:scan:end");
-    event.sender.send("musa:scan:start", filesToCheck.length, scanColor?.UPDATE || "#ff0");
+    event.sender.send(
+      "musa:scan:start",
+      filesToCheck.length,
+      scanColor?.UPDATE || "#ff0"
+    );
   }
 
   const startUpdate = Date.now();
@@ -275,7 +283,9 @@ export const update = async ({
     await Promise.all(
       filesToCheck.map(async ({ id, filename }, i) => {
         try {
-          const { mtimeMs } = await fs.stat(path.join(musicLibraryPath, UrlSafeBase64.decode(id)));
+          const { mtimeMs } = await fs.stat(
+            path.join(musicLibraryPath, UrlSafeBase64.decode(id))
+          );
           const audioInDb = audiosInDb.find((a) => id === a.id);
 
           if (!audioInDb) {
@@ -312,7 +322,11 @@ export const update = async ({
 
   if (event) {
     event.sender.send("musa:scan:end");
-    event.sender.send("musa:scan:start", albums.length, scanColor?.ALBUM_UPDATE || "#0f0");
+    event.sender.send(
+      "musa:scan:start",
+      albums.length,
+      scanColor?.ALBUM_UPDATE || "#0f0"
+    );
   }
 
   const startAlbumUpdate = Date.now();
@@ -326,7 +340,9 @@ export const update = async ({
         const album = a.album;
         const albumAudioIds = album.files.map(({ id }) => id);
         const dbAlbumAudios = audiosInDb.filter(({ id }) => albumAudioIds.includes(id));
-        const modifiedAts = dbAlbumAudios.map(({ modifiedAt }) => new Date(modifiedAt).getTime());
+        const modifiedAts = dbAlbumAudios.map(({ modifiedAt }) =>
+          new Date(modifiedAt).getTime()
+        );
         const lastModificationTime = Math.max(...modifiedAts);
         const a2 = albumsInDb.find(({ path_id: id }) => id === a.id);
 
@@ -372,9 +388,12 @@ export const update = async ({
   }
 
   albumsInDb = await Db.getAlbums();
-  const albumNames = albumsInDb.map(({ metadata }) => (metadata.album || "").toLowerCase());
+  const albumNames = albumsInDb.map(({ metadata }) =>
+    (metadata.album || "").toLowerCase()
+  );
   const audioNames = audios.map(({ metadata }) => (metadata.title || "").toLowerCase());
-  const documents = Object.keys(getArtistCollection()).length + albumsInDb.length + audios.length;
+  const documents =
+    Object.keys(getArtistCollection()).length + albumsInDb.length + audios.length;
 
   updateTf(
     getArtistsForFind()

@@ -9,7 +9,13 @@ import { isPathExternal } from "./fs";
 import UrlSafeBase64 from "./urlSafeBase64";
 
 import type { IAudioMetadata } from "music-metadata";
-import type { Codec, GetMetadataParams, Metadata, Tags, TagsFlac } from "./metadata.types";
+import type {
+  Codec,
+  GetMetadataParams,
+  Metadata,
+  Tags,
+  TagsFlac,
+} from "./metadata.types";
 
 export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
   let metadata: IAudioMetadata = {
@@ -67,13 +73,16 @@ const getMetadataTags = async (
     // mp3
     dynamicRangeTags = {
       dynamicRange: (id3v2x.find((tag) => tag.id === "TXXX:DYNAMIC RANGE") || {}).value,
-      dynamicRangeAlbum: (id3v2x.find((tag) => tag.id === "TXXX:ALBUM DYNAMIC RANGE") || {}).value,
+      dynamicRangeAlbum: (
+        id3v2x.find((tag) => tag.id === "TXXX:ALBUM DYNAMIC RANGE") || {}
+      ).value,
     };
   } else if (vorbis.length) {
     // flac, ogg
     dynamicRangeTags = {
       dynamicRange: (vorbis.find((tag) => tag.id === "DYNAMIC RANGE") || {}).value,
-      dynamicRangeAlbum: (vorbis.find((tag) => tag.id === "ALBUM DYNAMIC RANGE") || {}).value,
+      dynamicRangeAlbum: (vorbis.find((tag) => tag.id === "ALBUM DYNAMIC RANGE") || {})
+        .value,
     };
 
     flacDate = (vorbis.find((tag) => tag.id === "DATE") || {}).value;

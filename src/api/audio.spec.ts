@@ -1,5 +1,9 @@
 import { albumCollectionFixture } from "../../fixtures/album.fixture";
-import { audioCollectionFixture, audioDbFixture, audioFixture } from "../../fixtures/audio.fixture";
+import {
+  audioCollectionFixture,
+  audioDbFixture,
+  audioFixture,
+} from "../../fixtures/audio.fixture";
 import { getAudio } from "../db";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getAudioById } from "./audio";

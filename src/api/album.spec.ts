@@ -1,4 +1,8 @@
-import { albumCollectionFixture, albumDbFixture, albumFixture } from "../../fixtures/album.fixture";
+import {
+  albumCollectionFixture,
+  albumDbFixture,
+  albumFixture,
+} from "../../fixtures/album.fixture";
 import { enrichAlbumFiles, getAlbum } from "../db";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getAlbumById } from "./album";

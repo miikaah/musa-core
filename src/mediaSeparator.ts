@@ -220,7 +220,13 @@ export const createMediaCollection = ({
       };
     }, {});
 
-  return { artistCollection, albumCollection, audioCollection, imageCollection, artistObject };
+  return {
+    artistCollection,
+    albumCollection,
+    audioCollection,
+    imageCollection,
+    artistObject,
+  };
 };
 
 const getUrl = (baseUrl: string, path: string, id: string): string => {
@@ -241,5 +247,10 @@ const isAlbumCoverImage = (albumName: string, img: ParsedPath): boolean => {
 
 const isDefaultNameImage = (pic: string) => {
   const s = pic.toLowerCase();
-  return s.includes("front") || s.includes("cover") || s.includes("_large") || s.includes("folder");
+  return (
+    s.includes("front") ||
+    s.includes("cover") ||
+    s.includes("_large") ||
+    s.includes("folder")
+  );
 };

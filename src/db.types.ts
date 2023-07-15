@@ -12,7 +12,12 @@ export type DbAlbum = {
   metadata: Partial<Metadata>;
   id?: string; // DEPRECATED but still might exist
 };
-export type DbTheme = { path_id: string; modified_at: string; colors: unknown; filename: string };
+export type DbTheme = {
+  path_id: string;
+  modified_at: string;
+  colors: unknown;
+  filename: string;
+};
 export type DbExternalAudio = {
   path_id: string;
   modified_at: string;

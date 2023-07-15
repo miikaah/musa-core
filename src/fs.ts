@@ -13,10 +13,16 @@ export const isPathExternal = (pathname: string) =>
   pathname.startsWith("/") || new RegExp(/^[A-Z]:\\\w/).test(pathname);
 
 const satisfiesConstraints = (filename: string) => {
-  return !filename.startsWith(".") && extensions.some((e) => filename.toLowerCase().endsWith(e));
+  return (
+    !filename.startsWith(".") &&
+    extensions.some((e) => filename.toLowerCase().endsWith(e))
+  );
 };
 
-const recursivelyBuildFileList = async (filepath: string, srcPath: string): Promise<string[]> => {
+const recursivelyBuildFileList = async (
+  filepath: string,
+  srcPath: string
+): Promise<string[]> => {
   const dir = await fs.readdir(filepath, {
     withFileTypes: true,
   });

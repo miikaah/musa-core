@@ -1,5 +1,5 @@
-import { DbTheme } from "../src/db.types";
 import { Theme } from "../src/api/theme.types";
+import { DbTheme } from "../src/db.types";
 
 export const themeFixture: Theme = {
   id: "QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhL1Zhc2FyYWFzaWEuanBn",

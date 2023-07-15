@@ -14,7 +14,9 @@ export const getArtists = async (): Promise<ArtistObject> => {
 
 const byYear = (a: ArtistAlbum, b: ArtistAlbum) => Number(a.year) - Number(b.year);
 
-export const getArtistById = async (id: string): Promise<Artist | Record<string, never>> => {
+export const getArtistById = async (
+  id: string
+): Promise<Artist | Record<string, never>> => {
   const artist = findArtistInCollectionById(id);
 
   if (!artist) {

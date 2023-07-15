@@ -54,7 +54,9 @@ export const mediaCollectionWin32Fixture = {
       url: "baseurl/artist/YXJ0aXN0",
     },
   },
-  artistObject: { a: [{ id: "YXJ0aXN0", name: "artist", url: "baseurl/artist/YXJ0aXN0" }] },
+  artistObject: {
+    a: [{ id: "YXJ0aXN0", name: "artist", url: "baseurl/artist/YXJ0aXN0" }],
+  },
   audioCollection: {
     YXJ0aXN0XGFsYnVtXHNvbmcubXAz: {
       albumId: "YXJ0aXN0XGFsYnVt",
@@ -153,7 +155,9 @@ export const mediaCollectionDarwinFixture = {
       url: "baseurl/artist/YXJ0aXN0",
     },
   },
-  artistObject: { a: [{ id: "YXJ0aXN0", name: "artist", url: "baseurl/artist/YXJ0aXN0" }] },
+  artistObject: {
+    a: [{ id: "YXJ0aXN0", name: "artist", url: "baseurl/artist/YXJ0aXN0" }],
+  },
   audioCollection: {
     YXJ0aXN0L2FsYnVtL3NvbmcubXAz: {
       albumId: "YXJ0aXN0L2FsYnVt",

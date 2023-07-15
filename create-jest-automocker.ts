@@ -1,4 +1,3 @@
-// @ts-expect-error yup
 import path, { sep } from "path";
 
 const originalModulesMap = new Map();
@@ -80,7 +79,9 @@ const unmockModule = (modulePath: string) => {
   if (!module.default) {
     Object.keys(module).forEach((key) => (module[key] = origModule[key]));
   } else {
-    Object.keys(module.default).forEach((key) => (module.default[key] = origModule.default[key]));
+    Object.keys(module.default).forEach(
+      (key) => (module.default[key] = origModule.default[key]),
+    );
   }
 
   originalModulesMap.delete(modulePath);
@@ -89,5 +90,7 @@ const unmockModule = (modulePath: string) => {
 };
 
 export const unmockAll = () => {
-  Array.from(originalModulesMap).forEach(([modulePath]) => modulePath && unmockModule(modulePath));
+  Array.from(originalModulesMap).forEach(
+    ([modulePath]) => modulePath && unmockModule(modulePath),
+  );
 };

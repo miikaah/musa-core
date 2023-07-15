@@ -49,7 +49,12 @@ export const getTfIdfInDescOrder = () => {
   return Object.entries(tfIdf).sort((a, b) => a[1] - b[1]);
 };
 
-export const calculateOkapiBm25Score = (term: string, tc: number, k1: number, b: number) => {
+export const calculateOkapiBm25Score = (
+  term: string,
+  tc: number,
+  k1: number,
+  b: number
+) => {
   if (!termFrequency[term]) {
     return 0;
   }
