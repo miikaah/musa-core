@@ -53,7 +53,7 @@ export const calculateOkapiBm25Score = (
   term: string,
   tc: number,
   k1: number,
-  b: number
+  b: number,
 ) => {
   if (!termFrequency[term]) {
     return 0;

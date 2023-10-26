@@ -148,7 +148,7 @@ export const createMediaCollection = ({
           albumCollection[albumId].coverUrl = url;
 
           const albumIndex = artistCollection[artistId].albums.findIndex(
-            (a) => a.name === albumName
+            (a) => a.name === albumName,
           );
           if (albumIndex > -1) {
             const album = artistCollection[artistId].albums[albumIndex];

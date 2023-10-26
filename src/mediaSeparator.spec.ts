@@ -20,11 +20,11 @@ describe("Media Separator", () => {
     it("should separate files to collections", async () => {
       if (process.platform === "win32") {
         expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toEqual(
-          mediaCollectionWin32Fixture
+          mediaCollectionWin32Fixture,
         );
       } else {
         expect(createMediaCollection({ files: fixture, baseUrl: "baseurl" })).toEqual(
-          mediaCollectionDarwinFixture
+          mediaCollectionDarwinFixture,
         );
       }
     });
@@ -37,7 +37,7 @@ describe("Media Separator", () => {
             baseUrl: "baseurl",
             isElectron: true,
             electronFileProtocol: "media://",
-          })
+          }),
         ).toEqual(mediaCollectionElectronWin32Fixture);
       } else {
         expect(
@@ -46,7 +46,7 @@ describe("Media Separator", () => {
             baseUrl: "baseurl",
             isElectron: true,
             electronFileProtocol: "media://",
-          })
+          }),
         ).toEqual(mediaCollectionElectronDarwinFixture);
       }
     });

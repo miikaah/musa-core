@@ -154,7 +154,7 @@ export const updateAudio = async (file: {
         filename,
         metadata,
       },
-    }
+    },
   );
 };
 
@@ -170,7 +170,7 @@ export const updateExternalAudio = async (file: {
     "Updating external audio",
     filename,
     "because it was modified at",
-    modifiedAt
+    modifiedAt,
   );
   await externalAudioDb.updateAsync(
     { path_id: id },
@@ -180,7 +180,7 @@ export const updateExternalAudio = async (file: {
         filename,
         metadata,
       },
-    }
+    },
   );
 };
 
@@ -202,7 +202,7 @@ export const getAudiosByIds = async (ids: string[]): Promise<DbAudio[]> => {
 
 export const findAudios = async (
   limit: number,
-  comparatorFn: (self: DbAudio) => boolean
+  comparatorFn: (self: DbAudio) => boolean,
 ): Promise<DbAudio[]> => {
   return new Promise((resolve, reject) => {
     audioDb
@@ -224,7 +224,7 @@ export const findAudios = async (
 
 export const findAudiosByMetadataAndFilename = async (
   query: string,
-  limit: number
+  limit: number,
 ): Promise<DbAudio[]> => {
   const audiosByExactTitle = await findAudios(limit, (self: DbAudio) => {
     const title = self?.metadata?.title || "";
@@ -278,7 +278,7 @@ export const findAudiosByMetadataAndFilename = async (
 
 export const findAudiosByYear = async (
   query: number,
-  limit: number
+  limit: number,
 ): Promise<DbAudio[]> => {
   const audios = await findAudios(limit, (self: DbAudio) => {
     const year = self?.metadata?.year || "";
@@ -294,7 +294,7 @@ export const findAudiosByYear = async (
 
 export const findAudiosByGenre = async (
   query: string,
-  limit: number
+  limit: number,
 ): Promise<DbAudio[]> => {
   const audios = await findAudios(limit, (self: DbAudio) => {
     const genres = self?.metadata?.genre || [];
@@ -310,7 +310,7 @@ export const findAudiosByGenre = async (
 
 export const findAlbums = async (
   limit: number,
-  comparatorFn: (self: DbAlbum) => boolean
+  comparatorFn: (self: DbAlbum) => boolean,
 ): Promise<DbAlbum[]> => {
   return new Promise((resolve, reject) => {
     albumDb
@@ -332,7 +332,7 @@ export const findAlbums = async (
 
 export const findAlbumsByMetadata = async (
   query: string,
-  limit: number
+  limit: number,
 ): Promise<DbAlbum[]> => {
   const albumsByExactTitle = await findAlbums(limit, (self: DbAlbum) => {
     const title = self?.metadata?.album || "";
@@ -353,7 +353,7 @@ export const findAlbumsByMetadata = async (
 
   const foundAlbums = new Map();
   [...albumsByExactTitle, ...albumsByFuzzyTitle].forEach((a) =>
-    foundAlbums.set(a.path_id, a)
+    foundAlbums.set(a.path_id, a),
   );
 
   return Array.from(foundAlbums.values());
@@ -361,7 +361,7 @@ export const findAlbumsByMetadata = async (
 
 export const findAlbumsByArtist = async (
   query: string,
-  limit: number
+  limit: number,
 ): Promise<DbAlbum[]> => {
   const albums = await findAlbums(limit, (self: DbAlbum) => {
     const artist = self?.metadata?.artist || "";
@@ -377,7 +377,7 @@ export const findAlbumsByArtist = async (
 
 export const findAlbumsByYear = async (
   query: number,
-  limit: number
+  limit: number,
 ): Promise<DbAlbum[]> => {
   const albums = await findAlbums(limit, (self: DbAlbum) => {
     const year = self?.metadata?.year || 0;
@@ -437,7 +437,7 @@ export const getAlbums = async (): Promise<DbAlbum[]> => {
 
 export const enrichAlbums = async (
   albumCollection: AlbumCollection,
-  artist: ArtistWithAlbums
+  artist: ArtistWithAlbums,
 ): Promise<EnrichedAlbum[]> => {
   return Promise.all(
     artist.albums.map(async ({ id, name, url, coverUrl, firstAlbumAudio }) => {
@@ -461,12 +461,12 @@ export const enrichAlbums = async (
         year,
         files,
       };
-    })
+    }),
   );
 };
 
 export const enrichAlbumFiles = async (
-  album: AlbumWithFiles
+  album: AlbumWithFiles,
 ): Promise<EnrichedAlbumFile[]> => {
   const audioIds = album.files.map(({ id }) => id);
   const files = await getAudiosByIds(audioIds);
@@ -492,7 +492,7 @@ export const enrichAlbumFiles = async (
         metadata: file?.metadata,
         coverUrl: album.coverUrl,
       };
-    })
+    }),
   );
 
   mergedFiles.sort((a, b) => a.track.localeCompare(b.track));
@@ -532,7 +532,7 @@ export const updateTheme = async (id: string, colors: unknown): Promise<DbTheme>
     },
     {
       returnUpdatedDocs: true,
-    }
+    },
   );
 
   if (!affectedDocuments) {

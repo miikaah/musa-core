@@ -22,7 +22,7 @@ export const setMediaCollection = (collections: MediaCollection) => {
 };
 
 export const setPartialMediaCollectionForTest = (
-  collections: Partial<MediaCollection>
+  collections: Partial<MediaCollection>,
 ) => {
   artistCollection = collections.artistCollection || {};
   albumCollection = collections.albumCollection || {};
@@ -40,7 +40,7 @@ export const getArtistCollection = (): ArtistCollection => {
 };
 
 export const findArtistInCollectionById = (
-  id?: string
+  id?: string,
 ): ArtistCollection[0] | undefined => {
   return artistCollection[id ?? ""];
 };
@@ -50,7 +50,7 @@ export const getAlbumCollection = (): AlbumCollection => {
 };
 
 export const findAlbumInCollectionById = (
-  id?: string
+  id?: string,
 ): AlbumCollection[0] | undefined => {
   return albumCollection[id ?? ""];
 };

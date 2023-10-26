@@ -21,7 +21,7 @@ const satisfiesConstraints = (filename: string) => {
 
 const recursivelyBuildFileList = async (
   filepath: string,
-  srcPath: string
+  srcPath: string,
 ): Promise<string[]> => {
   const dir = await fs.readdir(filepath, {
     withFileTypes: true,

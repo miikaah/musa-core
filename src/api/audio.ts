@@ -23,7 +23,7 @@ export const getAudioById = async ({
 
 const toApiAudioResponse = async (
   id: string,
-  existingDbAudio?: DbAudio
+  existingDbAudio?: DbAudio,
 ): Promise<AudioReturnType> => {
   const audio = findAudioInCollectionById(id);
 
@@ -63,11 +63,11 @@ export const getAudiosByPlaylistId = async ({
   const audios = await Db.getAudiosByIds(pathIds);
 
   const mappedAudios = await Promise.all(
-    audios.map((audio: DbAudio) => toApiAudioResponse(audio.path_id, audio))
+    audios.map((audio: DbAudio) => toApiAudioResponse(audio.path_id, audio)),
   );
 
   const sortedAudios = playlist.path_ids.map((id) =>
-    mappedAudios.find(({ id: aid }) => aid === id)
+    mappedAudios.find(({ id: aid }) => aid === id),
   );
 
   return sortedAudios;
@@ -76,10 +76,10 @@ export const getAudiosByPlaylistId = async ({
 export const getAudiosByFilepaths = async (
   paths: string[],
   libPath: string,
-  electronFileProtocol: string
+  electronFileProtocol: string,
 ): Promise<AudioReturnType[]> => {
   const audios = await Promise.all(
-    paths.map((filepath) => handleDirOrFile(filepath, libPath, electronFileProtocol))
+    paths.map((filepath) => handleDirOrFile(filepath, libPath, electronFileProtocol)),
   );
 
   return (audios.flat(Infinity) as AudioReturnType[]).filter(hasKeys);
@@ -88,7 +88,7 @@ export const getAudiosByFilepaths = async (
 const handleDirOrFile = async (
   filepath: string,
   libPath: string,
-  electronFileProtocol: string
+  electronFileProtocol: string,
 ) => {
   const isExternal = !filepath.startsWith(libPath);
 
@@ -98,7 +98,7 @@ const handleDirOrFile = async (
       const filesWithFullPath = files.map((file) => path.join(filepath, file));
 
       return Promise.all(
-        filesWithFullPath.map((file) => getAudioMetadata(file, electronFileProtocol))
+        filesWithFullPath.map((file) => getAudioMetadata(file, electronFileProtocol)),
       );
     }
 
@@ -110,7 +110,7 @@ const handleDirOrFile = async (
     const filesWithFullPath = files.map((file) => path.join(filepath, file));
 
     return Promise.all(
-      filesWithFullPath.map((file) => getAudioByFilepath(file, libPath))
+      filesWithFullPath.map((file) => getAudioByFilepath(file, libPath)),
     );
   }
 

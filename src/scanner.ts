@@ -36,7 +36,7 @@ let cachedElectronFileProtocol = "";
 
 type ScanProgressListener = (
   ratio: number,
-  mode: "none" | "normal" | "indeterminate" | "error" | "paused"
+  mode: "none" | "normal" | "indeterminate" | "error" | "paused",
 ) => void;
 
 let scanProgressListener: ScanProgressListener;
@@ -168,7 +168,7 @@ export const update = async ({
   let audios = await Db.getAllAudios();
   let audiosInDb = audios.map((a) => ({ id: a.path_id, modifiedAt: a.modified_at }));
   const cleanFiles = files.filter((file) =>
-    audioExts.some((ext) => file.toLowerCase().endsWith(ext))
+    audioExts.some((ext) => file.toLowerCase().endsWith(ext)),
   );
   const filesWithIds = cleanFiles.map((file) => ({
     id: UrlSafeBase64.encode(file),
@@ -201,7 +201,7 @@ export const update = async ({
     event.sender.send(
       "musa:scan:start",
       filesToInsert.length,
-      scanColor?.INSERT || "#f00"
+      scanColor?.INSERT || "#f00",
     );
   }
 
@@ -227,7 +227,7 @@ export const update = async ({
         process.stdout.write(
           `Audio insert: (${i + 1} / ${filesToInsert.length}) ` +
             Math.trunc(((i + 1) / filesToInsert.length) * 100) +
-            "% "
+            "% ",
         );
       }
 
@@ -273,7 +273,7 @@ export const update = async ({
     event.sender.send(
       "musa:scan:start",
       filesToCheck.length,
-      scanColor?.UPDATE || "#ff0"
+      scanColor?.UPDATE || "#ff0",
     );
   }
 
@@ -284,7 +284,7 @@ export const update = async ({
       filesToCheck.map(async ({ id, filename }, i) => {
         try {
           const { mtimeMs } = await fs.stat(
-            path.join(musicLibraryPath, UrlSafeBase64.decode(id))
+            path.join(musicLibraryPath, UrlSafeBase64.decode(id)),
           );
           const audioInDb = audiosInDb.find((a) => id === a.id);
 
@@ -302,7 +302,7 @@ export const update = async ({
         } catch (error) {
           console.error(error);
         }
-      })
+      }),
     )
   ).filter(Boolean) as unknown as { id: string; filename: string; modifiedAt: Date }[];
 
@@ -325,7 +325,7 @@ export const update = async ({
     event.sender.send(
       "musa:scan:start",
       albums.length,
-      scanColor?.ALBUM_UPDATE || "#0f0"
+      scanColor?.ALBUM_UPDATE || "#0f0",
     );
   }
 
@@ -341,7 +341,7 @@ export const update = async ({
         const albumAudioIds = album.files.map(({ id }) => id);
         const dbAlbumAudios = audiosInDb.filter(({ id }) => albumAudioIds.includes(id));
         const modifiedAts = dbAlbumAudios.map(({ modifiedAt }) =>
-          new Date(modifiedAt).getTime()
+          new Date(modifiedAt).getTime(),
         );
         const lastModificationTime = Math.max(...modifiedAts);
         const a2 = albumsInDb.find(({ path_id: id }) => id === a.id);
@@ -362,7 +362,7 @@ export const update = async ({
         if (lastModificationTime > new Date(a2.modified_at).getTime()) {
           return a;
         }
-      })
+      }),
     )
   ).filter(Boolean) as unknown as AlbumUpsertOptions[];
 
@@ -389,7 +389,7 @@ export const update = async ({
 
   albumsInDb = await Db.getAlbums();
   const albumNames = albumsInDb.map(({ metadata }) =>
-    (metadata.album || "").toLowerCase()
+    (metadata.album || "").toLowerCase(),
   );
   const audioNames = audios.map(({ metadata }) => (metadata.title || "").toLowerCase());
   const documents =
@@ -398,7 +398,7 @@ export const update = async ({
   updateTf(
     getArtistsForFind()
       .map(({ name }) => tokenize(name))
-      .flat(Infinity) as string[]
+      .flat(Infinity) as string[],
   );
   updateTf(albumNames.map(tokenize).flat(Infinity) as string[]);
   updateTf(audioNames.map(tokenize).flat(Infinity) as string[]);

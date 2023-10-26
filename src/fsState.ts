@@ -8,13 +8,13 @@ const homedir = os.homedir();
 
 export const setState = async (
   stateFile: string,
-  state: Partial<State>
+  state: Partial<State>,
 ): Promise<void> => {
   return fs.writeFile(path.join(homedir, stateFile), JSON.stringify(state, null, 2));
 };
 
 export const getState = async (
-  stateFile: string
+  stateFile: string,
 ): Promise<Partial<State> | undefined> => {
   const file = await fs
     .readFile(path.join(homedir, stateFile), { encoding: "utf-8" })

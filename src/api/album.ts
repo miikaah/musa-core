@@ -4,7 +4,7 @@ import { findAlbumInCollectionById } from "../mediaCollection";
 import { AlbumWithFilesAndMetadata } from "./album.types";
 
 export const getAlbumById = async (
-  id: string
+  id: string,
 ): Promise<AlbumWithFilesAndMetadata | Record<string, never>> => {
   const album = findAlbumInCollectionById(id);
 

@@ -15,7 +15,7 @@ export const getArtists = async (): Promise<ArtistObject> => {
 const byYear = (a: ArtistAlbum, b: ArtistAlbum) => Number(a.year) - Number(b.year);
 
 export const getArtistById = async (
-  id: string
+  id: string,
 ): Promise<Artist | Record<string, never>> => {
   const artist = findArtistInCollectionById(id);
 
@@ -42,7 +42,7 @@ export const getArtistById = async (
         coverUrl,
         year,
       };
-    })
+    }),
   );
 
   return {
@@ -52,7 +52,7 @@ export const getArtistById = async (
 };
 
 export const getArtistAlbums = async (
-  id: string
+  id: string,
 ): Promise<ArtistWithEnrichedAlbums | Record<string, never>> => {
   const artist = findArtistInCollectionById(id);
 
@@ -75,7 +75,7 @@ export const getArtistAlbums = async (
         track: track === "00" ? null : track,
         metadata: dbAudio?.metadata,
       };
-    })
+    }),
   );
 
   return {

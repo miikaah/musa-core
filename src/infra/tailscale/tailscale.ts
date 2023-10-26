@@ -81,7 +81,7 @@ export const listDevices = async ({
   listDevicesCacheRefreshedAt = Date.now();
   console.log(
     "Refreshed Tailscale devices cache at",
-    new Date(listDevicesCacheRefreshedAt).toISOString()
+    new Date(listDevicesCacheRefreshedAt).toISOString(),
   );
 
   return response.devices;
@@ -89,21 +89,24 @@ export const listDevices = async ({
 
 export const getCurrentProfileByIp = async (ip: string) => {
   const devices = await listDevices({ fields: "" });
-  const usersByAddress = devices.reduce((acc, { user, addresses }) => {
-    const addr = addresses
-      .map((a) => ({ [a]: user }))
-      .reduce((acc, value) => {
-        return {
-          ...acc,
-          ...value,
-        };
-      }, {});
+  const usersByAddress = devices.reduce(
+    (acc, { user, addresses }) => {
+      const addr = addresses
+        .map((a) => ({ [a]: user }))
+        .reduce((acc, value) => {
+          return {
+            ...acc,
+            ...value,
+          };
+        }, {});
 
-    return {
-      ...acc,
-      ...addr,
-    };
-  }, {} as Record<string, string>);
+      return {
+        ...acc,
+        ...addr,
+      };
+    },
+    {} as Record<string, string>,
+  );
   const userEmail = usersByAddress[ip];
 
   return userEmail || "";
