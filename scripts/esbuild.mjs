@@ -1,24 +1,16 @@
 import { build } from "esbuild";
 import { nodeExternalsPlugin } from "esbuild-node-externals";
-import { Dirent, promises as fs } from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 
-type FileTreeNode = {
-  filepath: string;
-  file: Dirent;
-};
-
-const recursivelyBuildFileTree = async (
-  srcPath = "",
-  currentPath = "",
-): Promise<FileTreeNode[]> => {
+const recursivelyBuildFileTree = async (srcPath = "", currentPath = "") => {
   const filepath = path.join(srcPath, currentPath);
 
   const dir = await fs.readdir(filepath, {
     withFileTypes: true,
   });
 
-  let files: FileTreeNode[] = [];
+  let files = [];
   for (const file of dir) {
     if (file.isDirectory()) {
       files = files.concat(await recursivelyBuildFileTree(filepath, file.name));
@@ -33,7 +25,7 @@ const recursivelyBuildFileTree = async (
 const endsWith = ["spec.ts"];
 const excluded = ["jestSetup.ts"];
 
-const outExcluded = (f: FileTreeNode) =>
+const outExcluded = (f) =>
   !endsWith.map((ew) => f.file.name.endsWith(ew)).some(Boolean) &&
   !excluded.includes(f.file.name);
 

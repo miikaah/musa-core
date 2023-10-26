@@ -1,12 +1,8 @@
-import { Dirent } from "fs";
 import fs from "fs/promises";
 import path, { sep } from "path";
 
-const recursivelyBuildFileList = async (
-  filepath: string,
-  srcPath: string,
-): Promise<string[]> => {
-  let dir: Dirent[] = [];
+const recursivelyBuildFileList = async (filepath, srcPath) => {
+  let dir = [];
 
   try {
     dir = await fs.readdir(filepath, {
@@ -16,7 +12,7 @@ const recursivelyBuildFileList = async (
     // Output folder might not exist
   }
 
-  let files: string[] = [];
+  let files = [];
   for (const file of dir) {
     const fullFilepath = path.join(filepath, file.name);
 
@@ -30,7 +26,7 @@ const recursivelyBuildFileList = async (
   return files;
 };
 
-const main = async (srcPath: string) => {
+const main = async (srcPath) => {
   const files = await recursivelyBuildFileList(srcPath, srcPath);
 
   files.map((filename) => path.join("lib", filename)).forEach(fs.unlink);

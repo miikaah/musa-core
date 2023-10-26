@@ -6,9 +6,9 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "dev": "nodemon --watch ./src --ext ts --exec npm run build:w",
-    "build": "shx rm -rf lib && ts-node --transpile-only esbuild.ts && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json",
-    "build:clean": "ts-node --transpile-only clean-build.ts",
-    "build:w": "ts-node --transpile-only esbuild.ts && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental",
+    "build": "shx rm -rf lib && node scripts/esbuild.mjs && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json",
+    "build:w": "node scripts/esbuild.mjs && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental",
+    "build:clean": "node scripts/cleanBuild.mjs",
     "tsc:w": "tsc --watch --noEmit",
     "test": "vitest run --coverage",
     "test:w": "vitest"
@@ -39,7 +39,6 @@
     "prettier": "^3.0.3",
     "prettier-plugin-organize-imports": "^3.2.3",
     "shx": "^0.3.4",
-    "ts-node": "^10.9.1",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6"
   },
