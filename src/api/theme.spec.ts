@@ -2,13 +2,13 @@ import { themeDbFixture, themeFixture } from "../../fixtures/theme.fixture";
 import * as Db from "../db";
 import { getAllThemes, getTheme, insertTheme, removeTheme } from "./theme";
 
-jest.mock("../db");
+vi.mock("../db");
 
 describe("Audio API tests", () => {
   beforeAll(() => {
-    jest.mocked(Db.getAllThemes).mockResolvedValue([themeDbFixture]);
-    jest.mocked(Db.getTheme).mockResolvedValue(themeDbFixture);
-    jest.mocked(Db.insertTheme).mockResolvedValue(themeDbFixture);
+    vi.mocked(Db.getAllThemes).mockResolvedValue([themeDbFixture]);
+    vi.mocked(Db.getTheme).mockResolvedValue(themeDbFixture);
+    vi.mocked(Db.insertTheme).mockResolvedValue(themeDbFixture);
   });
 
   describe("getAllThemes()", () => {
@@ -20,7 +20,7 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.getAllThemes throws", async () => {
-      jest.mocked(Db.getAllThemes).mockImplementationOnce(async () => {
+      vi.mocked(Db.getAllThemes).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
@@ -41,7 +41,7 @@ describe("Audio API tests", () => {
     });
 
     it("should return empty object if theme does not exist", async () => {
-      jest.mocked(Db.getTheme).mockResolvedValue(undefined);
+      vi.mocked(Db.getTheme).mockResolvedValue(undefined);
 
       await expect(getTheme(id)).rejects.toThrow("Theme Not Found");
       expect(Db.getTheme).toHaveBeenCalledTimes(1);
@@ -49,7 +49,7 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.getTheme throws", async () => {
-      jest.mocked(Db.getTheme).mockImplementationOnce(async () => {
+      vi.mocked(Db.getTheme).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
@@ -71,7 +71,7 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.insertTheme throws", async () => {
-      jest.mocked(Db.insertTheme).mockImplementationOnce(async () => {
+      vi.mocked(Db.insertTheme).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
@@ -93,7 +93,7 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if Db.removeTheme throws", async () => {
-      jest.mocked(Db.removeTheme).mockImplementationOnce(async () => {
+      vi.mocked(Db.removeTheme).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 

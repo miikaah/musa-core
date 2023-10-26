@@ -7,9 +7,9 @@ import { getArtistAlbums } from "./artist";
 import { getAudioById } from "./audio";
 import { findRandom } from "./find";
 
-jest.mock("./album");
-jest.mock("./artist");
-jest.mock("./audio");
+vi.mock("./album");
+vi.mock("./artist");
+vi.mock("./audio");
 
 describe("Find API tests", () => {
   beforeAll(() => {
@@ -19,7 +19,7 @@ describe("Find API tests", () => {
       audioCollection: audioCollectionFixture,
     });
 
-    jest.mocked(getAudioById).mockResolvedValue(audioFixture);
+    vi.mocked(getAudioById).mockResolvedValue(audioFixture);
   });
 
   describe("findRandom()", () => {

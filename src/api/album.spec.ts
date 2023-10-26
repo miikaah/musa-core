@@ -7,7 +7,7 @@ import { enrichAlbumFiles, getAlbum } from "../db";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getAlbumById } from "./album";
 
-jest.mock("../db");
+vi.mock("../db");
 
 describe("Album API tests", () => {
   beforeAll(() => {
@@ -15,8 +15,8 @@ describe("Album API tests", () => {
       albumCollection: albumCollectionFixture,
     });
 
-    jest.mocked(getAlbum).mockResolvedValue(albumDbFixture);
-    jest.mocked(enrichAlbumFiles).mockResolvedValue(albumFixture.files);
+    vi.mocked(getAlbum).mockResolvedValue(albumDbFixture);
+    vi.mocked(enrichAlbumFiles).mockResolvedValue(albumFixture.files);
   });
 
   describe("getAlbumById()", () => {
@@ -41,7 +41,7 @@ describe("Album API tests", () => {
     });
 
     it("should throw if getAlbum throws", async () => {
-      jest.mocked(getAlbum).mockImplementationOnce(async () => {
+      vi.mocked(getAlbum).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 

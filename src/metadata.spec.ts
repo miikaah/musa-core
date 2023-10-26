@@ -18,7 +18,7 @@ describe("Metadata tests", () => {
   describe("readMetadata()", () => {
     it("should return metadata from file", async () => {
       const metadata = await readMetadata(
-        path.join(process.cwd(), "fixtures", "artist", "song.mp3")
+        path.join(process.cwd(), "fixtures", "artist", "song.mp3"),
       );
 
       expect(metadata.format).toEqual(metadataFixture.format);
@@ -28,13 +28,13 @@ describe("Metadata tests", () => {
 
     it("should catch when file does not exist", async () => {
       const filepath = path.join(process.cwd(), "fixtures", "artist", "foo.mp3");
-      console.error = jest.fn();
+      console.error = vi.fn();
 
       await readMetadata(filepath);
 
       expect(console.error).toHaveBeenCalledWith(
         "Error when reading music metadata",
-        expect.any(Object)
+        expect.any(Object),
       );
       console.error = () => undefined;
     });

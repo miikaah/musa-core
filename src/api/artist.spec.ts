@@ -10,7 +10,7 @@ import { enrichAlbums, getAudio } from "../db";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getArtistAlbums, getArtistById, getArtists } from "./artist";
 
-jest.mock("../db");
+vi.mock("../db");
 
 describe("Artist API tests", () => {
   beforeAll(() => {
@@ -20,8 +20,8 @@ describe("Artist API tests", () => {
       artistObject: artistObjectFixture,
     });
 
-    jest.mocked(getAudio).mockResolvedValue(audioDbFixture);
-    jest.mocked(enrichAlbums).mockResolvedValue(artistAlbumsFixture.albums);
+    vi.mocked(getAudio).mockResolvedValue(audioDbFixture);
+    vi.mocked(enrichAlbums).mockResolvedValue(artistAlbumsFixture.albums);
   });
 
   describe("getArtists()", () => {
@@ -43,7 +43,7 @@ describe("Artist API tests", () => {
       expect(artist.albums[1].year).toBe(2000);
       expect(getAudio).toHaveBeenCalledTimes(1);
       expect(getAudio).toHaveBeenCalledWith(
-        artistCollectionFixture[id].albums[0].firstAlbumAudio?.id
+        artistCollectionFixture[id].albums[0].firstAlbumAudio?.id,
       );
     });
 
@@ -55,7 +55,7 @@ describe("Artist API tests", () => {
     });
 
     it("should throw if getAudio throws", async () => {
-      jest.mocked(getAudio).mockImplementationOnce(async () => {
+      vi.mocked(getAudio).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
@@ -74,7 +74,7 @@ describe("Artist API tests", () => {
       expect(enrichAlbums).toHaveBeenCalledTimes(1);
       expect(enrichAlbums).toHaveBeenCalledWith(
         expect.any(Object),
-        artistCollectionFixture[id]
+        artistCollectionFixture[id],
       );
     });
 
@@ -86,7 +86,7 @@ describe("Artist API tests", () => {
     });
 
     it("should throw if enrichAlbums throws", async () => {
-      jest.mocked(enrichAlbums).mockImplementationOnce(async () => {
+      vi.mocked(enrichAlbums).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 

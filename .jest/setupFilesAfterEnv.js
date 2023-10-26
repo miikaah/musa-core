@@ -1,3 +1,3 @@
-global.beforeEach(() => {
-  jest.clearAllMocks();
+beforeEach(() => {
+  vi.clearAllMocks();
 });

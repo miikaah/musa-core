@@ -1,6 +1,7 @@
 import { constants } from "fs";
 import fs from "fs/promises";
 import path from "path";
+import type { SpyInstance } from "vitest";
 
 import { albumCollectionFixture, albumFixture } from "../fixtures/album.fixture";
 import { artistCollectionFixture } from "../fixtures/artist.fixture";
@@ -27,11 +28,11 @@ import {
 import { getMetadata } from "./metadata";
 import UrlSafeBase64 from "./urlSafeBase64";
 
-jest.mock("./metadata");
-jest.mock("./urlSafeBase64");
-jest.mock("fs/promises", () => ({
-  ...jest.requireActual("fs/promises"),
-  stat: jest.fn().mockResolvedValue(<any>{
+vi.mock("./metadata");
+vi.mock("./urlSafeBase64");
+vi.mock("fs/promises", async () => ({
+  ...(await vi.importActual<Record<string, unknown>>("fs/promises")),
+  stat: vi.fn().mockResolvedValue(<any>{
     mtimeMs: Date.now(),
   }),
 }));
@@ -43,7 +44,7 @@ const themeDbPath = path.join(process.cwd(), libraryPath, ".musa.theme.v2.db");
 const fileExists = (file: string) => {
   return fs.access(file, constants.F_OK).then(
     () => true,
-    () => false
+    () => false,
   );
 };
 
@@ -69,34 +70,34 @@ describe("DB tests", () => {
 
 describe("DB tests", () => {
   let testDbs;
-  let audioDbInsertSpy: jest.SpyInstance;
-  let audioDbUpdateSpy: jest.SpyInstance;
-  let audioDbFindOneSpy: jest.SpyInstance;
-  let audioDbFindSpy: jest.SpyInstance;
-  let albumDbFindOneSpy: jest.SpyInstance;
-  let albumDbUpdateSpy: jest.SpyInstance;
-  let themeDbInsertSpy: jest.SpyInstance;
-  let themeDbFindSpy: jest.SpyInstance;
-  let themeDbFindOneSpy: jest.SpyInstance;
-  let themeDbRemoveSpy: jest.SpyInstance;
+  let audioDbInsertSpy: SpyInstance;
+  let audioDbUpdateSpy: SpyInstance;
+  let audioDbFindOneSpy: SpyInstance;
+  let audioDbFindSpy: SpyInstance;
+  let albumDbFindOneSpy: SpyInstance;
+  let albumDbUpdateSpy: SpyInstance;
+  let themeDbInsertSpy: SpyInstance;
+  let themeDbFindSpy: SpyInstance;
+  let themeDbFindOneSpy: SpyInstance;
+  let themeDbRemoveSpy: SpyInstance;
 
   beforeAll(async () => {
     testDbs = await initTestDb(libraryPath);
-    audioDbInsertSpy = jest.spyOn(testDbs.audioDb, "insertAsync");
-    audioDbUpdateSpy = jest.spyOn(testDbs.audioDb, "updateAsync");
-    audioDbFindOneSpy = jest.spyOn(testDbs.audioDb, "findOneAsync");
-    audioDbFindSpy = jest.spyOn(testDbs.audioDb, "findAsync");
-    albumDbFindOneSpy = jest.spyOn(testDbs.albumDb, "findOneAsync");
-    albumDbUpdateSpy = jest.spyOn(testDbs.albumDb, "updateAsync");
-    themeDbInsertSpy = jest.spyOn(testDbs.themeDb, "insertAsync");
-    themeDbFindSpy = jest.spyOn(testDbs.themeDb, "findAsync");
-    themeDbFindOneSpy = jest.spyOn(testDbs.themeDb, "findOneAsync");
-    themeDbRemoveSpy = jest.spyOn(testDbs.themeDb, "removeAsync");
+    audioDbInsertSpy = vi.spyOn(testDbs.audioDb, "insertAsync");
+    audioDbUpdateSpy = vi.spyOn(testDbs.audioDb, "updateAsync");
+    audioDbFindOneSpy = vi.spyOn(testDbs.audioDb, "findOneAsync");
+    audioDbFindSpy = vi.spyOn(testDbs.audioDb, "findAsync");
+    albumDbFindOneSpy = vi.spyOn(testDbs.albumDb, "findOneAsync");
+    albumDbUpdateSpy = vi.spyOn(testDbs.albumDb, "updateAsync");
+    themeDbInsertSpy = vi.spyOn(testDbs.themeDb, "insertAsync");
+    themeDbFindSpy = vi.spyOn(testDbs.themeDb, "findAsync");
+    themeDbFindOneSpy = vi.spyOn(testDbs.themeDb, "findOneAsync");
+    themeDbRemoveSpy = vi.spyOn(testDbs.themeDb, "removeAsync");
   });
 
   beforeAll(() => {
-    jest.mocked(getMetadata).mockResolvedValue(parsedMetadataFixture);
-    jest.mocked(UrlSafeBase64.decode).mockReturnValue("fakedecoded");
+    vi.mocked(getMetadata).mockResolvedValue(parsedMetadataFixture);
+    vi.mocked(UrlSafeBase64.decode).mockReturnValue("fakedecoded");
   });
 
   afterAll(() => {
@@ -156,7 +157,7 @@ describe("DB tests", () => {
               metadata: parsedMetadataFixture,
               modified_at: expect.any(String),
             },
-          }
+          },
         );
       });
 
@@ -300,7 +301,7 @@ describe("DB tests", () => {
 
         const albums = await enrichAlbums(
           albumCollectionFixture,
-          artistCollectionFixture["QWxhbWFhaWxtYW4gdmFzYXJhdA"]
+          artistCollectionFixture["QWxhbWFhaWxtYW4gdmFzYXJhdA"],
         );
 
         expect(albums).toEqual(enrichedAlbumsFixture);

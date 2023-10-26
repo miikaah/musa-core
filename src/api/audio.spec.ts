@@ -8,7 +8,7 @@ import { getAudio } from "../db";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
 import { getAudioById } from "./audio";
 
-jest.mock("../db");
+vi.mock("../db");
 
 describe("Audio API tests", () => {
   beforeAll(() => {
@@ -17,7 +17,7 @@ describe("Audio API tests", () => {
       albumCollection: albumCollectionFixture,
     });
 
-    jest.mocked(getAudio).mockResolvedValue(audioDbFixture);
+    vi.mocked(getAudio).mockResolvedValue(audioDbFixture);
   });
 
   describe("getAudioById()", () => {
@@ -39,7 +39,7 @@ describe("Audio API tests", () => {
     });
 
     it("should throw if getAudio throws", async () => {
-      jest.mocked(getAudio).mockImplementationOnce(async () => {
+      vi.mocked(getAudio).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 

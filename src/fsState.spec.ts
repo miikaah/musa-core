@@ -3,13 +3,13 @@ import fs from "fs/promises";
 import { stateFixture } from "../fixtures/state.fixture";
 import { getState, setState } from "./fsState";
 
-jest.mock("fs/promises");
+vi.mock("fs/promises");
 
 const origConsoleErrorFn = console.error;
 
 describe("File system state tests", () => {
   beforeEach(() => {
-    jest.mocked(fs.readFile).mockResolvedValue(JSON.stringify(stateFixture));
+    vi.mocked(fs.readFile).mockResolvedValue(JSON.stringify(stateFixture));
     console.error = () => undefined;
   });
 
@@ -36,7 +36,7 @@ describe("File system state tests", () => {
     });
 
     it("should return empty JSON object if readFile throws", async () => {
-      jest.mocked(fs.readFile).mockImplementationOnce(async () => {
+      vi.mocked(fs.readFile).mockImplementationOnce(async () => {
         throw new Error("");
       });
 
@@ -49,7 +49,7 @@ describe("File system state tests", () => {
 
     it("should return empty musicLibrarypath string if JSON.parse throws", async () => {
       const origJsonParse = JSON.parse;
-      JSON.parse = jest.fn().mockImplementationOnce(() => {
+      JSON.parse = vi.fn().mockImplementationOnce(() => {
         throw new Error("");
       });
 
