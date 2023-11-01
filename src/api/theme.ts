@@ -1,6 +1,6 @@
 import * as Db from "../db";
 
-import { DbTheme } from "../db.types";
+import { Colors, DbTheme } from "../db.types";
 import { Theme } from "./theme.types";
 
 export const getAllThemes = async () => {
@@ -17,11 +17,11 @@ export const getTheme = async (id: string) => {
   return toApiTheme(theme);
 };
 
-export const insertTheme = async (id: string, colors: unknown) => {
+export const insertTheme = async (id: string, colors: Colors) => {
   return toApiTheme(await Db.insertTheme(id, colors));
 };
 
-export const updateTheme = async (id: string, colors: unknown) => {
+export const updateTheme = async (id: string, colors: Colors) => {
   return toApiTheme(await Db.updateTheme(id, colors));
 };
 

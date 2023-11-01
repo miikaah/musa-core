@@ -8,6 +8,7 @@ import UrlSafeBase64 from "./urlSafeBase64";
 
 import {
   AlbumUpsertOptions,
+  Colors,
   DbAlbum,
   DbAudio,
   DbExternalAudio,
@@ -510,7 +511,7 @@ export const getTheme = async (id: string): Promise<DbTheme | undefined> => {
   return themeDb.findOneAsync({ path_id: id });
 };
 
-export const insertTheme = async (id: string, colors: unknown): Promise<DbTheme> => {
+export const insertTheme = async (id: string, colors: Colors): Promise<DbTheme> => {
   return themeDb.insertAsync({
     _id: id,
     path_id: id,
@@ -520,7 +521,7 @@ export const insertTheme = async (id: string, colors: unknown): Promise<DbTheme>
   });
 };
 
-export const updateTheme = async (id: string, colors: unknown): Promise<DbTheme> => {
+export const updateTheme = async (id: string, colors: Colors): Promise<DbTheme> => {
   const { affectedDocuments } = await themeDb.updateAsync(
     { path_id: id },
     {
