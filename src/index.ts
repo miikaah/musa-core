@@ -84,6 +84,6 @@ export type {
   FileWithInfo,
   MediaCollection,
 } from "./mediaSeparator.types";
-export type { Metadata } from "./metadata.types";
+export type { Metadata, Tags } from "./metadata.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
 export { Api, Db, Fs, Scanner, UrlSafeBase64, Tailscale };
