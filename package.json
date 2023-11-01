@@ -1,6 +1,6 @@
 {
   "name": "@miikaah/musa-core",
-  "version": "9.4.1",
+  "version": "9.4.2",
   "description": "",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
