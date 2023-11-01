@@ -6,18 +6,34 @@ export type DbAudio = {
   filename: string;
   metadata: Metadata;
 };
+
 export type DbAlbum = {
   path_id: string;
   modified_at: string;
   metadata: Partial<Metadata>;
   id?: string; // DEPRECATED but still might exist
 };
+
+export type RgbColor = [number, number, number];
+
+export type Colors = {
+  bg: RgbColor;
+  primary: RgbColor;
+  secondary: RgbColor;
+  slider: RgbColor;
+  typography: string;
+  typographyGhost: string;
+  typographyPrimary: string;
+  typographySecondary: string;
+};
+
 export type DbTheme = {
   path_id: string;
   modified_at: string;
-  colors: unknown;
+  colors: Colors;
   filename: string;
 };
+
 export type DbExternalAudio = {
   path_id: string;
   modified_at: string;
@@ -25,6 +41,7 @@ export type DbExternalAudio = {
   filepath: string;
   metadata: Metadata;
 };
+
 export type DbPlaylist = {
   playlist_id: string;
   modified_at: string;
