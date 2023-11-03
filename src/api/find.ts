@@ -25,7 +25,7 @@ import { getAudioById } from "./audio";
 import { DbAlbum, DbAudio } from "../db.types";
 import { AlbumWithId, ArtistWithId, FileWithId } from "../scanner.types";
 import { AlbumWithFilesAndMetadata } from "./album.types";
-import { Artist } from "./artist.types";
+import { Artist, ArtistWithEnrichedAlbums } from "./artist.types";
 import { AudioWithMetadata } from "./audio.types";
 import { FindResult } from "./find.types";
 
@@ -119,7 +119,7 @@ export const find = async ({
       .map((a) => a.obj)
       .filter(Boolean)
       .map(async (a) => getArtistAlbums(a.id)),
-  )) as Artist[];
+  )) as ArtistWithEnrichedAlbums[];
   const artist = artists.find(({ name }) => name.toLowerCase() === query);
   const artistAlbums = artist?.albums;
   const artistFiles = artist?.files;
@@ -171,7 +171,7 @@ export const find = async ({
         if (pathId) {
           const artistFolder = UrlSafeBase64.decode(pathId).split(path.sep)[0];
           const artistId = UrlSafeBase64.encode(artistFolder);
-          const artist = (await getArtistAlbums(artistId)) as Artist;
+          const artist = (await getArtistAlbums(artistId)) as ArtistWithEnrichedAlbums;
           artists.push(artist);
         }
       }
