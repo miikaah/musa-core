@@ -67,7 +67,7 @@ export type { FindResult } from "./api/find.types";
 export type { Playlist } from "./api/playlist.types";
 export type { Theme } from "./api/theme.types";
 export type { State } from "./fsState.types";
-export type { RgbColor, Colors } from "./db.types";
+export type { RgbColor, Colors, EnrichedAlbumFile } from "./db.types";
 export type {
   TailscaleDevice,
   TailscaleListDevicesResponse,
