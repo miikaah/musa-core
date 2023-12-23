@@ -1,11 +1,8 @@
 import Datastore from "@seald-io/nedb";
 import fs from "fs/promises";
-import os from "os";
 import path from "path";
-
 import { getMetadata } from "./metadata";
 import UrlSafeBase64 from "./urlSafeBase64";
-
 import {
   AlbumUpsertOptions,
   Colors,
@@ -24,11 +21,11 @@ import {
   ArtistWithAlbums,
 } from "./mediaSeparator.types";
 import { Metadata } from "./metadata.types";
+import { musadir } from "./config";
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === "local";
 const devTagToPrepend = ".dev";
-const homedir = os.homedir();
 
 let audioDb: Datastore<DbAudio>;
 let albumDb: Datastore<DbAlbum>;
@@ -40,7 +37,22 @@ let libPath: string;
 export const initDb = async (libraryPath: string) => {
   libPath = libraryPath;
 
-  const dbDir = NODE_ENV === "test" ? libraryPath : homedir;
+  try {
+    await fs.access(musadir, fs.constants.F_OK);
+  } catch (e: any) {
+    if (e.code === "ENOENT") {
+      try {
+        console.log("Musadir does not exist. Attempting to create it.");
+        await fs.mkdir(musadir);
+      } catch (e) {
+        console.error("Failed to create musadir", e);
+      }
+    } else {
+      console.log("The musadir fs.access call threw", e);
+    }
+  }
+
+  const dbDir = NODE_ENV === "test" ? libraryPath : musadir;
 
   const audioDbFile = `${isDev ? devTagToPrepend : ""}.musa.audio.v2.db`;
   audioDb = new Datastore<DbAudio>({
@@ -71,19 +83,6 @@ export const initDb = async (libraryPath: string) => {
     filename: path.join(dbDir, externalAudioDbFile),
   });
   await externalAudioDb.loadDatabaseAsync();
-
-  // @backwards_compatibility clean up old db files
-  const oldFiles = [
-    path.join(dbDir, `${isDev ? ".dev" : ""}.musa.theme.v1.db`),
-    path.join(dbDir, `${isDev ? ".dev" : ""}.musa.audio.v1.db`),
-  ];
-  oldFiles.forEach(async (p) => {
-    try {
-      await fs.unlink(p);
-    } catch {
-      //
-    }
-  });
 };
 
 export const initTestDb = async (libraryPath: string) => {
