@@ -9,6 +9,7 @@
     "build": "shx rm -rf lib && node scripts/esbuild.mjs && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json",
     "build:w": "node scripts/esbuild.mjs && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental",
     "build:clean": "node scripts/cleanBuild.mjs",
+    "gyp:build": "node-gyp --jobs max --directory=./addons/normalization rebuild",
     "tsc:w": "tsc --watch --noEmit",
     "test": "vitest run --coverage",
     "test:w": "vitest"
@@ -35,6 +36,8 @@
     "eslint": "^8.50.0",
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
+    "node-addon-api": "^8.0.0",
+    "node-gyp": "^10.1.0",
     "nodemon": "^3.0.1",
     "prettier": "^3.0.3",
     "prettier-plugin-organize-imports": "^3.2.3",
