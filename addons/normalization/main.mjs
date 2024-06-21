@@ -4,7 +4,7 @@ const requireAddon = createRequire(import.meta.url);
 const [, , filepath] = process.argv;
 
 try {
-  const normalization = requireAddon("../../bin/normalization.v1.0.0-darwin-arm64.node");
+  const normalization = requireAddon("../../bin/normalization-v1.0.0-darwin-arm64.node");
 
   console.log(normalization.calc_loudness(["", filepath]));
 } catch (error) {
