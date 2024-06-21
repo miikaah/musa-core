@@ -1,13 +1,12 @@
-#include <napi.h>
 #include "normalization.c"
+#include <napi.h>
 
-Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo &info)
-{
+Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
-  if (info.Length() != 1 || !info[0].IsArray())
-  {
-    Napi::TypeError::New(env, "Array of string arguments expected").ThrowAsJavaScriptException();
+  if (info.Length() != 1 || !info[0].IsArray()) {
+    Napi::TypeError::New(env, "Array of string arguments expected")
+        .ThrowAsJavaScriptException();
     return env.Null();
   }
 
@@ -15,14 +14,13 @@ Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo &info)
   int argc = jsArray.Length();
 
   std::vector<std::string> argStrings;
-  std::vector<const char *> argv;
+  std::vector<const char*> argv;
 
-  for (int i = 0; i < argc; ++i)
-  {
+  for (int i = 0; i < argc; ++i) {
     Napi::Value jsValue = jsArray[i];
-    if (!jsValue.IsString())
-    {
-      Napi::TypeError::New(env, "All elements in the array must be strings").ThrowAsJavaScriptException();
+    if (!jsValue.IsString()) {
+      Napi::TypeError::New(env, "All elements in the array must be strings")
+          .ThrowAsJavaScriptException();
       return env.Null();
     }
     argStrings.push_back(jsValue.As<Napi::String>().Utf8Value());
@@ -34,9 +32,9 @@ Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo &info)
   return Napi::Number::New(env, result);
 }
 
-Napi::Object Init(Napi::Env env, Napi::Object exports)
-{
-  exports.Set(Napi::String::New(env, "calc_loudness"), Napi::Function::New(env, CalcLoudnessWrapper));
+Napi::Object Init(Napi::Env env, Napi::Object exports) {
+  exports.Set(Napi::String::New(env, "calc_loudness"),
+              Napi::Function::New(env, CalcLoudnessWrapper));
   return exports;
 }
 
