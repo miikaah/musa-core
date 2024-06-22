@@ -18,7 +18,7 @@
   "license": "MIT",
   "dependencies": {
     "@seald-io/nedb": "^4.0.2",
-    "fuzzysort": "^2.0.4",
+    "fuzzysort": "^3.0.2",
     "lodash.uniqby": "^4.7.0",
     "metaflac-js": "^1.0.5",
     "music-metadata": "^8.1.4",
