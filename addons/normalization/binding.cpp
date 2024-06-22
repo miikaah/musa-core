@@ -27,7 +27,7 @@ Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
     argv.push_back(argStrings.back().c_str());
   }
 
-  int result = calc_loudness(argc, argv.data());
+  double result = calc_loudness(argc, argv.data());
 
   return Napi::Number::New(env, result);
 }
