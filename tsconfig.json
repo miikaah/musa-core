@@ -1,19 +1,18 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "declarationDir": "lib",
     "lib": ["esNext"],
-    "target": "es2020",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "lib",
+    "target": "es2022",
+    "types": ["vitest/globals"],
+    "declaration": true,
     "esModuleInterop": true,
     "isolatedModules": true,
-    "moduleResolution": "node",
-    "strict": true,
-    "sourceMap": true,
-    "outDir": "lib",
-    "declaration": true,
-    "declarationDir": "lib",
     "skipLibCheck": true,
-    "types": ["vitest/globals"]
+    "sourceMap": true,
+    "strict": true
   },
-  "include": ["./src/**/*.ts"],
-  "exclude": ["node_modules", "./src/jestSetup.ts"]
+  "include": ["./src/**/*.ts"]
 }
