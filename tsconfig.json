@@ -2,11 +2,12 @@
   "compilerOptions": {
     "declarationDir": "lib",
     "lib": ["esNext"],
-    "module": "commonjs",
-    "moduleResolution": "node",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
     "outDir": "lib",
     "target": "es2022",
     "types": ["vitest/globals"],
+    "allowJs": true,
     "declaration": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -14,5 +15,5 @@
     "sourceMap": true,
     "strict": true
   },
-  "include": ["./src/**/*.ts"]
+  "include": ["./src/**/*.ts", "addons/normalization/**/*.mjs"]
 }

@@ -1,6 +1,6 @@
 import path from "path";
 
-import { metadataFixture, parsedMetadataFixture } from "../fixtures/metadata.fixture";
+import { metadataFixture, parsedMetadataFixture } from "../fixtures/metadata.fixture.js";
 import { getMetadata, readMetadata } from "./metadata";
 import UrlSafeBase64 from "./urlSafeBase64";
 

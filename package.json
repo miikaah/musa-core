@@ -12,7 +12,8 @@
     "gyp:build": "node-gyp --jobs max --directory=./addons/normalization rebuild",
     "tsc:w": "tsc --watch --noEmit",
     "test": "vitest run --coverage",
-    "test:w": "vitest"
+    "test:w": "vitest",
+    "test:addon": "npx ts-node --transpile-only src/normalize.ts"
   },
   "author": "Miika Henttonen",
   "license": "MIT",

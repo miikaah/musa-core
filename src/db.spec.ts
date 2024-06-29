@@ -7,7 +7,7 @@ import { albumCollectionFixture, albumFixture } from "../fixtures/album.fixture"
 import { artistCollectionFixture } from "../fixtures/artist.fixture";
 import { audioFixture } from "../fixtures/audio.fixture";
 import { enrichedAlbumsFixture } from "../fixtures/db.fixture";
-import { parsedMetadataFixture } from "../fixtures/metadata.fixture";
+import { parsedMetadataFixture } from "../fixtures/metadata.fixture.js";
 import { themeFixture } from "../fixtures/theme.fixture";
 import {
   enrichAlbums,

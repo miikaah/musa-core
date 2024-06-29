@@ -8,6 +8,7 @@ import * as Db from "./db";
 import { isPathExternal } from "./fs";
 import UrlSafeBase64 from "./urlSafeBase64";
 
+// @ts-expect-error es modules suck ass
 import type { IAudioMetadata } from "music-metadata";
 import type {
   Codec,
