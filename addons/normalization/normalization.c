@@ -210,7 +210,7 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
   gated_loudness /= (double) gated_loudness_above_thresh_counter;
   double loudness = convert_energy_to_loudness(gated_loudness);
 
-  // Calculate true peak
+  // Calculate sample peak
   double peaks[state[0]->channels];
   for (uint64_t j = 0; j < sizeof(peaks); j++) {
     ebur128_sample_peak(state[0], j, &peaks[j]);
