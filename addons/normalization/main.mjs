@@ -1,56 +1,23 @@
-import { Worker } from "node:worker_threads";
-import os from "node:os";
 import path from "node:path";
+import { Worker } from "node:worker_threads";
 import { normalization } from "./requireAddon.mjs";
 
-class ThreadPool {
-  constructor(size) {
-    this.size = size;
-    this.workers = [];
-    this.availableWorkers = [];
-    this.queue = [];
+const createWorker = (channel, input) =>
+  new Promise((resolve, reject) => {
+    const worker = new Worker(path.resolve(import.meta.dirname, "worker.mjs"));
 
-    for (let i = 0; i < size; i++) {
-      const worker = new Worker(path.resolve(import.meta.dirname, "worker.mjs"));
-
-      this.availableWorkers.push(worker);
-      this.workers.push(worker);
-
-      worker.on("message", (result) => {
-        const { resolve } = worker.task;
-        resolve(result);
-        worker.task = null;
-        this.availableWorkers.push(worker);
-        this.runNext();
-      });
-    }
-  }
-
-  runNext() {
-    if (this.queue.length > 0 && this.availableWorkers.length > 0) {
-      const { channel, input, resolve, reject } = this.queue.shift();
-      const worker = this.availableWorkers.shift();
-      worker.task = { resolve, reject };
-      worker.postMessage({ channel, input });
-    }
-  }
-
-  runTask(channel, input) {
-    return new Promise((resolve, reject) => {
-      this.queue.push({ channel, input, resolve, reject });
-      this.runNext();
-    });
-  }
-
-  destroy() {
-    for (const worker of this.workers) {
+    worker.on("message", (result) => {
+      resolve(result);
       worker.terminate();
-    }
-  }
-}
+    });
 
-const numThreads = os.cpus().length;
-const threadPool = new ThreadPool(numThreads);
+    worker.on("error", (error) => {
+      reject(error);
+      worker.terminate();
+    });
+
+    worker.postMessage({ channel, input });
+  });
 
 /**
  * Calculates the loudness of audio files with EBU R128 algorithm.
@@ -70,7 +37,7 @@ const threadPool = new ThreadPool(numThreads);
 export const calculateLoudness = async (files = []) => {
   try {
     const results = await Promise.all(
-      files.map((input) => threadPool.runTask("calc_loudness", input)),
+      files.map((input) => createWorker("calc_loudness", input)),
     );
     const allBlockEnergies = results.flatMap((result) => result.block_list);
     const albumGain =
@@ -100,7 +67,5 @@ export const calculateLoudness = async (files = []) => {
   } catch (err) {
     console.error("Failed to calculate loudness:", err);
     throw err;
-  } finally {
-    threadPool.destroy();
   }
 };
