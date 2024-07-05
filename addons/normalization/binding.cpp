@@ -5,7 +5,11 @@ Napi::Object CalcLoudnessResultToJsObject(const Napi::Env& env,
                                           const calc_loudness_result& result) {
   Napi::Object obj = Napi::Object::New(env);
   obj.Set("filepath", Napi::String::New(env, result.filepath));
-  obj.Set("gain", Napi::Number::New(env, result.gain));
+  obj.Set("target_level_db", Napi::Number::New(env, result.target_level_db));
+  obj.Set("gain_db", Napi::Number::New(env, result.gain_db));
+  obj.Set("true_peak", Napi::Number::New(env, result.true_peak));
+  obj.Set("peak_to_loudness_db",
+          Napi::Number::New(env, result.peak_to_loudness_db));
 
   Napi::Array blockList = Napi::Array::New(env, result.block_list_size);
   for (size_t i = 0; i < result.block_list_size; ++i) {
@@ -25,8 +29,7 @@ Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
   }
   std::string filepath = info[0].As<Napi::String>();
 
-  struct calc_loudness_result result = calc_loudness(filepath.c_str());
-  return CalcLoudnessResultToJsObject(env, result);
+  return CalcLoudnessResultToJsObject(env, calc_loudness(filepath.c_str()));
 }
 
 Napi::Value CalcLoudnessAlbumWrapper(const Napi::CallbackInfo& info) {
@@ -62,8 +65,8 @@ Napi::Value CalcLoudnessAlbumWrapper(const Napi::CallbackInfo& info) {
   // Get the pointer to the underlying array data
   double* block_list_ptr = block_list.data();
 
-  double result = calc_loudness_album(block_list_ptr, block_list_size);
-  return Napi::Number::New(env, result);
+  return Napi::Number::New(
+      env, calc_loudness_album(block_list_ptr, block_list_size));
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {

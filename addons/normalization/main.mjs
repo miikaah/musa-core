@@ -56,10 +56,14 @@ const threadPool = new ThreadPool(numThreads);
  * Calculates the loudness of audio files with EBUR128 algorithm.
  * @param {any[]} [files] - Array of audio files.
  * @returns {Promise<{
- *   albumGain: number;
+ *   albumGainDb: number;
+ *   albumPeakToLoudnessDb: number;
  *   files: {
  *     filepath: string;
- *     gain: number;
+ *     targetLevelDb: number;
+ *     gainDb: number;
+ *     truePeak: number;
+ *     peakToLoudnessDb: number;
  * }[];
  * }>} - A promise that resolves to an object containing `albumGain` and `files` array.
  */
@@ -75,12 +79,19 @@ export const calculateLoudness = async (files = []) => {
         : results.length > 0
           ? results[0].gain
           : 0;
+    const albumPeakToLoudnessDb =
+      results.map((result) => result.peak_to_loudness_db).reduce((acc, v) => acc + v, 0) /
+      results.length;
 
     return {
-      albumGain: Number(albumGain.toFixed(2)),
+      albumGainDb: Number(albumGain.toFixed(2)),
+      albumPeakToLoudnessDb: Number(albumPeakToLoudnessDb.toFixed(2)),
       files: results.map((result) => ({
         filepath: result.filepath,
-        gain: Number(result.gain.toFixed(2)),
+        targetLevelDb: Number(result.target_level_db.toFixed(2)),
+        gainDb: Number(result.gain_db.toFixed(2)),
+        truePeak: Number(result.true_peak.toFixed(2)),
+        peakToLoudnessDb: Number(result.peak_to_loudness_db.toFixed(2)),
       })),
     };
   } catch (err) {

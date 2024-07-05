@@ -112,9 +112,27 @@ static double convert_energy_to_loudness(double energy) {
   return 10 * (log(energy) / log(10.0)) - 0.691;
 }
 
+double max_element(double* array, size_t size) {
+  if (size == 0) {
+    return 0;
+  }
+
+  double max_elem = array[0];
+  for (size_t i = 1; i < size; ++i) {
+    if (array[i] > max_elem) {
+      max_elem = array[i];
+    }
+  }
+
+  return max_elem;
+}
+
 struct calc_loudness_result {
   const char* filepath;
-  double gain;
+  double target_level_db;
+  double gain_db;
+  double true_peak;
+  double peak_to_loudness_db;
   double* block_list;
   size_t block_list_size;
 };
@@ -138,7 +156,9 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
     exit(1);
   }
   state[0] = ebur128_init((unsigned) file_info.channels,
-                          (unsigned) file_info.samplerate, EBUR128_MODE_I);
+                          (unsigned) file_info.samplerate,
+                          EBUR128_MODE_I | EBUR128_MODE_TRUE_PEAK);
+
   if (!state[0]) {
     fprintf(stderr, "Could not create ebur128_state!\n");
     exit(1);
@@ -158,7 +178,7 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
 
   // Set initial values for result
   struct calc_loudness_result result;
-  result.gain = -HUGE_VAL;
+  result.gain_db = -HUGE_VAL;
   result.block_list_size = 0;
 
   // Calculate average treshold
@@ -188,10 +208,21 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
     exit(0);
   }
   gated_loudness /= (double) gated_loudness_above_thresh_counter;
+  double loudness = convert_energy_to_loudness(gated_loudness);
+
+  // Calculate true peak
+  double peaks[state[0]->channels];
+  for (uint64_t j = 0; j < sizeof(peaks); j++) {
+    ebur128_true_peak(state[0], j, &peaks[j]);
+  }
 
   // Set result
   result.filepath = filepath;
-  result.gain = target_loudness - convert_energy_to_loudness(gated_loudness);
+  result.target_level_db = target_loudness;
+  result.gain_db = target_loudness - loudness;
+  result.true_peak = max_element(peaks, sizeof(peaks) / sizeof(peaks[0]));
+  result.peak_to_loudness_db =
+      loudness - (result.true_peak >= 1 ? 0.0 : 20.0 * log10(result.true_peak));
 
   // The block list is needed for calculating album loudness
   STAILQ_FOREACH(entry, &state[0]->d->block_list, entries) {
