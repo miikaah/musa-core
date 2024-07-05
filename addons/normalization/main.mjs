@@ -53,19 +53,19 @@ const numThreads = os.cpus().length;
 const threadPool = new ThreadPool(numThreads);
 
 /**
- * Calculates the loudness of audio files with EBUR128 algorithm.
- * @param {any[]} [files] - Array of audio files.
+ * Calculates the loudness of audio files with EBU R128 algorithm.
+ * @param {string[]} [files] - Array of audio files.
  * @returns {Promise<{
  *   albumGainDb: number;
- *   albumPeakToLoudnessDb: number;
+ *   albumDynamicRangeDb: number;
  *   files: {
  *     filepath: string;
  *     targetLevelDb: number;
  *     gainDb: number;
- *     truePeak: number;
- *     peakToLoudnessDb: number;
+ *     samplePeak: number;
+ *     dynamicRangeDb: number;
  * }[];
- * }>} - A promise that resolves to an object containing `albumGain` and `files` array.
+ * }>} - A promise that resolves to an object.
  */
 export const calculateLoudness = async (files = []) => {
   try {
@@ -79,19 +79,22 @@ export const calculateLoudness = async (files = []) => {
         : results.length > 0
           ? results[0].gain
           : 0;
-    const albumPeakToLoudnessDb =
-      results.map((result) => result.peak_to_loudness_db).reduce((acc, v) => acc + v, 0) /
-      results.length;
+    const albumDynamicRangeDb = Math.round(
+      Math.abs(
+        results.map((result) => result.dynamic_range_db).reduce((acc, v) => acc + v, 0) /
+          results.length,
+      ),
+    );
 
     return {
       albumGainDb: Number(albumGain.toFixed(2)),
-      albumPeakToLoudnessDb: Number(albumPeakToLoudnessDb.toFixed(2)),
+      albumDynamicRangeDb: Number(albumDynamicRangeDb.toFixed(2)),
       files: results.map((result) => ({
         filepath: result.filepath,
         targetLevelDb: Number(result.target_level_db.toFixed(2)),
         gainDb: Number(result.gain_db.toFixed(2)),
-        truePeak: Number(result.true_peak.toFixed(2)),
-        peakToLoudnessDb: Number(result.peak_to_loudness_db.toFixed(2)),
+        samplePeak: Number(result.sample_peak.toFixed(2)),
+        dynamicRangeDb: Math.round(Math.abs(Number(result.dynamic_range_db.toFixed(2)))),
       })),
     };
   } catch (err) {

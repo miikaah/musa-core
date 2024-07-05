@@ -7,9 +7,8 @@ Napi::Object CalcLoudnessResultToJsObject(const Napi::Env& env,
   obj.Set("filepath", Napi::String::New(env, result.filepath));
   obj.Set("target_level_db", Napi::Number::New(env, result.target_level_db));
   obj.Set("gain_db", Napi::Number::New(env, result.gain_db));
-  obj.Set("true_peak", Napi::Number::New(env, result.true_peak));
-  obj.Set("peak_to_loudness_db",
-          Napi::Number::New(env, result.peak_to_loudness_db));
+  obj.Set("sample_peak", Napi::Number::New(env, result.sample_peak));
+  obj.Set("dynamic_range_db", Napi::Number::New(env, result.dynamic_range_db));
 
   Napi::Array blockList = Napi::Array::New(env, result.block_list_size);
   for (size_t i = 0; i < result.block_list_size; ++i) {
