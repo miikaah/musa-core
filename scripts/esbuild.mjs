@@ -42,6 +42,9 @@ const exec = async () => {
     target: "es2020",
     format: "cjs",
     plugins: [nodeExternalsPlugin()],
+    loader: {
+      ".node": "copy",
+    },
   });
 };
 

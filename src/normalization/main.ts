@@ -1,10 +1,10 @@
 import path from "node:path";
 import { Worker } from "node:worker_threads";
-import { normalization } from "./requireAddon.mjs";
+import { normalization } from "./requireAddon";
 
-const createWorker = (channel, input) =>
+const createWorker = (channel: string, input: string) =>
   new Promise((resolve, reject) => {
-    const worker = new Worker(path.resolve(import.meta.dirname, "worker.mjs"));
+    const worker = new Worker(path.resolve(__dirname, "./worker.ts"));
 
     worker.on("message", (result) => {
       resolve(result);
@@ -19,26 +19,33 @@ const createWorker = (channel, input) =>
     worker.postMessage({ channel, input });
   });
 
-/**
- * Calculates the loudness of audio files with EBU R128 algorithm.
- * @param {string[]} [files] - Array of audio files.
- * @returns {Promise<{
- *   albumGainDb: number;
- *   albumDynamicRangeDb: number;
- *   files: {
- *     filepath: string;
- *     targetLevelDb: number;
- *     gainDb: number;
- *     samplePeak: number;
- *     dynamicRangeDb: number;
- * }[];
- * }>} - A promise that resolves to an object.
- */
-export const calculateLoudness = async (files = []) => {
+type AddonResult = {
+  block_list: number[];
+  gain: number;
+  dynamic_range_db: number;
+  filepath: string;
+  target_level_db: number;
+  gain_db: number;
+  sample_peak: number;
+};
+
+export const calculateLoudness = async (
+  files: string[] = [],
+): Promise<{
+  albumGainDb: number;
+  albumDynamicRangeDb: number;
+  files: {
+    filepath: string;
+    targetLevelDb: number;
+    gainDb: number;
+    samplePeak: number;
+    dynamicRangeDb: number;
+  }[];
+}> => {
   try {
-    const results = await Promise.all(
+    const results = (await Promise.all(
       files.map((input) => createWorker("calc_loudness", input)),
-    );
+    )) as AddonResult[];
     const allBlockEnergies = results.flatMap((result) => result.block_list);
     const albumGain =
       files.length > 1

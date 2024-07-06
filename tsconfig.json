@@ -7,7 +7,6 @@
     "outDir": "lib",
     "target": "es2022",
     "types": ["vitest/globals"],
-    "allowJs": true,
     "declaration": true,
     "esModuleInterop": true,
     "isolatedModules": true,
@@ -15,5 +14,11 @@
     "sourceMap": true,
     "strict": true
   },
-  "include": ["./src/**/*.ts", "addons/normalization/**/*.mjs"]
+  "include": [
+    "./src/**/*.ts",
+    "addons/normalization/**/*.mjs",
+    "src/normalization/main.ts",
+    "src/normalization/requireAddon.ts",
+    "src/normalization/worker.ts"
+  ]
 }

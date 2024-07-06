@@ -15,6 +15,7 @@ import { initDb } from "./db";
 import { getState, setState } from "./fsState";
 import { getCurrentProfileByIp, listDevices } from "./infra/tailscale";
 import { writeTags } from "./metadata";
+import { normalizeMany } from "./normalization";
 import { init, refresh, setScanProgressListener, update } from "./scanner";
 import UrlSafeBase64 from "./urlSafeBase64";
 
@@ -39,8 +40,17 @@ const Api = {
   getPlaylist,
 };
 
+const Fs = {
+  getState,
+  setState,
+};
+
 const Db = {
   init: initDb,
+};
+
+const Normalization = {
+  normalizeMany,
 };
 
 const Scanner = {
@@ -48,11 +58,6 @@ const Scanner = {
   update,
   refresh,
   setScanProgressListener,
-};
-
-const Fs = {
-  getState,
-  setState,
 };
 
 const Tailscale = {
@@ -86,4 +91,4 @@ export type {
 } from "./mediaSeparator.types";
 export type { Metadata, Tags } from "./metadata.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
-export { Api, Db, Fs, Scanner, UrlSafeBase64, Tailscale };
+export { Api, Db, Fs, Normalization, Scanner, UrlSafeBase64, Tailscale };

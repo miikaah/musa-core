@@ -9,7 +9,8 @@
     "build": "shx rm -rf lib && node scripts/esbuild.mjs && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json",
     "build:w": "node scripts/esbuild.mjs && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental",
     "build:clean": "node scripts/cleanBuild.mjs",
-    "gyp:build": "node-gyp --jobs max --directory=./addons/normalization rebuild",
+    "copy:binaries": "shx cp addons/normalization/build/Release/normalization-v1.0.0-darwin-arm64.node src/bin",
+    "gyp:build": "node-gyp --jobs max --directory=./addons/normalization rebuild && npm run copy:binaries",
     "tsc:w": "tsc --watch --noEmit",
     "test": "vitest run --coverage",
     "test:w": "vitest"
