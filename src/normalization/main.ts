@@ -49,7 +49,7 @@ export const calculateLoudness = async (
     const allBlockEnergies = results.flatMap((result) => result.block_list);
     const albumGain =
       files.length > 1
-        ? normalization.calc_loudness_album(allBlockEnergies)
+        ? normalization().calc_loudness_album(allBlockEnergies)
         : results.length > 0
           ? results[0].gain
           : 0;
