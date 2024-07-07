@@ -91,4 +91,5 @@ export type {
 } from "./mediaSeparator.types";
 export type { Metadata, Tags } from "./metadata.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
+export type { Unit, Result, Results } from "./normalization.types";
 export { Api, Db, Fs, Normalization, Scanner, UrlSafeBase64, Tailscale };
