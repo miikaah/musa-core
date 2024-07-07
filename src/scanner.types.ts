@@ -16,7 +16,6 @@ export type MediaCollectionAndFiles = MediaCollection & { files: string[] };
 
 export type IpcMainEvent = {
   sender: {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     send: (...args: any) => void;
   };
 };
