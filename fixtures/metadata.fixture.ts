@@ -1,4 +1,3 @@
-// @ts-expect-error es modules suck ass
 import type { IAudioMetadata } from "music-metadata";
 import type { Metadata } from "../src/metadata.types";
 

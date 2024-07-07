@@ -1,10 +1,10 @@
 import path from "node:path";
 import { Worker } from "node:worker_threads";
-import { normalization } from "./requireAddon";
+import { normalization } from "../requireAddon";
 
 const createWorker = (channel: string, input: string) =>
   new Promise((resolve, reject) => {
-    const worker = new Worker(path.resolve(__dirname, "./worker.ts"));
+    const worker = new Worker(path.resolve(__dirname, "./worker.js"));
 
     worker.on("message", (result) => {
       resolve(result);

@@ -1,5 +1,5 @@
-import { parentPort } from "worker_threads";
-import { normalization } from "./requireAddon.js";
+import { parentPort } from "node:worker_threads";
+import { normalization } from "../requireAddon";
 
 if (!parentPort) {
   throw new Error("Failed to create parentPort");

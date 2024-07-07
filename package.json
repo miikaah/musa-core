@@ -13,7 +13,8 @@
     "gyp:build": "node-gyp --jobs max --directory=./addons/normalization rebuild && npm run copy:binaries",
     "tsc:w": "tsc --watch --noEmit",
     "test": "vitest run --coverage",
-    "test:w": "vitest"
+    "test:w": "vitest",
+    "test:addon": "node lib/normalize.js"
   },
   "author": "Miika Henttonen",
   "license": "MIT",
