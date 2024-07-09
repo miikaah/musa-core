@@ -1,7 +1,7 @@
 import { constants } from "fs";
 import fs from "fs/promises";
 import path from "path";
-import type { SpyInstance } from "vitest";
+import type { MockInstance } from "vitest";
 
 import { albumCollectionFixture, albumFixture } from "../fixtures/album.fixture";
 import { artistCollectionFixture } from "../fixtures/artist.fixture";
@@ -70,16 +70,16 @@ describe("DB tests", () => {
 
 describe("DB tests", () => {
   let testDbs;
-  let audioDbInsertSpy: SpyInstance;
-  let audioDbUpdateSpy: SpyInstance;
-  let audioDbFindOneSpy: SpyInstance;
-  let audioDbFindSpy: SpyInstance;
-  let albumDbFindOneSpy: SpyInstance;
-  let albumDbUpdateSpy: SpyInstance;
-  let themeDbInsertSpy: SpyInstance;
-  let themeDbFindSpy: SpyInstance;
-  let themeDbFindOneSpy: SpyInstance;
-  let themeDbRemoveSpy: SpyInstance;
+  let audioDbInsertSpy: MockInstance;
+  let audioDbUpdateSpy: MockInstance;
+  let audioDbFindOneSpy: MockInstance;
+  let audioDbFindSpy: MockInstance;
+  let albumDbFindOneSpy: MockInstance;
+  let albumDbUpdateSpy: MockInstance;
+  let themeDbInsertSpy: MockInstance;
+  let themeDbFindSpy: MockInstance;
+  let themeDbFindOneSpy: MockInstance;
+  let themeDbRemoveSpy: MockInstance;
 
   beforeAll(async () => {
     testDbs = await initTestDb(libraryPath);
