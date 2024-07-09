@@ -21,6 +21,6 @@ jobs:
           node-version: 22
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
-      - run: node_modules/.bin/tsc tsc --noEmit
+      - run: node_modules/.bin/tsc --noEmit
       - run: npm run test
       - run: npm run build
