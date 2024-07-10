@@ -1,8 +1,7 @@
 import Datastore from "@seald-io/nedb";
 import fs from "fs/promises";
 import path from "path";
-import { getMetadata } from "./metadata";
-import UrlSafeBase64 from "./urlSafeBase64";
+import { musadir } from "./config";
 import {
   AlbumUpsertOptions,
   Colors,
@@ -20,8 +19,9 @@ import {
   AlbumWithFiles,
   ArtistWithAlbums,
 } from "./mediaSeparator.types";
+import { getMetadata } from "./metadata";
 import { Metadata } from "./metadata.types";
-import { musadir } from "./config";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 const { NODE_ENV } = process.env;
 const isDev = NODE_ENV === "local";

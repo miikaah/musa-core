@@ -71,8 +71,8 @@ export type { AudioWithMetadata } from "./api/audio.types";
 export type { FindResult } from "./api/find.types";
 export type { Playlist } from "./api/playlist.types";
 export type { Theme } from "./api/theme.types";
+export type { Colors, EnrichedAlbumFile, RgbColor } from "./db.types";
 export type { State } from "./fsState.types";
-export type { RgbColor, Colors, EnrichedAlbumFile } from "./db.types";
 export type {
   TailscaleDevice,
   TailscaleListDevicesResponse,
@@ -90,6 +90,6 @@ export type {
   MediaCollection,
 } from "./mediaSeparator.types";
 export type { Metadata, Tags } from "./metadata.types";
+export type { Result, Results, Unit } from "./normalization.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
-export type { Unit, Result, Results } from "./normalization.types";
-export { Api, Db, Fs, Normalization, Scanner, UrlSafeBase64, Tailscale };
+export { Api, Db, Fs, Normalization, Scanner, Tailscale, UrlSafeBase64 };

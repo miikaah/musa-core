@@ -1,7 +1,7 @@
 import fs from "fs/promises";
 import path from "path";
-import { State } from "./fsState.types";
 import { musadir } from "./config";
+import { State } from "./fsState.types";
 
 export const setState = async (
   stateFile: string,
