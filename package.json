@@ -23,7 +23,7 @@
     "fuzzysort": "3.0.2",
     "lodash.uniqby": "4.7.0",
     "metaflac-js": "1.0.5",
-    "music-metadata": "9.0.0",
+    "music-metadata": "9.0.1",
     "node-id3": "0.2.6"
   },
   "devDependencies": {
