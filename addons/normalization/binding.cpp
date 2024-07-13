@@ -1,9 +1,19 @@
 #include "normalization.c"
 #include <napi.h>
 
+Napi::Object CalcLoudnessErrorToJsObject(const Napi::Env& env,
+                                         const calc_loudness_error error) {
+  Napi::Object obj = Napi::Object::New(env);
+  obj.Set("code", Napi::Number::New(env, error.code));
+  obj.Set("message", Napi::String::New(env, error.message));
+
+  return obj;
+}
+
 Napi::Object CalcLoudnessResultToJsObject(const Napi::Env& env,
                                           const calc_loudness_result& result) {
   Napi::Object obj = Napi::Object::New(env);
+  obj.Set("error", CalcLoudnessErrorToJsObject(env, result.error));
   obj.Set("filepath", Napi::String::New(env, result.filepath));
   obj.Set("target_level_db", Napi::Number::New(env, result.target_level_db));
   obj.Set("gain_db", Napi::Number::New(env, result.gain_db));
@@ -28,7 +38,8 @@ Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
   }
   std::string filepath = info[0].As<Napi::String>();
 
-  return CalcLoudnessResultToJsObject(env, calc_loudness(filepath.c_str()));
+  return CalcLoudnessResultToJsObject(
+      env, calc_loudness(const_cast<char*>(filepath.c_str())));
 }
 
 Napi::Value CalcLoudnessAlbumWrapper(const Napi::CallbackInfo& info) {

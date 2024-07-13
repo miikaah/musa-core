@@ -127,8 +127,37 @@ double max_element(double* array, size_t size) {
   return max_elem;
 }
 
+struct calc_loudness_error {
+  uint64_t code;
+  const char* message;
+};
+
+static struct calc_loudness_error no_error = { .code = 0, .message = "" };
+static struct calc_loudness_error state_malloc_failed = {
+  .code = 1, .message = "Failed malloc for state"
+};
+static struct calc_loudness_error open_input_file_failed = {
+  .code = 2, .message = "Failed to open input file"
+};
+static struct calc_loudness_error ebur128_state_create_failed = {
+  .code = 3, .message = "Failed to create ebur128 state"
+};
+static struct calc_loudness_error state_buffer_malloc_failed = {
+  .code = 4, .message = "Failed malloc for state buffer"
+};
+static struct calc_loudness_error average_treshold_calculation_failed = {
+  .code = 5, .message = "Failed to calculate average treshold"
+};
+static struct calc_loudness_error gated_loudness_calculation_failed = {
+  .code = 5, .message = "Failed to calculate gated loudness"
+};
+static struct calc_loudness_error block_list_malloc_failed = {
+  .code = 6, .message = "Failed malloc for block_list"
+};
+
 struct calc_loudness_result {
-  const char* filepath;
+  struct calc_loudness_error error;
+  char* filepath;
   double target_level_db;
   double gain_db;
   double sample_peak;
@@ -137,37 +166,47 @@ struct calc_loudness_result {
   size_t block_list_size;
 };
 
-struct calc_loudness_result calc_loudness(const char* filepath) {
+struct calc_loudness_result calc_loudness(char* filepath) {
   SF_INFO file_info;
   SNDFILE* file;
   sf_count_t nr_frames_read;
   ebur128_state** state = NULL;
 
+  // Set initial values for result
+  struct calc_loudness_result result;
+  result.error = no_error;
+  result.gain_db = -HUGE_VAL;
+  result.block_list_size = 0;
+
   // Allocate memory and initialize
   state = (ebur128_state**) malloc(sizeof(ebur128_state*));
   if (!state) {
-    fprintf(stderr, "Failed malloc for state\n");
-    exit(1);
+    result.error = state_malloc_failed;
+    fprintf(stderr, "%s%s", result.error.message, "\n");
+    return result;
   }
   memset(&file_info, '\0', sizeof(file_info));
   file = sf_open(filepath, SFM_READ, &file_info);
   if (!file) {
-    fprintf(stderr, "Could not open file with sf_open!\n");
-    exit(1);
+    result.error = open_input_file_failed;
+    fprintf(stderr, "%s %s%s", result.error.message, filepath, "\n");
+    return result;
   }
   state[0] = ebur128_init((unsigned) file_info.channels,
                           (unsigned) file_info.samplerate,
                           EBUR128_MODE_I | EBUR128_MODE_SAMPLE_PEAK);
 
   if (!state[0]) {
-    fprintf(stderr, "Could not create ebur128_state!\n");
-    exit(1);
+    result.error = ebur128_state_create_failed;
+    fprintf(stderr, "%s%s", result.error.message, "\n");
+    return result;
   }
   double* buffer = (double*) malloc(state[0]->samplerate * state[0]->channels *
                                     sizeof(double));
   if (!buffer) {
-    fprintf(stderr, "Failed malloc for buffer\n");
-    exit(1);
+    result.error = state_buffer_malloc_failed;
+    fprintf(stderr, "%s%s", result.error.message, "\n");
+    return result;
   }
 
   // Input the audio file frames
@@ -175,11 +214,6 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
               file, buffer, (sf_count_t) state[0]->samplerate))) {
     ebur128_add_frames_double(state[0], buffer, (size_t) nr_frames_read);
   }
-
-  // Set initial values for result
-  struct calc_loudness_result result;
-  result.gain_db = -HUGE_VAL;
-  result.block_list_size = 0;
 
   // Calculate average treshold
   struct ebur128_dq_entry* entry;
@@ -190,7 +224,9 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
     relative_threshold += entry->z;
   }
   if (!above_thresh_counter) {
-    exit(0);
+    result.error = average_treshold_calculation_failed;
+    fprintf(stderr, "%s%s", result.error.message, "\n");
+    return result;
   }
   relative_threshold /= (double) above_thresh_counter;
   relative_threshold *= relative_gate_factor;
@@ -205,7 +241,9 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
     }
   }
   if (!gated_loudness_above_thresh_counter) {
-    exit(0);
+    result.error = gated_loudness_calculation_failed;
+    fprintf(stderr, "%s%s", result.error.message, "\n");
+    return result;
   }
   gated_loudness /= (double) gated_loudness_above_thresh_counter;
   double loudness = convert_energy_to_loudness(gated_loudness);
@@ -231,8 +269,9 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
   }
   result.block_list = (double*) malloc(result.block_list_size * sizeof(double));
   if (!result.block_list) {
-    fprintf(stderr, "Failed malloc for block_list\n");
-    exit(1);
+    result.error = block_list_malloc_failed;
+    fprintf(stderr, "%s%s", result.error.message, "\n");
+    return result;
   }
   int64_t index = 0;
   STAILQ_FOREACH(entry, &state[0]->d->block_list, entries) {
@@ -243,7 +282,7 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
   free(buffer);
   buffer = NULL;
   if (sf_close(file)) {
-    fprintf(stderr, "Could not close input file!\n");
+    fprintf(stderr, "Could not close input file\n");
   }
   ebur128_destroy(&state[0]);
   free(state);

@@ -20,6 +20,10 @@ const createWorker = (channel: string, input: string) =>
   });
 
 type AddonResult = {
+  error: {
+    code: number;
+    message: string;
+  };
   block_list: number[];
   gain: number;
   dynamic_range_db: number;
@@ -64,6 +68,7 @@ export const calculateLoudness = async (
       albumGainDb: Number(albumGain.toFixed(2)),
       albumDynamicRangeDb: Number(albumDynamicRangeDb.toFixed(2)),
       files: results.map((result) => ({
+        error: result.error,
         filepath: result.filepath,
         targetLevelDb: Number(result.target_level_db.toFixed(2)),
         gainDb: Number(result.gain_db.toFixed(2)),
