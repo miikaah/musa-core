@@ -1,10 +1,10 @@
 import * as Normalization from "./normalization";
-import { Result, Unit } from "./normalization.types";
+import { NormalizationResult, NormalizationUnit } from "./normalization.types";
 import { calculateLoudness } from "./normalization/main";
 
 vi.mock("./normalization/main");
 
-const units: Unit[] = [
+const units: NormalizationUnit[] = [
   {
     album: "album-1",
     files: ["filepath-1", "filepath-2"],
@@ -23,7 +23,7 @@ const fileTemplate = {
   dynamicRangeDb: 8,
 };
 
-const albumTemplate: Result = {
+const albumTemplate: NormalizationResult = {
   albumGainDb: -5.67,
   albumDynamicRangeDb: 7,
   files: [],

@@ -90,6 +90,11 @@ export type {
   MediaCollection,
 } from "./mediaSeparator.types";
 export type { Metadata, Tags } from "./metadata.types";
-export type { Result, Results, Unit } from "./normalization.types";
+export type {
+  NormalizationError,
+  NormalizationResult,
+  NormalizationResults,
+  NormalizationUnit,
+} from "./normalization.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
 export { Api, Db, Fs, Normalization, Scanner, Tailscale, UrlSafeBase64 };

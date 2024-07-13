@@ -1,5 +1,6 @@
 import path from "node:path";
 import { Worker } from "node:worker_threads";
+import { NormalizationError, NormalizationResult } from "../normalization.types";
 import { normalization } from "../requireAddon";
 
 const createWorker = (channel: string, input: string) =>
@@ -20,42 +21,46 @@ const createWorker = (channel: string, input: string) =>
   });
 
 type AddonResult = {
-  error: {
-    code: number;
-    message: string;
-  };
+  error: NormalizationError;
   block_list: number[];
-  gain: number;
   dynamic_range_db: number;
   filepath: string;
   target_level_db: number;
   gain_db: number;
   sample_peak: number;
+  sample_peak_db: number;
 };
 
 export const calculateLoudness = async (
   files: string[] = [],
-): Promise<{
-  albumGainDb: number;
-  albumDynamicRangeDb: number;
-  files: {
-    filepath: string;
-    targetLevelDb: number;
-    gainDb: number;
-    samplePeak: number;
-    dynamicRangeDb: number;
-  }[];
-}> => {
+): Promise<NormalizationResult> => {
   try {
     const results = (await Promise.all(
       files.map((input) => createWorker("calc_loudness", input)),
     )) as AddonResult[];
+
+    let hasError = false;
+    for (const result of results) {
+      if (result.error.code) {
+        hasError = true;
+        break;
+      }
+    }
+    if (hasError) {
+      return {
+        files: results.map((result) => ({
+          error: result.error,
+          filepath: result.filepath,
+        })),
+      };
+    }
+
     const allBlockEnergies = results.flatMap((result) => result.block_list);
-    const albumGain =
+    const albumGain: number =
       files.length > 1
         ? normalization().calc_loudness_album(allBlockEnergies)
         : results.length > 0
-          ? results[0].gain
+          ? results[0].gain_db
           : 0;
     const albumDynamicRangeDb = Math.round(
       Math.abs(
@@ -68,11 +73,11 @@ export const calculateLoudness = async (
       albumGainDb: Number(albumGain.toFixed(2)),
       albumDynamicRangeDb: Number(albumDynamicRangeDb.toFixed(2)),
       files: results.map((result) => ({
-        error: result.error,
         filepath: result.filepath,
         targetLevelDb: Number(result.target_level_db.toFixed(2)),
         gainDb: Number(result.gain_db.toFixed(2)),
-        samplePeak: Number(result.sample_peak.toFixed(2)),
+        samplePeak: Number(result.sample_peak.toFixed(5)),
+        samplePeakDb: Number(result.sample_peak_db.toFixed(2)),
         dynamicRangeDb: Math.round(Math.abs(Number(result.dynamic_range_db.toFixed(2)))),
       })),
     };
