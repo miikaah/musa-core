@@ -46,7 +46,7 @@
     "prettier-plugin-organize-imports": "4.0.0",
     "shx": "0.3.4",
     "typescript": "5.5.3",
-    "typescript-eslint": "8.0.0-alpha.41",
+    "typescript-eslint": "8.0.0-alpha.42",
     "vitest": "2.0.2"
   },
   "files": [
