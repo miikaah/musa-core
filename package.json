@@ -9,13 +9,14 @@
     "build": "shx rm -rf lib && node scripts/esbuild.mjs && npm run build:clean && tsc --emitDeclarationOnly --project tsconfig.build.json",
     "build:w": "node scripts/esbuild.mjs && npm run build:clean && npm run copy:binaries && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental",
     "build:clean": "node scripts/cleanBuild.mjs",
-    "copy:binaries": "shx cp addons/normalization/build/Release/normalization-v1.0.0-darwin-arm64.node src/bin",
-    "gyp:build": "node-gyp --jobs max --directory=./addons/normalization rebuild && npm run copy:binaries",
+    "copy:binaries": "shx cp addons/normalization/build/Debug/normalization-v1.0.0-darwin-arm64.node src/bin",
+    "gyp:build": "node-gyp --debug --jobs max --directory=./addons/normalization rebuild && npm run copy:binaries",
     "gyp:build:w": "nodemon --watch ./addons/normalization --ext c,cpp,gyp --exec npm run gyp:build",
     "tsc:w": "tsc --watch --noEmit",
     "test": "vitest run --coverage",
     "test:w": "vitest",
-    "test:addon": "node lib/normalize.js"
+    "test:addon": "node lib/normalize.js",
+    "debug:addon": "lldb -- node lib/normalize.js"
   },
   "author": "Miika Henttonen",
   "license": "MIT",

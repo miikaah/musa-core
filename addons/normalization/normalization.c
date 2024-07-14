@@ -25,6 +25,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/queue.h>
+#include <time.h>
 
 #include "ebur128.h"
 
@@ -127,6 +128,20 @@ double max_element(double* array, size_t size) {
   return max_elem;
 }
 
+void generateRandomString(char* str, size_t length) {
+  // Define the character set
+  const char charset[] =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+  size_t charset_size = sizeof(charset) - 1; // Exclude the null terminator
+
+  for (size_t i = 0; i < length; ++i) {
+    int key =
+        random() % charset_size; // Generate a random index in the character set
+    str[i] = charset[key];
+  }
+  str[length] = '\0'; // Null-terminate the string
+}
+
 struct calc_loudness_error {
   uint64_t code;
   const char* message;
@@ -169,15 +184,27 @@ struct calc_loudness_result {
 
 struct calc_loudness_result calc_loudness(char* filepath) {
   SF_INFO file_info;
-  SNDFILE* file;
+  SNDFILE* file = sf_open(filepath, SFM_READ, &file_info);
   sf_count_t nr_frames_read;
   ebur128_state** state = NULL;
+
+  size_t length = 6;         // Length of the random string
+  char rand_str[length + 1]; // Allocate memory for the string (+1 for
+                             // null-terminator)
+  srand(time(NULL));         // Seed the random number generator
+
+  generateRandomString(rand_str, length);
+  printf("\n%s ------------------------------EBU R128 NORMALIZATION START\n",
+         rand_str);
+  printf("%s %s\n", rand_str, filepath);
+  printf("%s 1. Set ebur128 init values\n", rand_str);
 
   // Set initial values for result
   struct calc_loudness_result result;
   result.error = no_error;
   result.gain_db = -HUGE_VAL;
   result.block_list_size = 0;
+  printf("%s 2. Set init values\n", rand_str);
 
   // Allocate memory and initialize
   state = (ebur128_state**) malloc(sizeof(ebur128_state*));
@@ -186,8 +213,11 @@ struct calc_loudness_result calc_loudness(char* filepath) {
     fprintf(stderr, "%s%s", result.error.message, "\n");
     return result;
   }
+  printf("%s 3. Init state\n", rand_str);
   memset(&file_info, '\0', sizeof(file_info));
+  printf("%s 4. memset\n", rand_str);
   file = sf_open(filepath, SFM_READ, &file_info);
+  printf("%s 5. sf_open\n", rand_str);
   if (!file) {
     result.error = open_input_file_failed;
     fprintf(stderr, "%s %s%s", result.error.message, filepath, "\n");
@@ -196,6 +226,7 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   state[0] = ebur128_init((unsigned) file_info.channels,
                           (unsigned) file_info.samplerate,
                           EBUR128_MODE_I | EBUR128_MODE_SAMPLE_PEAK);
+  printf("%s 6. ebur128_init\n", rand_str);
 
   if (!state[0]) {
     result.error = ebur128_state_create_failed;
@@ -204,6 +235,7 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   }
   double* buffer = (double*) malloc(state[0]->samplerate * state[0]->channels *
                                     sizeof(double));
+  printf("%s 7. state[0] malloc\n", rand_str);
   if (!buffer) {
     result.error = state_buffer_malloc_failed;
     fprintf(stderr, "%s%s", result.error.message, "\n");
@@ -215,6 +247,7 @@ struct calc_loudness_result calc_loudness(char* filepath) {
               file, buffer, (sf_count_t) state[0]->samplerate))) {
     ebur128_add_frames_double(state[0], buffer, (size_t) nr_frames_read);
   }
+  printf("%s 8. ebur128_add_frames_double\n", rand_str);
 
   // Calculate average treshold
   struct ebur128_dq_entry* entry;
@@ -224,6 +257,7 @@ struct calc_loudness_result calc_loudness(char* filepath) {
     ++above_thresh_counter;
     relative_threshold += entry->z;
   }
+  printf("%s 9. avg tresh STAILQ_FOREACH\n", rand_str);
   if (!above_thresh_counter) {
     result.error = average_treshold_calculation_failed;
     fprintf(stderr, "%s%s", result.error.message, "\n");
@@ -231,6 +265,7 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   }
   relative_threshold /= (double) above_thresh_counter;
   relative_threshold *= relative_gate_factor;
+  printf("%s 10. relative_threshold\n", rand_str);
 
   // Calculate gated loudness
   double gated_loudness = 0.0;
@@ -241,6 +276,7 @@ struct calc_loudness_result calc_loudness(char* filepath) {
       gated_loudness += entry->z;
     }
   }
+  printf("%s 11. gated loudness STAILQ_FOREACH\n", rand_str);
   if (!gated_loudness_above_thresh_counter) {
     result.error = gated_loudness_calculation_failed;
     fprintf(stderr, "%s%s", result.error.message, "\n");
@@ -248,12 +284,14 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   }
   gated_loudness /= (double) gated_loudness_above_thresh_counter;
   double loudness = convert_energy_to_loudness(gated_loudness);
+  printf("%s 12. convert_energy_to_loudness\n", rand_str);
 
   // Calculate sample peak
   double peaks[state[0]->channels];
   for (uint64_t j = 0; j < sizeof(peaks); j++) {
     ebur128_sample_peak(state[0], j, &peaks[j]);
   }
+  printf("%s 13. ebur128_sample_peak\n", rand_str);
 
   // Set result
   result.filepath = filepath;
@@ -264,12 +302,14 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   result.dynamic_range_db =
       loudness -
       (result.sample_peak >= 1 ? 0.0 : 20.0 * log10(result.sample_peak));
+  printf("%s 14. Set result\n", rand_str);
 
   // The block list is needed for calculating album loudness
   STAILQ_FOREACH(entry, &state[0]->d->block_list, entries) {
     result.block_list_size++;
   }
   result.block_list = (double*) malloc(result.block_list_size * sizeof(double));
+  printf("%s 15. block_list malloc\n", rand_str);
   if (!result.block_list) {
     result.error = block_list_malloc_failed;
     fprintf(stderr, "%s%s", result.error.message, "\n");
@@ -279,15 +319,23 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   STAILQ_FOREACH(entry, &state[0]->d->block_list, entries) {
     result.block_list[index++] = entry->z;
   }
+  printf("%s 16. block_list STAILQ_FOREACH\n", rand_str);
 
   // Free memory
   free(buffer);
+  printf("%s 17. free(buffer)\n", rand_str);
   buffer = NULL;
   if (sf_close(file)) {
     fprintf(stderr, "Could not close input file\n");
   }
+  printf("%s 18. sf_close\n", rand_str);
   ebur128_destroy(&state[0]);
+  printf("%s 19. ebur128_destroy\n", rand_str);
   free(state);
+  printf("%s 20. free(state)\n", rand_str);
+  printf("%s %s\n", rand_str, filepath);
+  printf("%s ------------------------------EBU R128 NORMALIZATION END\n\n",
+         rand_str);
 
   return result;
 }

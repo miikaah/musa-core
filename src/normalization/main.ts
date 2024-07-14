@@ -35,9 +35,15 @@ export const calculateLoudness = async (
   files: string[] = [],
 ): Promise<NormalizationResult> => {
   try {
+    console.log("\n\n\n-----------------------------");
+    console.log("|            NEW RUN        |");
+    console.log("-----------------------------\n");
     const results = (await Promise.all(
       files.map((input) => createWorker("calc_loudness", input)),
     )) as AddonResult[];
+    console.log("\n-----------------------------");
+    console.log("|            END RUN        |");
+    console.log("-----------------------------\n\n\n");
 
     let hasError = false;
     for (const result of results) {

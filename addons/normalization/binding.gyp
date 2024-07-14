@@ -3,6 +3,9 @@
     {
       "target_name": "normalization-v1.0.0-darwin-arm64",
       "sources": ["binding.cpp", "normalization.c"],
+      "cflags": [ "-g" ],
+      "cflags_cc": [ "-g" ],
+      "ldflags": [ "-g" ],
       "defines": [ "NAPI_DISABLE_CPP_EXCEPTIONS" ],
       "include_dirs": [
         "<!@(node -p \"require('node-addon-api').include\")",
