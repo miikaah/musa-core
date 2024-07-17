@@ -260,10 +260,9 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   result.target_level_db = target_loudness;
   result.gain_db = target_loudness - loudness;
   result.sample_peak = max_element(peaks, sizeof(peaks) / sizeof(peaks[0]));
-  result.sample_peak_db = 20.0 * log10(result.sample_peak);
+  result.sample_peak_db = 10.0 * log10(result.sample_peak);
   result.dynamic_range_db =
-      loudness -
-      (result.sample_peak >= 1 ? 0.0 : 20.0 * log10(result.sample_peak));
+      loudness - (result.sample_peak >= 1 ? 0.0 : result.sample_peak_db);
 
   // The block list is needed for calculating album loudness
   STAILQ_FOREACH(entry, &state[0]->d->block_list, entries) {

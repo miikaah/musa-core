@@ -1,7 +1,10 @@
-import { ChildProcess, fork } from "node:child_process";
+import { ChildProcess } from "node:child_process";
 import os from "node:os";
-import path from "node:path";
-import { NormalizationError, NormalizationResult } from "../normalization.types";
+import {
+  UtilityProcess as ElectronUtilityProcess,
+  NormalizationError,
+  NormalizationResult,
+} from "../normalization.types";
 import { normalization } from "../requireAddon";
 
 type AddonResult = {
@@ -21,6 +24,10 @@ type Task = {
   callback: (code: AddonResult | null, error?: Error) => void;
 };
 
+type ChildLikeProcess = ChildProcess | ElectronUtilityProcess;
+
+type ForkFn = (modulePath: string) => ChildLikeProcess;
+
 // Using a thread pool of child processes here because libsndfile uses libmpg123 internally,
 // the combination of which doesn't work with worker threads. The issue is that the worker
 // threads share memory of the main process which causes a threading issue with Apple ARM
@@ -39,7 +46,7 @@ class ThreadPool {
   taskQueue: Task[];
   activeTasks: Map<number, { callback: Task["callback"]; worker: any }>;
 
-  constructor(maxPoolSize: number, workerScript: string) {
+  constructor(maxPoolSize: number, workerScript: string, forkFn: ForkFn) {
     this.maxPoolSize = maxPoolSize;
     this.workerScript = workerScript;
     this.pool = [];
@@ -47,14 +54,15 @@ class ThreadPool {
     this.activeTasks = new Map();
 
     for (let i = 0; i < this.maxPoolSize; i++) {
-      const worker = fork(this.workerScript);
+      const worker = forkFn(this.workerScript);
       worker.on("message", this.handleMessage.bind(this, worker));
-      worker.on("exit", this.handleExit.bind(this, worker));
+      // @ts-expect-error Electron UtilityProcess does not emit the same events as node:child_process
+      worker.on("exit", this.handleExit.bind(this, worker, forkFn));
       this.pool.push(worker);
     }
   }
 
-  handleMessage(_worker: ChildProcess, message: any) {
+  handleMessage(_worker: ChildLikeProcess, message: any) {
     const { id, error, result } = message;
     const { callback } = this.activeTasks.get(id) ?? {};
 
@@ -65,13 +73,14 @@ class ThreadPool {
     }
   }
 
-  handleExit(worker: ChildProcess) {
+  handleExit(worker: ChildLikeProcess, forkFn: ForkFn) {
     // console.log(`Worker ${worker.pid} exited. Restarting...`);
     const index = this.pool.indexOf(worker);
     if (index !== -1) {
-      const newWorker = fork(this.workerScript);
+      const newWorker = forkFn(this.workerScript);
       newWorker.on("message", this.handleMessage.bind(this, newWorker));
-      newWorker.on("exit", this.handleExit.bind(this, newWorker));
+      // @ts-expect-error Electron UtilityProcess does not emit the same events as node:child_process
+      newWorker.on("exit", this.handleExit.bind(this, newWorker, forkFn));
       this.pool[index] = newWorker;
     }
   }
@@ -82,7 +91,12 @@ class ThreadPool {
 
     if (worker) {
       this.activeTasks.set(id, { callback, worker });
-      worker.send({ id, filepath });
+
+      if (typeof worker.send === "function") {
+        worker.send({ id, filepath });
+      } else {
+        worker.postMessage({ id, filepath });
+      }
     } else {
       this.taskQueue.push({ id, filepath, callback });
     }
@@ -106,7 +120,11 @@ class ThreadPool {
       const worker = this.getAvailableWorker();
       if (worker) {
         this.activeTasks.set(id, { callback, worker });
-        worker.send({ id, filepath });
+        if (typeof worker.send === "function") {
+          worker.send({ id, filepath });
+        } else {
+          worker.postMessage({ id, filepath });
+        }
       } else {
         this.taskQueue.unshift({ id, filepath, callback });
       }
@@ -114,9 +132,13 @@ class ThreadPool {
   }
 }
 
-const pool = new ThreadPool(os.cpus().length, path.join(__dirname, "./worker.js"));
+let pool: ThreadPool;
 
-const createWorker = (input: string) =>
+export const initNormalization = (forkFn: ForkFn, workerScript: string) => {
+  pool = new ThreadPool(os.cpus().length, workerScript, forkFn);
+};
+
+const runInWorker = (input: string) =>
   new Promise((resolve, reject) => {
     return pool.execute(input, (result, error) =>
       error ? reject(error) : resolve(result),
@@ -127,8 +149,11 @@ export const calculateLoudness = async (
   files: string[] = [],
 ): Promise<NormalizationResult> => {
   try {
+    if (!pool) {
+      throw new Error("Call initNormalization first");
+    }
     const results = (await Promise.all(
-      files.map((input) => createWorker(input)),
+      files.map((input) => runInWorker(input)),
     )) as AddonResult[];
 
     let hasError = false;
