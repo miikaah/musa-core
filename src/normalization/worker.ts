@@ -6,9 +6,7 @@ const handler = (message: MessageEvent) => {
     // For Electron child process
     if ((process as any).parentPort) {
       const { id, filepath } = message.data;
-      console.log("Got message", message);
       const result = normalization().calc_loudness(filepath);
-      console.log("Got result", result);
       (process as any).parentPort.postMessage({ id, result });
       return;
     }
