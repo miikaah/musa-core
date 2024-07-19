@@ -29,12 +29,10 @@ const main = async () => {
     // Copy the platform specific node C addon binary
     await fs.cp(path.join(buildpath, bin), path.join(dest, bin));
     // Copy the external library binary files
-    if (process.platform === "win32") {
-      const files = (await fs.readdir(libdir)).filter((file) => file.endsWith(".dll"));
+    const files = (await fs.readdir(libdir)).filter((file) => file.endsWith(".dll"));
 
-      for (const file of files) {
-        await fs.copyFile(path.join(libdir, file), path.join(libdest, file));
-      }
+    for (const file of files) {
+      await fs.copyFile(path.join(libdir, file), path.join(libdest, file));
     }
     return;
   }
