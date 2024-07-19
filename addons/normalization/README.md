@@ -48,15 +48,15 @@ brew install libsndfile libebur128
 
 ### Windows
 
-Create C:\C directory with `include` and `lib` subdirectories.
+The built binary and external binaries are included in the repo.
 
-Copy `queue.h` header file to the `C:\C\include\` directory.
+You can update the external binaries manually.
 
-#### libsndfile
+#### Update libsndfile
 
-Download the libsndfile .lib and .h files from https://github.com/libsndfile/libsndfile/releases and place them in `C:\C\include\` and `C:\C\lib\`.
+Download libsndfile from https://github.com/libsndfile/libsndfile/releases and place the `sndfile.h` in `addons/include` and `sndfile.dll` & `sndfile.lib` files in `addons/lib`.
 
-#### libebur128
+#### Update libebur128
 
 Clone the https://github.com/jiixyj/libebur128 and build the library with CMake.
 
@@ -78,7 +78,7 @@ Build the release version
 cmake --build . --config Release
 ```
 
-Place the `ebur128.h` header file in `C:\C\include\` and the `ebur128.lib` file from the build/Release folder in `C:\C\lib\`.
+Place the `ebur128.h` header file in `addons/include` and the `ebur128.lib` & `ebur128.dll` files from the build/Release folder in `addons/lib`.
 
 ## Build (root package.json)
 
