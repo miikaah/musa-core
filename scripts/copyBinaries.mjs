@@ -39,7 +39,7 @@ const main = async () => {
     return;
   }
 
-  throw new Error(`Not implemented for platform ${process.platform}`);
+  console.warn(`Not implemented for platform ${process.platform}`);
 };
 
 main();
