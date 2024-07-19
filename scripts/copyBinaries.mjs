@@ -26,18 +26,16 @@ const main = async () => {
   const bin = binaryByPlatform[process.platform];
 
   if (bin) {
-    // Copy the platform specific node C addon binary
+    // Copy the platform specific node C addon binary to git
     await fs.cp(path.join(buildpath, bin), path.join(dest, bin));
-    // Copy the external library binary files
-    const files = (await fs.readdir(libdir)).filter((file) => file.endsWith(".dll"));
-
-    for (const file of files) {
-      await fs.copyFile(path.join(libdir, file), path.join(libdest, file));
-    }
-    return;
   }
 
-  console.warn(`Not implemented for platform ${process.platform}`);
+  // Copy the external library binary files for build
+  const files = (await fs.readdir(libdir)).filter((file) => file.endsWith(".dll"));
+
+  for (const file of files) {
+    await fs.copyFile(path.join(libdir, file), path.join(libdest, file));
+  }
 };
 
 main();
