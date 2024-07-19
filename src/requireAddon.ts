@@ -1,20 +1,24 @@
 import { createRequire } from "node:module";
 import path from "node:path";
 
+const binpath = "bin";
+const name = "normalization";
+const version = "v1.0.0";
+
 const requireAddon = createRequire(__dirname);
 
 const binaryByPlatform = {
   aix: "",
   android: "",
   cygwin: "",
-  darwin: "bin/normalization-v1.0.0-darwin-arm64.node",
+  darwin: path.join(binpath, `${name}-${version}-darwin-arm64.node`),
   freebsd: "",
   haiku: "",
   linux: "",
   netbsd: "",
   openbsd: "",
   sunos: "",
-  win32: "",
+  win32: path.join(binpath, `${name}-${version}-win-x64.node`),
 };
 
 export const normalization = () => {

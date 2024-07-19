@@ -60,10 +60,10 @@ Napi::Value CalcLoudnessAlbumWrapper(const Napi::CallbackInfo& info) {
   }
   // Convert the input to a double array
   Napi::Array inputArray = info[0].As<Napi::Array>();
-  int64_t block_list_size = inputArray.Length();
+  uint64_t block_list_size = inputArray.Length();
   std::vector<double> block_list(block_list_size);
 
-  for (int64_t i = 0; i < block_list_size; i++) {
+  for (uint64_t i = 0; i < block_list_size; i++) {
     Napi::Value val = inputArray[i];
     if (!val.IsNumber()) {
       Napi::TypeError::New(env, "Array elements must be numbers")

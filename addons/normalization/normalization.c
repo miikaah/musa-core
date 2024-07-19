@@ -21,10 +21,10 @@
  **/
 
 #include <math.h>
+#include <queue.h>
 #include <sndfile.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/queue.h>
 
 #include "ebur128.h"
 
@@ -250,7 +250,8 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   double loudness = convert_energy_to_loudness(gated_loudness);
 
   // Calculate sample peak
-  double peaks[state[0]->channels];
+  int numChannels = state[0]->channels;
+  double* peaks = (double*) malloc(numChannels * sizeof(double));
   for (uint64_t j = 0; j < sizeof(peaks); j++) {
     ebur128_sample_peak(state[0], j, &peaks[j]);
   }

@@ -1,9 +1,9 @@
 import { MessageEvent } from "../normalization.types";
 import { normalization } from "../requireAddon";
 
-const handler = (message: MessageEvent) => {
+// For Electron child process
+(process as any).parentPort?.on("message", (message: MessageEvent) => {
   try {
-    // For Electron child process
     if ((process as any).parentPort) {
       const { id, filepath } = message.data;
       const result = normalization().calc_loudness(filepath);
@@ -13,9 +13,26 @@ const handler = (message: MessageEvent) => {
 
     throw new Error("Invalid child process");
   } catch (error) {
-    console.error("Failed to call normalization C addon", error);
+    console.error("Electron failed to call normalization C addon", error);
     throw error;
   }
-};
+});
 
-(process as any).parentPort?.on("message", handler);
+// For NodeJS child process
+process.on("message", (message: { id: string; filepath: string }) => {
+  try {
+    console.log("Message from parent:", message);
+    if (process.send) {
+      const { id, filepath } = message;
+      const result = normalization().calc_loudness(filepath);
+
+      process.send({ id, result });
+      return;
+    }
+
+    throw new Error("Invalid child process");
+  } catch (error) {
+    console.error("NodeJS failed to call normalization C addon", error);
+    throw error;
+  }
+});
