@@ -8,12 +8,12 @@ if (process.platform === "darwin") {
 install_name_tool -change \
 /opt/homebrew/opt/libsndfile/lib/libsndfile.1.dylib \
 @loader_path/libsndfile.dylib \
-lib/bin/normalization-v1.0.0-darwin-arm64.node
+addons/normalization/build/Release/normalization-v1.0.0-darwin-arm64.node
 
 install_name_tool -change \
 /opt/homebrew/opt/libebur128/lib/libebur128.1.dylib \
 @loader_path/libebur128.dylib \
-lib/bin/normalization-v1.0.0-darwin-arm64.node
+addons/normalization/build/Release/normalization-v1.0.0-darwin-arm64.node
 `;
 
   exec(changeLoadCommandPath, (error, stdout, stderr) => {
