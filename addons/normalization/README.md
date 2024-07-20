@@ -15,7 +15,7 @@ npm install -g node-gyp
 
 ### VS Code (Windows)
 
-Set the include path for your editor in .vscode/c_cpp_properties.json. Change Username and node-gyp version in the example config.
+File .vscode/c_cpp_properties.json. Change Username and node-gyp version in the example config.
 
 ```json
 {
@@ -32,6 +32,34 @@ Set the include path for your editor in .vscode/c_cpp_properties.json. Change Us
       "cStandard": "c17",
       "cppStandard": "c++17",
       "intelliSenseMode": "windows-msvc-x64"
+    }
+  ],
+  "version": 4
+}
+```
+
+### VS Code (MacOS)
+
+File .vscode/c_cpp_properties.json. Change Username and node-gyp version in the example config.
+
+```json
+{
+  "configurations": [
+    {
+      "name": "Mac",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/node_modules/node-addon-api",
+        "${HOME}/.nvm/versions/node/v22.3.0/include/node"
+      ],
+      "defines": [],
+      "macFrameworkPath": [
+        "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/System/Library/Frameworks"
+      ],
+      "compilerPath": "/usr/bin/clang",
+      "cStandard": "c17",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "macos-clang-arm64"
     }
   ],
   "version": 4

@@ -31,7 +31,9 @@ const main = async () => {
   }
 
   // Copy the external library binary files for build
-  const files = (await fs.readdir(libdir)).filter((file) => file.endsWith(".dll"));
+  const files = (await fs.readdir(libdir)).filter(
+    (file) => file.endsWith(".dll") || file.endsWith(".dylib"),
+  );
 
   for (const file of files) {
     await fs.copyFile(path.join(libdir, file), path.join(libdest, file));
