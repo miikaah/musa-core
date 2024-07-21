@@ -15,7 +15,7 @@ import { initDb } from "./db";
 import { getState, setState } from "./fsState";
 import { getCurrentProfileByIp, listDevices } from "./infra/tailscale";
 import { writeTags } from "./metadata";
-import { normalize, normalizeMany } from "./normalization";
+import { normalizeMany } from "./normalization";
 import { initNormalization } from "./normalization/main";
 import { init, refresh, setScanProgressListener, update } from "./scanner";
 import UrlSafeBase64 from "./urlSafeBase64";
@@ -52,7 +52,6 @@ const Db = {
 
 const Normalization = {
   normalizeMany,
-  normalize,
   init: initNormalization,
 };
 

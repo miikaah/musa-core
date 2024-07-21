@@ -39,8 +39,7 @@ Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
   }
   std::string filepath = info[0].As<Napi::String>();
 
-  return CalcLoudnessResultToJsObject(
-      env, calc_loudness(const_cast<char*>(filepath.c_str())));
+  return CalcLoudnessResultToJsObject(env, calc_loudness(filepath.c_str()));
 }
 
 Napi::Value CalcLoudnessAlbumWrapper(const Napi::CallbackInfo& info) {

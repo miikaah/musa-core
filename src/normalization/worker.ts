@@ -21,7 +21,6 @@ import { normalization } from "../requireAddon";
 // For NodeJS child process
 process.on("message", (message: { id: string; filepath: string }) => {
   try {
-    console.log("Message from parent:", message);
     if (process.send) {
       const { id, filepath } = message;
       const result = normalization().calc_loudness(filepath);

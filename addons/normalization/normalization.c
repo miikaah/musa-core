@@ -157,17 +157,17 @@ static struct calc_loudness_error block_list_malloc_failed = {
 
 struct calc_loudness_result {
   struct calc_loudness_error error;
-  char* filepath;
+  const char* filepath;
   double target_level_db;
   double gain_db;
   double sample_peak;
   double sample_peak_db;
   double dynamic_range_db;
   double* block_list;
-  size_t block_list_size;
+  uint64_t block_list_size;
 };
 
-struct calc_loudness_result calc_loudness(char* filepath) {
+struct calc_loudness_result calc_loudness(const char* filepath) {
   SF_INFO file_info;
   SNDFILE* file;
   sf_count_t nr_frames_read;
@@ -176,7 +176,11 @@ struct calc_loudness_result calc_loudness(char* filepath) {
   // Set initial values for result
   struct calc_loudness_result result;
   result.error = no_error;
+  result.target_level_db = target_loudness;
   result.gain_db = -HUGE_VAL;
+  result.sample_peak = -HUGE_VAL;
+  result.sample_peak_db = -HUGE_VAL;
+  result.dynamic_range_db = -HUGE_VAL;
   result.block_list_size = 0;
 
   // Allocate memory and initialize
@@ -258,7 +262,6 @@ struct calc_loudness_result calc_loudness(char* filepath) {
 
   // Set result
   result.filepath = filepath;
-  result.target_level_db = target_loudness;
   result.gain_db = target_loudness - loudness;
   result.sample_peak = max_element(peaks, numChannels);
   result.sample_peak_db = 10.0 * log10(result.sample_peak);
