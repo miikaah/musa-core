@@ -167,7 +167,8 @@ struct calc_loudness_result {
   uint64_t block_list_size;
 };
 
-struct calc_loudness_result calc_loudness(const char* filepath) {
+struct calc_loudness_result calc_loudness(const char* filepath,
+                                          const wchar_t* maybe_wfilepath) {
   SF_INFO file_info;
   SNDFILE* file;
   sf_count_t nr_frames_read;
@@ -190,13 +191,20 @@ struct calc_loudness_result calc_loudness(const char* filepath) {
     fprintf(stderr, "%s%s", result.error.message, "\n");
     return result;
   }
+
+  // wchar is used for Windows
   memset(&file_info, '\0', sizeof(file_info));
-  file = sf_open(filepath, SFM_READ, &file_info);
+  if (!maybe_wfilepath) {
+    file = sf_open(filepath, SFM_READ, &file_info);
+  } else {
+    file = sf_wchar_open(maybe_wfilepath, SFM_READ, &file_info);
+  }
   if (!file) {
     result.error = open_input_file_failed;
     fprintf(stderr, "%s %s%s", result.error.message, filepath, "\n");
     return result;
   }
+
   state[0] = ebur128_init((unsigned) file_info.channels,
                           (unsigned) file_info.samplerate,
                           EBUR128_MODE_I | EBUR128_MODE_SAMPLE_PEAK);
