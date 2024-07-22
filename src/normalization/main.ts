@@ -130,12 +130,32 @@ class ThreadPool {
       }
     }
   }
+
+  killAll() {
+    console.log("Killing child processes");
+    this.pool.forEach((worker) => worker.kill("SIGINT"));
+  }
 }
+
+const exitSignals = ["SIGINT", "SIGTERM", "SIGHUP", "SIGQUIT"];
 
 let pool: ThreadPool;
 
 export const initNormalization = (forkFn: ForkFn, workerScript: string) => {
+  if (pool) {
+    console.warn("You should only call initNormalization once");
+    return;
+  }
   pool = new ThreadPool(os.cpus().length, workerScript, forkFn);
+
+  const handleExit = () => {
+    pool.killAll();
+  };
+
+  exitSignals.forEach((signal) => {
+    console.log(`Got ${signal}`);
+    process.on(signal, handleExit);
+  });
 };
 
 const runInWorker = (input: string) =>
