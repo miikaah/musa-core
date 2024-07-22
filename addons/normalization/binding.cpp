@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#endif // _WIN32
+#endif
 
 Napi::Object CalcLoudnessErrorToJsObject(const Napi::Env& env,
                                          const calc_loudness_error error) {
@@ -35,7 +35,7 @@ Napi::Object CalcLoudnessResultToJsObject(const Napi::Env& env,
 }
 
 #ifdef _WIN32
-Napi::Value WindowsCalcLoudnessWrapper(const Napi::CallbackInfo& info) {
+Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
   if (info.Length() < 1 || !info[0].IsString()) {
@@ -45,20 +45,22 @@ Napi::Value WindowsCalcLoudnessWrapper(const Napi::CallbackInfo& info) {
   std::string filepath = info[0].As<Napi::String>();
 
   // Convert utf-8 to utf-16 because Windows uses wchar_t for filepaths
-  int wide_size = MultiByteToWideChar(CP_UTF8, 0, filepath.c_str(), -1, nullptr, 0);
+  int wide_size =
+      MultiByteToWideChar(CP_UTF8, 0, filepath.c_str(), -1, nullptr, 0);
   if (wide_size == 0) {
-      Napi::Error::New(env, "Error converting UTF-8 to UTF-16").ThrowAsJavaScriptException();
-      return env.Null();
+    Napi::Error::New(env, "Error converting UTF-8 to UTF-16")
+        .ThrowAsJavaScriptException();
+    return env.Null();
   }
 
   std::wstring wide_filepath(wide_size, 0);
-  MultiByteToWideChar(CP_UTF8, 0, filepath.c_str(), -1, &wide_filepath[0], wide_size);
+  MultiByteToWideChar(CP_UTF8, 0, filepath.c_str(), -1, &wide_filepath[0],
+                      wide_size);
 
-  return CalcLoudnessResultToJsObject(env,
-    calc_loudness(filepath.c_str(), wide_filepath.c_str()));
+  return CalcLoudnessResultToJsObject(
+      env, calc_loudness(filepath.c_str(), wide_filepath.c_str()));
 }
-#endif // _WIN32
-
+#else
 Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
 
@@ -67,9 +69,11 @@ Napi::Value CalcLoudnessWrapper(const Napi::CallbackInfo& info) {
     return env.Null();
   }
   std::string filepath = info[0].As<Napi::String>();
-  
-  return CalcLoudnessResultToJsObject(env, calc_loudness(filepath.c_str(), nullptr));
+
+  return CalcLoudnessResultToJsObject(env,
+                                      calc_loudness(filepath.c_str(), nullptr));
 }
+#endif
 
 Napi::Value CalcLoudnessAlbumWrapper(const Napi::CallbackInfo& info) {
   Napi::Env env = info.Env();
@@ -109,11 +113,6 @@ Napi::Value CalcLoudnessAlbumWrapper(const Napi::CallbackInfo& info) {
 }
 
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-  #ifdef _WIN32
-  exports.Set(Napi::String::New(env, "windows_calc_loudness"),
-              Napi::Function::New(env, WindowsCalcLoudnessWrapper));
-  #endif // _WIN32
-
   exports.Set(Napi::String::New(env, "calc_loudness"),
               Napi::Function::New(env, CalcLoudnessWrapper));
 

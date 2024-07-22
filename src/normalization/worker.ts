@@ -6,13 +6,7 @@ import { normalization } from "../requireAddon";
   try {
     if ((process as any).parentPort) {
       const { id, filepath } = message.data;
-      let result;
-
-      if (process.platform === "win32") {
-        result = normalization().windows_calc_loudness(filepath);
-      } else {
-        result = normalization().calc_loudness(filepath);
-      }
+      const result = normalization().calc_loudness(filepath);
 
       (process as any).parentPort.postMessage({ id, result });
       return;
@@ -30,13 +24,7 @@ process.on("message", (message: { id: string; filepath: string }) => {
   try {
     if (process.send) {
       const { id, filepath } = message;
-      let result;
-
-      if (process.platform === "win32") {
-        result = normalization().windows_calc_loudness(filepath);
-      } else {
-        result = normalization().calc_loudness(filepath);
-      }
+      const result = normalization().calc_loudness(filepath);
 
       process.send({ id, result });
       return;

@@ -192,13 +192,12 @@ struct calc_loudness_result calc_loudness(const char* filepath,
     return result;
   }
 
-  // wchar is used for Windows
   memset(&file_info, '\0', sizeof(file_info));
-  if (!maybe_wfilepath) {
-    file = sf_open(filepath, SFM_READ, &file_info);
-  } else {
-    file = sf_wchar_open(maybe_wfilepath, SFM_READ, &file_info);
-  }
+#ifdef _WIN32
+  file = sf_wchar_open(maybe_wfilepath, SFM_READ, &file_info);
+#else
+  file = sf_open(filepath, SFM_READ, &file_info);
+#endif
   if (!file) {
     result.error = open_input_file_failed;
     fprintf(stderr, "%s %s%s", result.error.message, filepath, "\n");
