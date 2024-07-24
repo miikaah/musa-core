@@ -45,6 +45,7 @@ class ThreadPool {
   pool: any[];
   taskQueue: Task[];
   activeTasks: Map<number, { callback: Task["callback"]; worker: any }>;
+  isExiting = false;
 
   constructor(maxPoolSize: number, workerScript: string, forkFn: ForkFn) {
     this.maxPoolSize = maxPoolSize;
@@ -74,7 +75,10 @@ class ThreadPool {
   }
 
   handleExit(worker: ChildLikeProcess, forkFn: ForkFn) {
-    // console.log(`Worker ${worker.pid} exited. Restarting...`);
+    // console.log(`Worker ${worker.pid} exited`);
+    if (this.isExiting) {
+      return;
+    }
     const index = this.pool.indexOf(worker);
     if (index !== -1) {
       const newWorker = forkFn(this.workerScript);
@@ -132,7 +136,11 @@ class ThreadPool {
   }
 
   killAll() {
-    console.log("Killing child processes");
+    if (this.isExiting) {
+      return;
+    }
+    console.log("Killing all child processes");
+    this.isExiting = true;
     this.pool.forEach((worker) => worker.kill("SIGINT"));
   }
 }
@@ -148,13 +156,14 @@ export const initNormalization = (forkFn: ForkFn, workerScript: string) => {
   }
   pool = new ThreadPool(os.cpus().length, workerScript, forkFn);
 
-  const handleExit = () => {
+  const handleExit = (signal: string) => {
+    console.log(`Got ${signal}. Terminating...`);
     pool.killAll();
+    process.exit(0);
   };
 
   exitSignals.forEach((signal) => {
-    console.log(`Got ${signal}`);
-    process.on(signal, handleExit);
+    process.on(signal, () => handleExit(signal));
   });
 };
 
