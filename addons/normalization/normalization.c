@@ -178,10 +178,10 @@ struct calc_loudness_result calc_loudness(const char* filepath,
   struct calc_loudness_result result;
   result.error = no_error;
   result.target_level_db = target_loudness;
-  result.gain_db = -HUGE_VAL;
-  result.sample_peak = -HUGE_VAL;
-  result.sample_peak_db = -HUGE_VAL;
-  result.dynamic_range_db = -HUGE_VAL;
+  result.gain_db = 0;
+  result.sample_peak = 0;
+  result.sample_peak_db = 0;
+  result.dynamic_range_db = 0;
   result.block_list_size = 0;
 
   // Allocate memory and initialize
@@ -261,16 +261,16 @@ struct calc_loudness_result calc_loudness(const char* filepath,
   double loudness = convert_energy_to_loudness(gated_loudness);
 
   // Calculate sample peak
-  int numChannels = state[0]->channels;
-  double* peaks = (double*) malloc(numChannels * sizeof(double));
-  for (uint64_t j = 0; j < sizeof(numChannels); j++) {
+  int num_channels = state[0]->channels;
+  double* peaks = (double*) malloc(num_channels * sizeof(double));
+  for (uint64_t j = 0; j < sizeof(num_channels); j++) {
     ebur128_sample_peak(state[0], j, &peaks[j]);
   }
 
   // Set result
   result.filepath = filepath;
   result.gain_db = target_loudness - loudness;
-  result.sample_peak = max_element(peaks, numChannels);
+  result.sample_peak = max_element(peaks, num_channels);
   result.sample_peak_db = 10.0 * log10(result.sample_peak);
   result.dynamic_range_db =
       loudness - (result.sample_peak >= 1 ? 0.0 : result.sample_peak_db);
@@ -291,6 +291,7 @@ struct calc_loudness_result calc_loudness(const char* filepath,
   }
 
   // Free memory
+  free(peaks);
   free(buffer);
   buffer = NULL;
   if (sf_close(file)) {

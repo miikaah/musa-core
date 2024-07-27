@@ -185,22 +185,6 @@ export const calculateLoudness = async (
       files.map((input) => runInWorker(input)),
     )) as AddonResult[];
 
-    let hasError = false;
-    for (const result of results) {
-      if (result.error.code) {
-        hasError = true;
-        break;
-      }
-    }
-    if (hasError) {
-      return {
-        files: results.map((result) => ({
-          error: result.error,
-          filepath: result.filepath,
-        })),
-      };
-    }
-
     const allBlockEnergies = results.flatMap((result) => result.block_list);
     const albumGain: number =
       files.length > 1
@@ -219,6 +203,7 @@ export const calculateLoudness = async (
       albumGainDb: Number(albumGain.toFixed(2)),
       albumDynamicRangeDb: Number(albumDynamicRangeDb.toFixed(2)),
       files: results.map((result) => ({
+        error: result.error,
         filepath: result.filepath,
         targetLevelDb: Number(result.target_level_db.toFixed(2)),
         gainDb: Number(result.gain_db.toFixed(2)),
