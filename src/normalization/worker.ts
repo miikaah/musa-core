@@ -43,4 +43,6 @@ const handleMessage = async (message: WorkerMessage) => {
   handleMessage(message.data),
 );
 // For NodeJS child process
-process.on("message", (message: WorkerMessage) => handleMessage(message));
+process.on("message", (message: WorkerMessage) => {
+  void handleMessage(message);
+});

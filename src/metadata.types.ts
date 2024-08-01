@@ -31,7 +31,7 @@ export type CommonMetadata = {
   comment: string[];
   albumartist: string;
   genre: string[];
-  movementIndex: unknown | Record<string, unknown>;
+  movementIndex: unknown;
 };
 
 export type NumberOf = { no: string | number | null; of: string | number | null };
