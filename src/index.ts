@@ -14,7 +14,7 @@ import {
 import { initDb } from "./db";
 import { getState, setState } from "./fsState";
 import { getCurrentProfileByIp, listDevices } from "./infra/tailscale";
-import { writeTags } from "./metadata";
+import { writeTags, writeTagsMany } from "./metadata";
 import { normalizeMany } from "./normalization";
 import { initNormalization } from "./normalization/main";
 import { init, refresh, setScanProgressListener, update } from "./scanner";
@@ -38,6 +38,7 @@ const Api = {
   removeTheme,
   getAllGenres,
   writeTags,
+  writeTagsMany,
   insertPlaylist,
   getPlaylist,
 };

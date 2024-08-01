@@ -16,6 +16,7 @@ import type {
   Tags,
   TagsFlac,
 } from "./metadata.types";
+import { getGlobalThreadPool, Message } from "./threadPool";
 
 export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
   const musicMetadata = await mm;
@@ -151,59 +152,114 @@ const getMetadataTags = async (
   return metadata;
 };
 
-const Codec: Record<Codec, Codec> = {
-  FLAC: "FLAC",
-  MP3: "MP3",
-  VORBIS: "VORBIS",
-};
-
-const getTypeOfCodec = (codec?: string): Codec | undefined => {
+const getTypeOfCodec = (codec?: string): Codec => {
   if (!codec) {
     console.error("Unknown codec type. Can not update tags.");
     throw new Error("UNKNOWN_CODEC");
   }
 
   if (codec.toLowerCase().startsWith("mpeg")) {
-    return Codec.MP3;
+    return "MP3";
   }
-
   if (codec.toLowerCase().startsWith("flac")) {
-    return Codec.FLAC;
+    return "FLAC";
+  }
+  // TODO: Check what the vorbis codec string actually is
+  if (codec.toLowerCase().startsWith("vorbis")) {
+    return "VORBIS";
   }
 
-  return undefined;
+  console.error(`Unknown codec type ${codec}. Can not update tags.`);
+  throw new Error("UNKNOWN_CODEC");
 };
 
-export const writeTags = async (musicLibraryPath: string, id: string, tags: Tags) => {
+type WriteTagsResult = {
+  isExternal: boolean;
+  id: string;
+  filename: string;
+  metadata: Metadata;
+};
+
+export const writeTags = async (
+  musicLibraryPath: string,
+  id: string,
+  tags: Partial<Tags>,
+  isWorker?: boolean,
+): Promise<WriteTagsResult> => {
   const filename = UrlSafeBase64.decode(id);
   const isExternal = isPathExternal(filename);
   const filepath = isExternal ? filename : path.join(musicLibraryPath, filename);
   const metadata = isExternal
     ? await getMetadataByFilepath(filename)
     : await getMetadata(musicLibraryPath, { id, quiet: true });
+  const codec = getTypeOfCodec(metadata.codec);
 
-  switch (getTypeOfCodec(metadata.codec)) {
-    case Codec.MP3: {
+  switch (codec) {
+    case "MP3": {
       NodeID3.update(tags, filepath);
-      await updateAudio({ isExternal, id, filename, metadata });
 
-      break;
+      if (!isWorker) {
+        await updateAudio({ isExternal, id, filename, metadata });
+      }
+
+      return { isExternal, id, filename, metadata };
     }
-    case Codec.FLAC: {
+    case "FLAC": {
       const flac = new Metaflac(filepath);
-
       Object.values(parseTagsToFlacFormat(tags)).forEach((t) => {
         const [tagName] = t.split("=");
 
         flac.removeTag(tagName);
         flac.setTag(t);
       });
-
       flac.save();
-      await updateAudio({ isExternal, id, filename, metadata });
 
-      break;
+      if (!isWorker) {
+        await updateAudio({ isExternal, id, filename, metadata });
+      }
+
+      return { isExternal, id, filename, metadata };
     }
+    case "VORBIS": {
+      throw new Error("Not implemented");
+    }
+    default:
+      codec satisfies never;
+      throw new Error(`Unsupported codec type ${codec}`);
+  }
+};
+
+type Input = {
+  musicLibraryPath: string;
+  fid: string;
+  tags: Partial<Tags>;
+};
+
+type Output = void;
+
+export type MetadataMessage = Message<Input, "musa:metadata">;
+
+const runInWorker = (data: Input) =>
+  new Promise((resolve, reject) => {
+    const id = Date.now() + Math.random();
+    const callback = (result: Output, error?: Error) =>
+      error ? reject(error) : resolve(result);
+    const channel = "musa:metadata";
+
+    getGlobalThreadPool<Input, Output>()?.execute({ id, callback, channel, data });
+  });
+
+export const writeTagsMany = async (
+  musicLibraryPath: string,
+  files: { fid: string; tags: Partial<Tags> }[],
+): Promise<void> => {
+  const results = (await Promise.all(
+    files.map(({ fid, tags }) => runInWorker({ musicLibraryPath, fid, tags })),
+  )) as WriteTagsResult[];
+
+  // The db is a file on disk so can't be updated in parallel because there's no locking
+  for (const result of results) {
+    await updateAudio(result);
   }
 };
 
@@ -221,7 +277,12 @@ const updateAudio = async ({
   if (isExternal) {
     await Db.updateExternalAudio({ id, filename, metadata, modifiedAt: new Date() });
   } else {
-    await Db.updateAudio({ id, filename, modifiedAt: new Date() });
+    await Db.updateAudio({
+      id,
+      filename,
+      existingMetadata: metadata,
+      modifiedAt: new Date(),
+    });
   }
 };
 
