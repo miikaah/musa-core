@@ -19,9 +19,27 @@ import type {
 import { getGlobalThreadPool, Message } from "./threadPool";
 
 export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
-  const musicMetadata = await mm;
+  try {
+    const musicMetadata = await mm;
 
-  return musicMetadata.parseFile(filepath);
+    return await musicMetadata.parseFile(filepath);
+  } catch (error) {
+    console.error("Error when reading music metadata", error);
+    return {
+      format: {
+        trackInfo: [],
+      },
+      native: { "ID3v2.3": [] },
+      common: {
+        track: { no: null, of: null },
+        disk: { no: null, of: null },
+        movementIndex: { no: undefined, of: undefined },
+      },
+      quality: {
+        warnings: [],
+      },
+    };
+  }
 };
 
 export const getMetadata = async (
