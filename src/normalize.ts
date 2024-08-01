@@ -2,6 +2,7 @@ import childProcess from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { calculateLoudness, initNormalization } from "./normalization/main";
+import { createThreadPool, destroyThreadPool } from "./threadPool";
 
 const [, , basepath] = process.argv;
 
@@ -12,7 +13,8 @@ const files = dir
   )
   .map((file) => path.join(basepath, file));
 
-initNormalization(
+initNormalization();
+createThreadPool(
   childProcess.fork,
   path.join(__dirname, "../lib/normalization/worker.js"),
 );
@@ -20,6 +22,7 @@ initNormalization(
 const main = async () => {
   const result = await calculateLoudness(files);
   console.log(result);
+  destroyThreadPool();
   process.exit(0);
 };
 

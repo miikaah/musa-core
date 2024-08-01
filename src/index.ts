@@ -18,6 +18,7 @@ import { writeTags } from "./metadata";
 import { normalizeMany } from "./normalization";
 import { initNormalization } from "./normalization/main";
 import { init, refresh, setScanProgressListener, update } from "./scanner";
+import { createThreadPool, destroyThreadPool, hasThreadPool } from "./threadPool";
 import UrlSafeBase64 from "./urlSafeBase64";
 
 const Api = {
@@ -67,6 +68,12 @@ const Tailscale = {
   getCurrentProfileByIp,
 };
 
+const Thread = {
+  createThreadPool,
+  destroyThreadPool,
+  hasThreadPool,
+};
+
 export type { AlbumWithFilesAndMetadata } from "./api/album.types";
 export type { Artist, ArtistWithEnrichedAlbums } from "./api/artist.types";
 export type { AudioWithMetadata } from "./api/audio.types";
@@ -99,4 +106,4 @@ export type {
   NormalizationUnit,
 } from "./normalization.types";
 export type { MediaCollectionAndFiles } from "./scanner.types";
-export { Api, Db, Fs, Normalization, Scanner, Tailscale, UrlSafeBase64 };
+export { Api, Db, Fs, Normalization, Scanner, Tailscale, Thread, UrlSafeBase64 };

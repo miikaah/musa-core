@@ -2,7 +2,7 @@ import fs from "fs/promises";
 import Metaflac from "metaflac-js";
 import NodeID3 from "node-id3";
 import path from "path";
-const musicMetadata = import("music-metadata");
+const mm = import("music-metadata");
 
 import * as Db from "./db";
 import { isPathExternal } from "./fs";
@@ -18,28 +18,9 @@ import type {
 } from "./metadata.types";
 
 export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
-  let metadata: IAudioMetadata = {
-    format: {
-      trackInfo: [],
-    },
-    native: { "ID3v2.3": [] },
-    common: {
-      track: { no: null, of: null },
-      disk: { no: null, of: null },
-      movementIndex: { no: undefined, of: undefined },
-    },
-    quality: {
-      warnings: [],
-    },
-  };
+  const musicMetadata = await mm;
 
-  try {
-    metadata = await (await musicMetadata).parseFile(filepath);
-  } catch (error) {
-    console.error("Error when reading music metadata", error);
-  }
-
-  return metadata;
+  return musicMetadata.parseFile(filepath);
 };
 
 export const getMetadata = async (
@@ -201,32 +182,28 @@ export const writeTags = async (musicLibraryPath: string, id: string, tags: Tags
     ? await getMetadataByFilepath(filename)
     : await getMetadata(musicLibraryPath, { id, quiet: true });
 
-  try {
-    switch (getTypeOfCodec(metadata.codec)) {
-      case Codec.MP3: {
-        NodeID3.update(tags, filepath);
-        await updateAudio({ isExternal, id, filename, metadata });
+  switch (getTypeOfCodec(metadata.codec)) {
+    case Codec.MP3: {
+      NodeID3.update(tags, filepath);
+      await updateAudio({ isExternal, id, filename, metadata });
 
-        break;
-      }
-      case Codec.FLAC: {
-        const flac = new Metaflac(filepath);
-
-        Object.values(parseTagsToFlacFormat(tags)).forEach((t) => {
-          const [tagName] = t.split("=");
-
-          flac.removeTag(tagName);
-          flac.setTag(t);
-        });
-
-        flac.save();
-        await updateAudio({ isExternal, id, filename, metadata });
-
-        break;
-      }
+      break;
     }
-  } catch (error) {
-    console.error("Errored during writeTags: ", error);
+    case Codec.FLAC: {
+      const flac = new Metaflac(filepath);
+
+      Object.values(parseTagsToFlacFormat(tags)).forEach((t) => {
+        const [tagName] = t.split("=");
+
+        flac.removeTag(tagName);
+        flac.setTag(t);
+      });
+
+      flac.save();
+      await updateAudio({ isExternal, id, filename, metadata });
+
+      break;
+    }
   }
 };
 
