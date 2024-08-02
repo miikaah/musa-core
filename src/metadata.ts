@@ -240,7 +240,7 @@ type Input = {
   tags: Partial<Tags>;
 };
 
-type Output = void;
+type Output = any;
 
 export type MetadataMessage = Message<Input, "musa:metadata">;
 
@@ -259,7 +259,14 @@ export const writeTagsMany = async (
   files: { fid: string; tags: Partial<Tags> }[],
 ): Promise<void> => {
   const results = (await Promise.all(
-    files.map(({ fid, tags }) => runInWorker({ musicLibraryPath, fid, tags })),
+    files.map(({ fid, tags }) => {
+      const pool = getGlobalThreadPool<Input, Output>();
+      if (pool) {
+        return runInWorker({ musicLibraryPath, fid, tags });
+      } else {
+        return writeTags(musicLibraryPath, fid, tags, false);
+      }
+    }),
   )) as WriteTagsResult[];
 
   // The db is a file on disk so can't be updated in parallel because there's no locking

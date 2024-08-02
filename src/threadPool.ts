@@ -52,6 +52,7 @@ export class ThreadPool<Input, Output> {
     this.taskQueue = [];
     this.activeTasks = new Map();
 
+    // console.log("Thread pool worker", workerScript);
     for (let i = 0; i < this.maxPoolSize; i++) {
       const worker = forkFn(this.workerScript);
       worker.on("message", this.handleMessage.bind(this, worker));
@@ -153,10 +154,10 @@ export const hasThreadPool = () => Boolean(getGlobalThreadPool());
 export const createThreadPool = (forkFn: ForkFn, workerScript: string) => {
   if (!pool) {
     const start = Date.now();
-    console.log("\nCreating Thread Pool...");
+    console.log("\nCreating thread Pool...");
     pool = new ThreadPool(os.cpus().length, workerScript, forkFn);
     console.log(
-      `Took ${((Date.now() - start) / 1000).toFixed(2)} seconds to create a new thread pool\n`,
+      `Took ${((Date.now() - start) / 1000).toFixed(2)} seconds to create thread pool\n`,
     );
   }
 };
