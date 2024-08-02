@@ -1,4 +1,3 @@
-import fs from "node:fs";
 import { type MetadataMessage, writeTags } from "./metadata";
 import { type NormalizationMessage } from "./normalization/main";
 import { normalization } from "./requireAddon";
@@ -54,19 +53,4 @@ const handleMessage = async (message: WorkerMessage) => {
 // For NodeJS child process
 process.on("message", (message: WorkerMessage) => {
   void handleMessage(message);
-});
-
-process.on("uncaughtException", (err) => {
-  console.error("Uncaught exception in worker:", err);
-  // Optionally send a message back to the parent process or log it
-  (process as any).parentPort.postMessage({ error: err.message });
-  fs.writeFileSync("C:\\Users\\Miika\\.musa\\foo.log", err.message);
-  process.exit(1); // Exit the process after handling the error
-});
-
-process.on("unhandledRejection", (reason) => {
-  console.error("Unhandled promise rejection in worker:", reason);
-  (process as any).parentPort.postMessage({ error: (reason as any)?.message || reason });
-  fs.writeFileSync("C:\\Users\\Miika\\.musa\\foo2.log", (reason as any)?.message);
-  process.exit(1);
 });
