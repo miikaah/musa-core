@@ -4,7 +4,7 @@ import { NormalizationMessage } from "./main";
 
 type WorkerMessage = NormalizationMessage | MetadataMessage;
 
-const sendResult = (output: { id: number; result: any }) => {
+const sendResult = (output: { id: number; error: Error | null; result: any }) => {
   if ((process as any).parentPort) {
     (process as any).parentPort.postMessage(output);
   } else if (process.send) {
@@ -17,9 +17,13 @@ const handleMessage = async (message: WorkerMessage) => {
     case "musa:normalization": {
       const { id, data } = message;
 
-      const result = normalization().calc_loudness(data.filepath);
+      try {
+        const result = normalization().calc_loudness(data.filepath);
+        sendResult({ id, error: null, result });
+      } catch (error) {
+        sendResult({ id, error: error as Error, result: null });
+      }
 
-      sendResult({ id, result });
       break;
     }
     case "musa:metadata": {
@@ -27,9 +31,13 @@ const handleMessage = async (message: WorkerMessage) => {
       const { musicLibraryPath, fid, tags } = data;
       const isWorker = true;
 
-      const result = await writeTags(musicLibraryPath, fid, tags, isWorker);
+      try {
+        const result = await writeTags(musicLibraryPath, fid, tags, isWorker);
+        sendResult({ id, error: null, result });
+      } catch (error) {
+        sendResult({ id, error: error as Error, result: null });
+      }
 
-      sendResult({ id, result });
       break;
     }
     default:

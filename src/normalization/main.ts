@@ -19,31 +19,6 @@ type Output = {
 
 export type NormalizationMessage = Message<Input, "musa:normalization">;
 
-const exitSignals = ["SIGINT", "SIGTERM", "SIGHUP", "SIGQUIT"];
-
-let isInit = false;
-
-export const initNormalization = () => {
-  if (isInit) {
-    console.warn("You should only call initNormalization once");
-    return;
-  }
-
-  const handleExit = (signal: string) => {
-    console.log(`Got ${signal}. Terminating...`);
-    const pool = getGlobalThreadPool();
-    if (pool) {
-      pool.killAll();
-    }
-    process.exit(0);
-  };
-
-  exitSignals.forEach((signal) => {
-    process.on(signal, () => handleExit(signal));
-  });
-  isInit = true;
-};
-
 const runInWorker = (filepath: string) =>
   new Promise((resolve, reject) => {
     const id = Date.now() + Math.random();
@@ -59,9 +34,6 @@ export const calculateLoudness = async (
   files: string[] = [],
 ): Promise<NormalizationResult> => {
   try {
-    if (!isInit) {
-      throw new Error("Call initNormalization first");
-    }
     if (!hasThreadPool()) {
       throw new Error("Call createThreadPool first");
     }

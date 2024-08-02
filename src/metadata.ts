@@ -25,20 +25,7 @@ export const readMetadata = async (filepath: string): Promise<IAudioMetadata> =>
     return await musicMetadata.parseFile(filepath);
   } catch (error) {
     console.error("Error when reading music metadata", error);
-    return {
-      format: {
-        trackInfo: [],
-      },
-      native: { "ID3v2.3": [] },
-      common: {
-        track: { no: null, of: null },
-        disk: { no: null, of: null },
-        movementIndex: { no: undefined, of: undefined },
-      },
-      quality: {
-        warnings: [],
-      },
-    };
+    throw error;
   }
 };
 
@@ -298,7 +285,6 @@ const updateAudio = async ({
     await Db.updateAudio({
       id,
       filename,
-      existingMetadata: metadata,
       modifiedAt: new Date(),
     });
   }

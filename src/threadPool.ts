@@ -172,3 +172,16 @@ export const destroyThreadPool = () => {
     );
   }
 };
+
+const exitSignals = ["SIGINT", "SIGTERM", "SIGHUP", "SIGQUIT"];
+
+exitSignals.forEach((signal) => {
+  process.on(signal, () => (signal: string) => {
+    console.log(`Got ${signal}. Terminating...`);
+    const pool = getGlobalThreadPool();
+    if (pool) {
+      pool.killAll();
+    }
+    process.exit(0);
+  });
+});

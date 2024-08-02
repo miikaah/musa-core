@@ -16,7 +16,6 @@ import { getState, setState } from "./fsState";
 import { getCurrentProfileByIp, listDevices } from "./infra/tailscale";
 import { writeTags, writeTagsMany } from "./metadata";
 import { normalizeMany } from "./normalization";
-import { initNormalization } from "./normalization/main";
 import { init, refresh, setScanProgressListener, update } from "./scanner";
 import { createThreadPool, destroyThreadPool, hasThreadPool } from "./threadPool";
 import UrlSafeBase64 from "./urlSafeBase64";
@@ -54,7 +53,6 @@ const Db = {
 
 const Normalization = {
   normalizeMany,
-  init: initNormalization,
 };
 
 const Scanner = {
