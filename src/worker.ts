@@ -13,36 +13,44 @@ const sendResult = (output: { id: number; error: Error | null; result: any }) =>
 };
 
 const handleMessage = async (message: WorkerMessage) => {
-  switch (message.channel) {
-    case "musa:normalization": {
-      const { id, data } = message;
+  try {
+    switch (message.channel) {
+      case "musa:normalization": {
+        const { id, data } = message;
 
-      try {
-        const result = normalization().calc_loudness(data.filepath);
-        sendResult({ id, error: null, result });
-      } catch (error) {
-        sendResult({ id, error: error as Error, result: null });
+        try {
+          const result = normalization().calc_loudness(data.filepath);
+          sendResult({ id, error: null, result });
+        } catch (error) {
+          sendResult({ id, error: error as Error, result: null });
+        }
+
+        break;
       }
+      case "musa:metadata": {
+        const { id, data } = message;
+        const { musicLibraryPath, fid, tags } = data;
+        const isWorker = true;
 
-      break;
-    }
-    case "musa:metadata": {
-      const { id, data } = message;
-      const { musicLibraryPath, fid, tags } = data;
-      const isWorker = true;
+        try {
+          const result = await writeTags(musicLibraryPath, fid, tags, isWorker);
+          sendResult({ id, error: null, result });
+        } catch (error) {
+          sendResult({ id, error: error as Error, result: null });
+        }
 
-      try {
-        const result = await writeTags(musicLibraryPath, fid, tags, isWorker);
-        sendResult({ id, error: null, result });
-      } catch (error) {
-        sendResult({ id, error: error as Error, result: null });
+        break;
       }
-
-      break;
+      default:
+        message satisfies never;
+        throw new Error(
+          `Unsupported message ${typeof message === "object" ? JSON.stringify(message) : message}`,
+        );
     }
-    default:
-      message satisfies never;
-      throw new Error(`Unsupported message ${message}`);
+  } catch (error) {
+    const { id } = message;
+    console.error("Failed to handle worker message", (error as Error)?.message);
+    sendResult({ id, error: error as Error, result: null });
   }
 };
 
@@ -53,4 +61,14 @@ const handleMessage = async (message: WorkerMessage) => {
 // For NodeJS child process
 process.on("message", (message: WorkerMessage) => {
   void handleMessage(message);
+});
+
+process.on("uncaughtException", (err) => {
+  console.error("Uncaught exception in worker:", err.message);
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (err: Error) => {
+  console.error("Unhandled promise rejection in worker:", err.message);
+  process.exit(1);
 });

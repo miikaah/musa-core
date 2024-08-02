@@ -90,18 +90,19 @@ export class ThreadPool<Input, Output> {
 
   execute(input: Task<Input, Output, WorkerChannel>) {
     const { id, data, channel, callback } = input;
-    const worker = this.getAvailableWorker();
+    const message: Message<any, any> = { id, data, channel };
 
+    const worker = this.getAvailableWorker();
     if (worker) {
       this.activeTasks.set(id, { callback, worker });
 
       if (typeof worker.send === "function") {
-        worker.send({ id, data, channel });
+        worker.send(message);
       } else {
-        worker.postMessage({ id, data, channel });
+        worker.postMessage(message);
       }
     } else {
-      this.taskQueue.push({ id, data, channel, callback });
+      this.taskQueue.push(input);
     }
   }
 
@@ -119,14 +120,16 @@ export class ThreadPool<Input, Output> {
       if (!id || !data || !channel || !callback) {
         return;
       }
+      const message: Message<any, any> = { id, data, channel };
 
       const worker = this.getAvailableWorker();
       if (worker) {
         this.activeTasks.set(id, { callback, worker });
+
         if (typeof worker.send === "function") {
-          worker.send({ id, data });
+          worker.send(message);
         } else {
-          worker.postMessage({ id, data });
+          worker.postMessage(message);
         }
       } else {
         this.taskQueue.unshift({ id, data, channel, callback });
