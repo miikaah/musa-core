@@ -145,7 +145,9 @@ export const updateAudio = async (file: {
   const { id, filename, modifiedAt } = file;
   const metadata = await getMetadata(libPath, { id, quiet: true });
 
-  console.log(`Updating audio ${filename} because it was modified at ${modifiedAt}`);
+  console.log(
+    `Updating audio ${filename} because it was modified at ${modifiedAt.toISOString()}`,
+  );
   await audioDb.updateAsync(
     { path_id: id },
     {
@@ -167,7 +169,7 @@ export const updateExternalAudio = async (file: {
   const { id, filename, modifiedAt, metadata } = file;
 
   console.log(
-    `Updating external audio ${filename} because it was modified at ${modifiedAt}`,
+    `Updating external audio ${filename} because it was modified at ${modifiedAt.toISOString()}`,
   );
   await externalAudioDb.updateAsync(
     { path_id: id },
