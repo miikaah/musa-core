@@ -1,5 +1,5 @@
 import fs from "fs/promises";
-import Metaflac from "metaflac-js";
+import Metaflac from "metaflac-js2";
 import type { IAudioMetadata } from "music-metadata";
 import NodeID3 from "node-id3";
 import path from "path";
@@ -48,7 +48,11 @@ const getMetadataTags = async (
   quiet = false,
 ): Promise<Metadata> => {
   const { format, native, common } = tags;
-  const id3v2x = native["ID3v2.4"] || native["ID3v2.3"] || native["ID3v1"] || [];
+  const id3v2x = [
+    ...(native["ID3v2.4"] || []),
+    ...(native["ID3v2.3"] || []),
+    ...(native["ID3v1"] || []),
+  ];
   const { vorbis = [] } = native;
 
   let dynamicRangeTags = {};
@@ -61,7 +65,9 @@ const getMetadataTags = async (
         id3v2x.find((tag) => tag.id === "TXXX:ALBUM DYNAMIC RANGE") || {}
       ).value,
     };
-  } else if (vorbis.length) {
+  }
+
+  if (vorbis.length) {
     // flac, ogg
     dynamicRangeTags = {
       dynamicRange: (vorbis.find((tag) => tag.id === "DYNAMIC RANGE") || {}).value,
@@ -91,6 +97,7 @@ const getMetadataTags = async (
     title,
     artists,
     artist,
+    encodedby,
     encodersettings: encoderSettings,
     genre,
     composer,
@@ -145,7 +152,7 @@ const getMetadataTags = async (
     codecProfile,
     lossless,
     numberOfChannels,
-    tool,
+    tool: tool || encodedby,
     sampleRate,
     tagTypes,
     ...dynamicRangeTags,

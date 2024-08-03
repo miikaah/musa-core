@@ -1,1 +1,1 @@
-declare module "metaflac-js";
+declare module "metaflac-js2";
