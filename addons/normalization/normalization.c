@@ -176,6 +176,7 @@ struct calc_loudness_result calc_loudness(const char* filepath,
 
   // Set initial values for result
   struct calc_loudness_result result;
+  result.filepath = filepath;
   result.error = no_error;
   result.target_level_db = target_loudness;
   result.gain_db = 0;
@@ -268,7 +269,6 @@ struct calc_loudness_result calc_loudness(const char* filepath,
   }
 
   // Set result
-  result.filepath = filepath;
   result.gain_db = target_loudness - loudness;
   result.sample_peak = max_element(peaks, num_channels);
   result.sample_peak_db = 10.0 * log10(result.sample_peak);

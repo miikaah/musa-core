@@ -12,7 +12,7 @@ import type {
   Tags,
   TagsFlac,
 } from "./metadata.types";
-import { getGlobalThreadPool, Message } from "./threadPool";
+import { getGlobalThreadPool, hasThreadPool, Message } from "./threadPool";
 import UrlSafeBase64 from "./urlSafeBase64";
 
 export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
@@ -262,15 +262,11 @@ export const writeTagsMany = async (
   musicLibraryPath: string,
   files: { fid: string; tags: Partial<Tags> }[],
 ): Promise<void> => {
+  if (!hasThreadPool()) {
+    throw new Error("Call createThreadPool first");
+  }
   const results = (await Promise.all(
-    files.map(({ fid, tags }) => {
-      const pool = getGlobalThreadPool<Input, Output>();
-      if (pool) {
-        return runInWorker({ musicLibraryPath, fid, tags });
-      } else {
-        return writeTags(musicLibraryPath, fid, tags, false);
-      }
-    }),
+    files.map(({ fid, tags }) => runInWorker({ musicLibraryPath, fid, tags })),
   )) as WriteTagsResult[];
 
   // The db is a file on disk so can't be updated in parallel because there's no locking
