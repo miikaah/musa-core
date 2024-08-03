@@ -13,6 +13,7 @@ export type NormalizationError = {
 export type NormalizationResult = {
   albumGainDb?: number;
   albumDynamicRangeDb?: number;
+  albumSamplePeak?: number;
   files: {
     error?: NormalizationError;
     filepath: string;

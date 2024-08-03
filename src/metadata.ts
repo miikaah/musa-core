@@ -1,14 +1,10 @@
 import fs from "fs/promises";
 import Metaflac from "metaflac-js";
+import type { IAudioMetadata } from "music-metadata";
 import NodeID3 from "node-id3";
 import path from "path";
-const mm = import("music-metadata");
-
 import * as Db from "./db";
 import { isPathExternal } from "./fs";
-import UrlSafeBase64 from "./urlSafeBase64";
-
-import type { IAudioMetadata } from "music-metadata";
 import type {
   Codec,
   GetMetadataParams,
@@ -17,10 +13,11 @@ import type {
   TagsFlac,
 } from "./metadata.types";
 import { getGlobalThreadPool, Message } from "./threadPool";
+import UrlSafeBase64 from "./urlSafeBase64";
 
 export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
   try {
-    const musicMetadata = await mm;
+    const musicMetadata = await import("music-metadata");
 
     return await musicMetadata.parseFile(filepath);
   } catch (error) {
@@ -201,6 +198,7 @@ export const writeTags = async (
 
   switch (codec) {
     case "MP3": {
+      // @ts-expect-error the node-id3 package userDefinedText type is wrong
       NodeID3.update(tags, filepath);
 
       if (!isWorker) {
@@ -212,8 +210,7 @@ export const writeTags = async (
     case "FLAC": {
       const flac = new Metaflac(filepath);
       Object.values(parseTagsToFlacFormat(tags)).forEach((t) => {
-        const [tagName] = t.split("=");
-
+        const [tagName] = (t ?? "").split("=");
         flac.removeTag(tagName);
         flac.setTag(t);
       });
@@ -298,49 +295,54 @@ const updateAudio = async ({
 };
 
 const parseTagsToFlacFormat = (tags: Partial<Tags>) => {
-  const newTags: Partial<TagsFlac> = {};
+  const flacTags: Partial<TagsFlac> = {};
 
   if (tags.artist) {
-    newTags.artist = `ARTIST=${tags.artist}`;
+    flacTags.artist = `ARTIST=${tags.artist}`;
   }
   if (tags.title) {
-    newTags.title = `TITLE=${tags.title}`;
+    flacTags.title = `TITLE=${tags.title}`;
   }
   if (tags.album) {
-    newTags.album = `ALBUM=${tags.album}`;
+    flacTags.album = `ALBUM=${tags.album}`;
   }
   if (tags.year) {
-    newTags.year = `DATE=${tags.year}`;
+    flacTags.year = `DATE=${tags.year}`;
   }
   if (tags.trackNumber) {
     if (tags.trackNumber.includes("/")) {
       const [track, total] = tags.trackNumber.split("/");
 
-      newTags.trackNumber = `TRACKNUMBER=${track}`;
-      newTags.trackTotal = `TRACKTOTAL=${total}`;
+      flacTags.trackNumber = `TRACKNUMBER=${track}`;
+      flacTags.trackTotal = `TRACKTOTAL=${total}`;
     } else {
-      newTags.trackNumber = `TRACKNUMBER=${tags.trackNumber}`;
+      flacTags.trackNumber = `TRACKNUMBER=${tags.trackNumber}`;
     }
   }
   if (tags.partOfSet) {
     if (tags.partOfSet.includes("/")) {
       const [disk, total] = tags.partOfSet.split("/");
 
-      newTags.diskNumber = `DISCNUMBER=${disk}`;
-      newTags.diskTotal = `DISCTOTAL=${total}`;
+      flacTags.diskNumber = `DISCNUMBER=${disk}`;
+      flacTags.diskTotal = `DISCTOTAL=${total}`;
     } else {
-      newTags.diskNumber = `DISCNUMBER=${tags.partOfSet}`;
+      flacTags.diskNumber = `DISCNUMBER=${tags.partOfSet}`;
     }
   }
   if (tags.genre) {
-    newTags.genre = `GENRE=${tags.genre}`;
+    flacTags.genre = `GENRE=${tags.genre}`;
   }
   if (tags.composer) {
-    newTags.composer = `COMPOSER=${tags.composer}`;
+    flacTags.composer = `COMPOSER=${tags.composer}`;
   }
   if (tags.comment) {
-    newTags.comment = `COMMENT=${tags.comment.text}`;
+    flacTags.comment = `COMMENT=${tags.comment.text}`;
+  }
+  if (Array.isArray(tags.userDefinedText) && tags.userDefinedText.length > 0) {
+    for (const tag of tags.userDefinedText) {
+      flacTags[tag.description] = `${tag.description}=${tag.value}`;
+    }
   }
 
-  return newTags;
+  return flacTags;
 };

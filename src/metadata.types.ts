@@ -89,6 +89,10 @@ export type Tags = {
     language: string;
     text: string;
   };
+  userDefinedText: {
+    description: string;
+    value: string;
+  }[];
 };
 
 export type TagsFlac = {
@@ -103,4 +107,5 @@ export type TagsFlac = {
   genre: string;
   composer: string;
   comment: string;
+  [x: string]: string;
 };

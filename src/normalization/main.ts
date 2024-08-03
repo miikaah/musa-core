@@ -58,12 +58,15 @@ export const calculateLoudness = async (
     return {
       albumGainDb: Number(albumGain.toFixed(2)),
       albumDynamicRangeDb: Number(albumDynamicRangeDb.toFixed(2)),
+      albumSamplePeak: Number(
+        Math.max(...results.map((result) => result.sample_peak)).toFixed(6),
+      ),
       files: results.map((result) => ({
         error: result.error,
         filepath: result.filepath,
         targetLevelDb: Number(result.target_level_db.toFixed(2)),
         gainDb: Number(result.gain_db.toFixed(2)),
-        samplePeak: Number(result.sample_peak.toFixed(5)),
+        samplePeak: Number(result.sample_peak.toFixed(6)),
         samplePeakDb: Number(result.sample_peak_db.toFixed(2)),
         dynamicRangeDb: Math.round(Math.abs(Number(result.dynamic_range_db.toFixed(2)))),
       })),
