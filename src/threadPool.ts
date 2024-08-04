@@ -74,8 +74,8 @@ export class ThreadPool<Input, Output> {
   }
 
   handleExit(worker: ChildLikeProcess, forkFn: ForkFn) {
+    // console.log(`Worker ${worker.pid} exited`);
     if (this.isExiting) {
-      console.log(`Worker ${worker.pid} exited`);
       return;
     }
     const index = this.pool.indexOf(worker);
