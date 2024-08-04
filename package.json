@@ -6,8 +6,8 @@
   "types": "lib/index.d.ts",
   "scripts": {
     "dev": "nodemon --watch ./src --ext ts --exec npm run build:w",
-    "build": "shx rm -rf lib && node scripts/esbuild.mjs && npm run build:clean && npm run copy:binaries && tsc --emitDeclarationOnly --project tsconfig.build.json",
-    "build:w": "node scripts/esbuild.mjs && npm run build:clean && npm run copy:binaries && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental || exit 1",
+    "build": "shx rm -rf lib && node scripts/esbuild.mjs && npm run worker:build && npm run build:clean && npm run copy:binaries && tsc --emitDeclarationOnly --project tsconfig.build.json",
+    "build:w": "node scripts/esbuild.mjs && npm run worker:build && npm run build:clean && npm run copy:binaries && tsc --emitDeclarationOnly --project tsconfig.build.json --incremental || exit 1",
     "build:clean": "node scripts/cleanBuild.mjs",
     "copy:binaries": "node scripts/copyBinaries.mjs",
     "gyp:build": "node-gyp --jobs max --directory=./addons/normalization rebuild && npm run gyp:post && npm run copy:binaries",
@@ -16,7 +16,8 @@
     "tsc:w": "tsc --watch --noEmit",
     "test": "vitest run --coverage",
     "test:w": "vitest",
-    "test:addon": "node lib/normalize.js"
+    "test:addon": "node lib/normalize.js",
+    "worker:build": "node scripts/esbuild-worker.mjs"
   },
   "author": "Miika Henttonen",
   "license": "MIT",
