@@ -27,7 +27,12 @@ const main = async () => {
 
   if (bin) {
     // Copy the platform specific node C addon binary to git
-    await fs.cp(path.join(buildpath, bin), path.join(dest, bin));
+    try {
+      await fs.cp(path.join(buildpath, bin), path.join(dest, bin));
+    } catch {
+      // Sometimes on MacOS the unlinke part of cp fails so try once again
+      await fs.cp(path.join(buildpath, bin), path.join(dest, bin));
+    }
   }
 
   // Copy the external library binary files for build
@@ -40,4 +45,4 @@ const main = async () => {
   }
 };
 
-main();
+void main();

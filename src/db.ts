@@ -1,7 +1,7 @@
 import Datastore from "@seald-io/nedb";
 import fs from "fs/promises";
 import path from "path";
-import { musadir } from "./config";
+import config from "./config";
 import {
   AlbumUpsertOptions,
   Colors,
@@ -38,12 +38,12 @@ export const initDb = async (libraryPath: string) => {
   libPath = libraryPath;
 
   try {
-    await fs.access(musadir, fs.constants.F_OK);
+    await fs.access(config.musadir, fs.constants.F_OK);
   } catch (e: any) {
     if (e.code === "ENOENT") {
       try {
         console.log("Musadir does not exist. Attempting to create it.");
-        await fs.mkdir(musadir);
+        await fs.mkdir(config.musadir);
       } catch (e) {
         console.error("Failed to create musadir", e);
       }
@@ -52,7 +52,7 @@ export const initDb = async (libraryPath: string) => {
     }
   }
 
-  const dbDir = NODE_ENV === "test" ? libraryPath : musadir;
+  const dbDir = NODE_ENV === "test" ? libraryPath : config.musadir;
 
   const audioDbFile = `${isDev ? devTagToPrepend : ""}.musa.audio.v2.db`;
   audioDb = new Datastore<DbAudio>({

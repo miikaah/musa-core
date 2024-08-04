@@ -18,7 +18,7 @@ addons/normalization/build/Release/normalization-v1.0.0-darwin-arm64.node
 
   exec(changeLoadCommandPath, (error, stdout, stderr) => {
     if (error) {
-      console.error(`Postbuild error: ${error}`);
+      console.error(`Postbuild error: ${error.message}`);
       return;
     }
     if (stdout) {

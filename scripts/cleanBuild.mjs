@@ -29,7 +29,15 @@ const recursivelyBuildFileList = async (filepath, srcPath) => {
 const main = async (srcPath) => {
   const files = await recursivelyBuildFileList(srcPath, srcPath);
 
-  files.map((filename) => path.join("lib", filename)).forEach(fs.unlink);
+  files
+    .map((filename) => path.join("lib", filename))
+    .forEach(async (filepath) => {
+      try {
+        await fs.unlink(filepath);
+      } catch {
+        //
+      }
+    });
 };
 
-main("lib");
+void main("lib");

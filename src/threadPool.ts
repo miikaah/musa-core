@@ -74,8 +74,8 @@ export class ThreadPool<Input, Output> {
   }
 
   handleExit(worker: ChildLikeProcess, forkFn: ForkFn) {
-    // console.log(`Worker ${worker.pid} exited`);
     if (this.isExiting) {
+      console.log(`Worker ${worker.pid} exited`);
       return;
     }
     const index = this.pool.indexOf(worker);
@@ -143,14 +143,16 @@ export class ThreadPool<Input, Output> {
     }
     console.log("Killing all child processes");
     this.isExiting = true;
-    this.pool.forEach((worker) => worker.kill("SIGINT"));
+    this.pool.forEach((worker) => worker.kill("SIGTERM"));
   }
 }
 
-let pool: ThreadPool<any, any>;
+let pool: ThreadPool<any, any> | null;
 
-export const getGlobalThreadPool = <T, U = unknown>(): ThreadPool<T, U> | undefined =>
-  pool;
+export const getGlobalThreadPool = <T, U = unknown>():
+  | ThreadPool<T, U>
+  | undefined
+  | null => pool;
 
 export const hasThreadPool = () => Boolean(getGlobalThreadPool());
 
@@ -170,7 +172,7 @@ export const destroyThreadPool = () => {
     const start = Date.now();
     console.log("\nDestroying Thread Pool...");
     pool.killAll();
-    pool = null as any;
+    pool = null;
     console.log(
       `Took ${((Date.now() - start) / 1000).toFixed(2)} seconds to destroy thread pool\n`,
     );
@@ -180,7 +182,7 @@ export const destroyThreadPool = () => {
 const exitSignals = ["SIGINT", "SIGTERM", "SIGHUP", "SIGQUIT"];
 
 exitSignals.forEach((signal) => {
-  process.on(signal, () => (signal: string) => {
+  process.on(signal, (signal: string) => {
     console.log(`Got ${signal}. Terminating...`);
     const pool = getGlobalThreadPool();
     if (pool) {

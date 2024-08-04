@@ -1,20 +1,23 @@
 import fs from "fs/promises";
 import path from "path";
-import { musadir } from "./config";
+import config from "./config";
 import { State } from "./fsState.types";
 
 export const setState = async (
   stateFile: string,
   state: Partial<State>,
 ): Promise<void> => {
-  return fs.writeFile(path.join(musadir, stateFile), JSON.stringify(state, null, 2));
+  return fs.writeFile(
+    path.join(config.musadir, stateFile),
+    JSON.stringify(state, null, 2),
+  );
 };
 
 export const getState = async (
   stateFile: string,
 ): Promise<Partial<State> | undefined> => {
   const file = await fs
-    .readFile(path.join(musadir, stateFile), { encoding: "utf-8" })
+    .readFile(path.join(config.musadir, stateFile), { encoding: "utf-8" })
     .catch((err) => {
       console.error("State file doesn't exist", err);
       return "{}";

@@ -35,7 +35,7 @@ const exec = async () => {
   const cleanFiles = filesArr.filter(outExcluded);
   const entryPoints = cleanFiles.map((f) => path.join(f.filepath, f.file.name));
 
-  build({
+  await build({
     entryPoints,
     outdir: "lib",
     platform: "node",
@@ -48,4 +48,4 @@ const exec = async () => {
   });
 };
 
-exec();
+void exec();

@@ -1,4 +1,8 @@
 import os from "os";
 import path from "path";
 
-export const musadir = path.join(os.homedir(), ".musa");
+export default {
+  musadir: path.join(os.homedir(), ".musa"),
+  platform: process.platform,
+  isDarwin: process.platform === "darwin",
+};
