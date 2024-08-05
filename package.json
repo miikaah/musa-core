@@ -17,7 +17,7 @@
     "test": "vitest run --coverage",
     "test:w": "vitest",
     "test:addon": "node lib/normalize.js",
-    "worker:build": "node scripts/esbuild-worker.mjs"
+    "worker:build": "node scripts/esbuildWorker.mjs"
   },
   "author": "Miika Henttonen",
   "license": "MIT",
