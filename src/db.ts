@@ -494,7 +494,18 @@ export const enrichAlbumFiles = async (
     }),
   );
 
-  mergedFiles.sort((a, b) => a.track.localeCompare(b.track));
+  mergedFiles.sort((a, b) => {
+    const [diskA, trackA] = a.track.split(".").map(Number);
+    const [diskB, trackB] = b.track.split(".").map(Number);
+
+    if (diskA !== diskB) {
+      // Sort by disk number first
+      return diskA - diskB;
+    } else {
+      // Sort by track number if disk numbers are the same
+      return trackA - trackB;
+    }
+  });
 
   return mergedFiles;
 };
