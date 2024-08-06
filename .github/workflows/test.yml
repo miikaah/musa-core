@@ -21,6 +21,8 @@ jobs:
           node-version: 22.4.1
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
+        env:
+          MUSA_GITHUB_PAT: ${{ secrets.MUSA_GITHUB_PAT }}
       - run: node_modules/.bin/tsc --noEmit
       - run: npm run test
       - run: npm run build
