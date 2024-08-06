@@ -9,6 +9,7 @@ export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   eslintConfigPrettier,
+  // @ts-expect-error Prettier is behind the times
   eslintPluginPrettierRecommended,
   {
     ignores: ["lib/**/*"],
