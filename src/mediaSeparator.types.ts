@@ -14,11 +14,14 @@ export type File = {
   id: string;
   name: string;
   url: string;
-  fileUrl?: string;
+  fileUrl: string;
 };
 
-export type AlbumFile = File & {
-  coverUrl?: string;
+export type AlbumFile = {
+  id: string;
+  name: string;
+  url: string;
+  coverUrl: string;
   // Used for artist metadata creation
   firstAlbumAudio?: {
     id: string;
@@ -44,7 +47,7 @@ export type AlbumWithFiles = {
   name: string;
   files: File[];
   images: File[];
-  coverUrl?: string;
+  coverUrl: string;
 };
 
 export type FileCollection = {

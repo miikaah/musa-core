@@ -45,7 +45,7 @@ export const createMediaCollection = ({
 
   const albumSet = new Set();
 
-  for (const file of files) {
+  for (const file of files.slice(0, 100)) {
     const [artistName, ...rest] = file.split(sep);
     const artistId = UrlSafeBase64.encode(artistName);
     const fileId = UrlSafeBase64.encode(file);
@@ -111,6 +111,7 @@ export const createMediaCollection = ({
           artistUrl,
           files: [],
           images: [],
+          coverUrl: "",
         };
       }
 
@@ -120,6 +121,7 @@ export const createMediaCollection = ({
           id: albumId,
           name: albumName,
           url: albumUrl,
+          coverUrl: "",
         });
       }
 
@@ -132,6 +134,7 @@ export const createMediaCollection = ({
         albumName,
         albumUrl,
         url,
+        fileUrl: "",
       };
 
       if (isImage(fileName)) {
