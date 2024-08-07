@@ -1,6 +1,6 @@
-import { getAlbumById } from "./api/album";
+import { findAlbumById } from "./api/album";
 import { getArtistAlbums, getArtistById, getArtists } from "./api/artist";
-import { getAudioById, getAudiosByFilepaths, getAudiosByPlaylistId } from "./api/audio";
+import { findAudioById, getAudiosByFilepaths, getAudiosByPlaylistId } from "./api/audio";
 import { find, findRandom } from "./api/find";
 import { getAllGenres } from "./api/genre";
 import { getPlaylist, insertPlaylist } from "./api/playlist";
@@ -21,11 +21,11 @@ import { createThreadPool, destroyThreadPool, hasThreadPool } from "./threadPool
 import UrlSafeBase64 from "./urlSafeBase64";
 
 const Api = {
-  getAlbumById,
+  getAlbumById: findAlbumById,
   getArtists,
   getArtistById,
   getArtistAlbums,
-  getAudioById,
+  getAudioById: findAudioById,
   getAudiosByFilepaths,
   getAudiosByPlaylistId,
   find,

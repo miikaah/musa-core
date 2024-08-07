@@ -6,7 +6,7 @@ import {
 } from "../../fixtures/audio.fixture";
 import { getAudio } from "../db";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
-import { getAudioById } from "./audio";
+import { findAudioById } from "./audio";
 
 vi.mock("../db");
 
@@ -20,30 +20,30 @@ describe("Audio API tests", () => {
     vi.mocked(getAudio).mockResolvedValue(audioDbFixture);
   });
 
-  describe("getAudioById()", () => {
+  describe("findAudioById", () => {
     const id = Object.keys(audioCollectionFixture)[0];
 
-    it("should return audio", async () => {
-      const audio = await getAudioById({ id });
+    it("returns audio", async () => {
+      const audio = await findAudioById({ id });
 
       expect(audio).toEqual(audioFixture);
       expect(getAudio).toHaveBeenCalledTimes(1);
       expect(getAudio).toHaveBeenCalledWith(id);
     });
 
-    it("should return empty object if audio does not exist", async () => {
-      const audio = await getAudioById({ id: "foo" });
+    it("returns undefined if audio not found", async () => {
+      const audio = await findAudioById({ id: "foo" });
 
-      expect(audio).toEqual({});
+      expect(audio).toBe(undefined);
       expect(getAudio).toHaveBeenCalledTimes(0);
     });
 
-    it("should throw if getAudio throws", async () => {
+    it("throws if getAudio throws", async () => {
       vi.mocked(getAudio).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
-      await expect(getAudioById({ id })).rejects.toThrow("err");
+      await expect(findAudioById({ id })).rejects.toThrow("err");
       expect(getAudio).toHaveBeenCalledTimes(1);
     });
   });

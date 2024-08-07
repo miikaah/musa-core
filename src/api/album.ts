@@ -1,15 +1,14 @@
 import { enrichAlbumFiles, getAlbum } from "../db";
 import { findAlbumInCollectionById } from "../mediaCollection";
-
 import { AlbumWithFilesAndMetadata } from "./album.types";
 
-export const getAlbumById = async (
-  id: string,
-): Promise<AlbumWithFilesAndMetadata | Record<string, never>> => {
+export const findAlbumById = async (
+  id = "",
+): Promise<AlbumWithFilesAndMetadata | undefined> => {
   const album = findAlbumInCollectionById(id);
 
   if (!album) {
-    return {};
+    return;
   }
 
   const dbAlbum = await getAlbum(id);

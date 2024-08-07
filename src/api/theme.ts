@@ -1,5 +1,4 @@
 import * as Db from "../db";
-
 import { Colors, DbTheme } from "../db.types";
 import { Theme } from "./theme.types";
 

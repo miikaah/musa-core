@@ -59,8 +59,8 @@ export type FileCollection = {
 };
 
 export type FileWithInfo = File & {
-  artistName: string;
-  artistUrl: string;
+  artistName?: string;
+  artistUrl?: string;
   albumId?: string;
   albumName?: string;
   albumUrl?: string;

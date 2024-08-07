@@ -6,5 +6,3 @@ export type AudioWithMetadata = FileWithInfo & {
   coverUrl?: string;
   metadata: Metadata;
 };
-
-export type AudioReturnType = AudioWithMetadata | Record<string, never>;

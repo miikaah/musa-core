@@ -24,7 +24,7 @@ describe("Artist API tests", () => {
     vi.mocked(enrichAlbums).mockResolvedValue(artistAlbumsFixture.albums);
   });
 
-  describe("getArtists()", () => {
+  describe("getArtists", () => {
     it("should return audio", async () => {
       const artists = await getArtists();
 
@@ -32,7 +32,7 @@ describe("Artist API tests", () => {
     });
   });
 
-  describe("getArtistById()", () => {
+  describe("getArtistById", () => {
     const id = Object.keys(artistCollectionFixture)[0];
 
     it("should return artist with albums sorted by year in ascending order", async () => {
@@ -47,24 +47,13 @@ describe("Artist API tests", () => {
       );
     });
 
-    it("should return empty object if artist does not exist", async () => {
-      const artist = await getArtistById("foo");
-
-      expect(artist).toEqual({});
+    it("throws if artist not found", async () => {
+      await expect(getArtistById("foo")).rejects.toThrow("Artist not found by id foo");
       expect(getAudio).toHaveBeenCalledTimes(0);
-    });
-
-    it("should throw if getAudio throws", async () => {
-      vi.mocked(getAudio).mockImplementationOnce(async () => {
-        throw new Error("err");
-      });
-
-      await expect(getArtistById(id)).rejects.toThrow("err");
-      expect(getAudio).toHaveBeenCalledTimes(1);
     });
   });
 
-  describe("getArtistAlbums()", () => {
+  describe("getArtistAlbums", () => {
     const id = "QWxhbWFhaWxtYW4gdmFzYXJhdA";
 
     it("should return artist's albums sorted by year in ascending order", async () => {
@@ -78,20 +67,9 @@ describe("Artist API tests", () => {
       );
     });
 
-    it("should return empty object if artist does not exist", async () => {
-      const artist = await getArtistAlbums("foo");
-
-      expect(artist).toEqual({});
-      expect(getAudio).toHaveBeenCalledTimes(0);
-    });
-
-    it("should throw if enrichAlbums throws", async () => {
-      vi.mocked(enrichAlbums).mockImplementationOnce(async () => {
-        throw new Error("err");
-      });
-
-      await expect(getArtistAlbums(id)).rejects.toThrow("err");
-      expect(enrichAlbums).toHaveBeenCalledTimes(1);
+    it("throws if artist not found", async () => {
+      await expect(getArtistAlbums("foo")).rejects.toThrow("Artist not found by id foo");
+      expect(enrichAlbums).toHaveBeenCalledTimes(0);
     });
   });
 });

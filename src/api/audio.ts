@@ -1,34 +1,32 @@
 import fs from "fs/promises";
 import path, { sep } from "path";
-
 import * as Db from "../db";
+import { DbAudio } from "../db.types";
 import { audioExts, isDir, traverseFileSystem } from "../fs";
 import { findAlbumInCollectionById, findAudioInCollectionById } from "../mediaCollection";
 import { getElectronUrl } from "../mediaSeparator";
 import { getMetadataByFilepath } from "../metadata";
 import UrlSafeBase64 from "../urlSafeBase64";
+import { AudioWithMetadata } from "./audio.types";
 
-import { DbAudio } from "../db.types";
-import { AudioReturnType } from "./audio.types";
-
-export const getAudioById = async ({
+export const findAudioById = async ({
   id,
   existingDbAudio,
 }: {
   id: string;
   existingDbAudio?: DbAudio;
-}): Promise<AudioReturnType> => {
-  return toApiAudioResponse(id, existingDbAudio);
+}): Promise<AudioWithMetadata | undefined> => {
+  return toAudioApiResponse(id, existingDbAudio);
 };
 
-const toApiAudioResponse = async (
+const toAudioApiResponse = async (
   id: string,
   existingDbAudio?: DbAudio,
-): Promise<AudioReturnType> => {
+): Promise<AudioWithMetadata | undefined> => {
   const audio = findAudioInCollectionById(id);
 
   if (!audio) {
-    return {};
+    return;
   }
 
   const album = findAlbumInCollectionById(audio.albumId);
@@ -52,7 +50,7 @@ export const getAudiosByPlaylistId = async ({
   playlistId,
 }: {
   playlistId: string;
-}): Promise<(AudioReturnType | undefined)[]> => {
+}): Promise<AudioWithMetadata[]> => {
   const playlist = await Db.getPlaylist(playlistId);
 
   if (!playlist) {
@@ -63,12 +61,12 @@ export const getAudiosByPlaylistId = async ({
   const audios = await Db.getAudiosByIds(pathIds);
 
   const mappedAudios = await Promise.all(
-    audios.map((audio: DbAudio) => toApiAudioResponse(audio.path_id, audio)),
+    audios.map((audio: DbAudio) => toAudioApiResponse(audio.path_id, audio)),
   );
 
-  const sortedAudios = playlist.path_ids.map((id) =>
-    mappedAudios.find(({ id: aid }) => aid === id),
-  );
+  const sortedAudios = playlist.path_ids
+    .map((id) => mappedAudios.find((audio) => audio?.id === id))
+    .filter((audio) => !!audio);
 
   return sortedAudios;
 };
@@ -77,19 +75,21 @@ export const getAudiosByFilepaths = async (
   paths: string[],
   libPath: string,
   electronFileProtocol: string,
-): Promise<AudioReturnType[]> => {
+): Promise<AudioWithMetadata[]> => {
   const audios = await Promise.all(
     paths.map((filepath) => handleDirOrFile(filepath, libPath, electronFileProtocol)),
   );
 
-  return (audios.flat(Infinity) as AudioReturnType[]).filter(hasKeys);
+  return (audios.flat(Infinity) as (AudioWithMetadata | undefined)[])
+    .filter((audio) => !!audio)
+    .filter((audio) => hasKeys(audio));
 };
 
 const handleDirOrFile = async (
   filepath: string,
   libPath: string,
   electronFileProtocol: string,
-) => {
+): Promise<(AudioWithMetadata | undefined)[]> => {
   const isExternal = !filepath.startsWith(libPath);
 
   if (isExternal) {
@@ -98,11 +98,13 @@ const handleDirOrFile = async (
       const filesWithFullPath = files.map((file) => path.join(filepath, file));
 
       return Promise.all(
-        filesWithFullPath.map((file) => getAudioMetadata(file, electronFileProtocol)),
+        filesWithFullPath
+          .filter((filepath) => audioExts.some((e) => filepath.toLowerCase().endsWith(e)))
+          .map((file) => getAudioMetadata(file, electronFileProtocol)),
       );
     }
 
-    return getAudioMetadata(filepath, electronFileProtocol);
+    return [await getAudioMetadata(filepath, electronFileProtocol)];
   }
 
   if (isDir(filepath)) {
@@ -110,17 +112,19 @@ const handleDirOrFile = async (
     const filesWithFullPath = files.map((file) => path.join(filepath, file));
 
     return Promise.all(
-      filesWithFullPath.map((file) => getAudioByFilepath(file, libPath)),
+      filesWithFullPath
+        .filter((filepath) => audioExts.some((e) => filepath.toLowerCase().endsWith(e)))
+        .map((file) => findAudioByFilepath(file, libPath)),
     );
   }
 
-  return getAudioByFilepath(filepath, libPath);
+  return [await findAudioByFilepath(filepath, libPath)];
 };
 
-const getAudioMetadata = async (filepath: string, electronFileProtocol: string) => {
-  if (!audioExts.some((e) => filepath.toLowerCase().endsWith(e))) {
-    return {};
-  }
+const getAudioMetadata = async (
+  filepath: string,
+  electronFileProtocol: string,
+): Promise<AudioWithMetadata> => {
   const id = UrlSafeBase64.encode(filepath);
   const dbAudio = await Db.getExternalAudio(id);
   const filenameParts = filepath.split(sep);
@@ -133,9 +137,10 @@ const getAudioMetadata = async (filepath: string, electronFileProtocol: string) 
       return {
         id,
         name: dbAudio?.metadata?.title || filename,
-        track: dbAudio?.metadata?.track?.no,
+        track: String(dbAudio?.metadata?.track?.no ?? ""),
+        url: "",
         fileUrl: getElectronUrl(electronFileProtocol, filepath),
-        coverUrl: null,
+        coverUrl: "",
         metadata: dbAudio?.metadata,
       };
     }
@@ -159,22 +164,23 @@ const getAudioMetadata = async (filepath: string, electronFileProtocol: string) 
   return {
     id,
     name: metadata.title || filename,
-    track: metadata?.track?.no,
+    track: String(metadata?.track?.no ?? ""),
+    url: "",
     fileUrl: getElectronUrl(electronFileProtocol, filepath),
-    coverUrl: null,
+    coverUrl: "",
     metadata,
   };
 };
 
-const getAudioByFilepath = (filepath: string, libPath: string) => {
+const findAudioByFilepath = (filepath: string, libPath: string) => {
   if (!audioExts.some((e) => filepath.toLowerCase().endsWith(e))) {
-    return {};
+    return;
   }
   const id = UrlSafeBase64.encode(filepath.replace(path.join(libPath, sep), ""));
 
-  return getAudioById({ id });
+  return findAudioById({ id });
 };
 
-const hasKeys = (obj: AudioReturnType) => {
+const hasKeys = (obj: AudioWithMetadata): boolean => {
   return Object.keys(obj).length > 0;
 };

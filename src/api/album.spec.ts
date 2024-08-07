@@ -5,7 +5,7 @@ import {
 } from "../../fixtures/album.fixture";
 import { enrichAlbumFiles, getAlbum } from "../db";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
-import { getAlbumById } from "./album";
+import { findAlbumById } from "./album";
 
 vi.mock("../db");
 
@@ -19,11 +19,11 @@ describe("Album API tests", () => {
     vi.mocked(enrichAlbumFiles).mockResolvedValue(albumFixture.files);
   });
 
-  describe("getAlbumById()", () => {
+  describe("getAlbumById", () => {
     const id = Object.keys(albumCollectionFixture)[0];
 
-    it("should return album", async () => {
-      const album = await getAlbumById(id);
+    it("returns album", async () => {
+      const album = await findAlbumById(id);
 
       expect(album).toEqual(albumFixture);
       expect(getAlbum).toHaveBeenCalledTimes(1);
@@ -32,20 +32,20 @@ describe("Album API tests", () => {
       expect(enrichAlbumFiles).toHaveBeenCalledWith(albumCollectionFixture[id]);
     });
 
-    it("should return empty object if album does not exist", async () => {
-      const album = await getAlbumById("foo");
+    it("returns undefined if album not found", async () => {
+      const album = await findAlbumById("foo");
 
-      expect(album).toEqual({});
+      expect(album).toBe(undefined);
       expect(getAlbum).toHaveBeenCalledTimes(0);
       expect(enrichAlbumFiles).toHaveBeenCalledTimes(0);
     });
 
-    it("should throw if getAlbum throws", async () => {
+    it("throws if getAlbum throws", async () => {
       vi.mocked(getAlbum).mockImplementationOnce(async () => {
         throw new Error("err");
       });
 
-      await expect(getAlbumById(id)).rejects.toThrow("err");
+      await expect(findAlbumById(id)).rejects.toThrow("err");
       expect(getAlbum).toHaveBeenCalledTimes(1);
       expect(enrichAlbumFiles).toHaveBeenCalledTimes(0);
     });

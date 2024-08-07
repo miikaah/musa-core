@@ -2,9 +2,9 @@ import { albumCollectionFixture } from "../../fixtures/album.fixture";
 import { artistCollectionFixture } from "../../fixtures/artist.fixture";
 import { audioCollectionFixture, audioFixture } from "../../fixtures/audio.fixture";
 import { setPartialMediaCollectionForTest } from "../mediaCollection";
-import { getAlbumById } from "./album";
+import { findAlbumById } from "./album";
 import { getArtistAlbums } from "./artist";
-import { getAudioById } from "./audio";
+import { findAudioById } from "./audio";
 import { findRandom } from "./find";
 
 vi.mock("./album");
@@ -19,7 +19,7 @@ describe("Find API tests", () => {
       audioCollection: audioCollectionFixture,
     });
 
-    vi.mocked(getAudioById).mockResolvedValue(audioFixture);
+    vi.mocked(findAudioById).mockResolvedValue(audioFixture);
   });
 
   describe("findRandom()", () => {
@@ -30,8 +30,8 @@ describe("Find API tests", () => {
         audios: expect.any(Array),
       });
       expect(getArtistAlbums).toHaveBeenCalled();
-      expect(getAlbumById).toHaveBeenCalled();
-      expect(getAudioById).toHaveBeenCalled();
+      expect(findAlbumById).toHaveBeenCalled();
+      expect(findAudioById).toHaveBeenCalled();
     });
   });
 });
