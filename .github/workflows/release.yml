@@ -21,6 +21,7 @@ jobs:
           MUSA_GITHUB_PAT: ${{ secrets.MUSA_GITHUB_PAT }}
       - run: npm run test
       - run: npm run build
+      - run: echo "@miikaah:registry=https://npm.pkg.github.com" > ~/.npmrc
       - run: npm publish --registry=https://npm.pkg.github.com/
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}

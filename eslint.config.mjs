@@ -1,6 +1,6 @@
 // @ts-check
 import eslint from "@eslint/js";
-// import eslintConfigMusa from "@miikaah/eslint-config-musa";
+import eslintConfigMusa from "@miikaah/eslint-config-musa";
 import eslintConfigPrettier from "eslint-config-prettier";
 import eslintPluginPrettierRecommended from "eslint-plugin-prettier/recommended";
 import tseslint from "typescript-eslint";
@@ -11,5 +11,5 @@ export default tseslint.config(
   eslintConfigPrettier,
   // @ts-expect-error Prettier is behind the times
   eslintPluginPrettierRecommended,
-  // ...eslintConfigMusa.getConfig(import.meta.dirname),
+  ...eslintConfigMusa.getConfig(import.meta.dirname),
 );
