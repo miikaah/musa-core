@@ -1,4 +1,6 @@
-export const enrichedAlbumsFixture = [
+import { EnrichedAlbum } from "../src/db.types";
+
+export const enrichedAlbumsFixture: EnrichedAlbum[] = [
   {
     coverUrl:
       "http://100.95.164.23:4200/file/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhL1Zhc2FyYWFzaWEuanBn",
@@ -57,6 +59,6 @@ export const enrichedAlbumsFixture = [
     id: "QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YQ",
     name: "Käärmelautakunta",
     url: "http://100.95.164.23:4200/album/QWxhbWFhaWxtYW4gdmFzYXJhdC9LYcyIYcyIcm1lbGF1dGFrdW50YQ",
-    year: null,
+    year: undefined,
   },
 ];
