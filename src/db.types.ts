@@ -61,17 +61,17 @@ export type EnrichedAlbum = {
   id: string;
   name: string;
   url: string;
-  coverUrl?: string;
-  year?: number | string | null;
+  coverUrl: string;
+  year: number | string | undefined;
   files: EnrichedAlbumFile[];
 };
 
 export type EnrichedAlbumFile = {
   id: string;
   name: string;
+  url: string;
   track: string;
-  url?: string;
-  fileUrl?: string;
-  metadata?: Metadata;
-  coverUrl?: string;
+  fileUrl: string;
+  metadata: Metadata;
+  coverUrl: string;
 };

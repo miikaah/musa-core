@@ -440,8 +440,8 @@ export const enrichAlbums = async (
 ): Promise<EnrichedAlbum[]> => {
   return Promise.all(
     artist.albums.map(async ({ id, name, url, coverUrl, firstAlbumAudio }) => {
-      let year = null;
-      let albumName = null;
+      let year;
+      let albumName;
 
       if (firstAlbumAudio && firstAlbumAudio.id) {
         const audio = await getAudio(firstAlbumAudio.id);
@@ -477,18 +477,23 @@ export const enrichAlbumFiles = async (
   const mergedFiles = await Promise.all(
     album.files.map(async ({ id, name: filename, url, fileUrl }) => {
       const file = files.find((f) => f.path_id === id);
-      const name = file?.metadata?.title || filename;
-      const trackNo = `${file?.metadata?.track?.no || ""}`;
-      const diskNo = `${file?.metadata?.disk?.no || ""}`;
+
+      if (!file) {
+        throw new Error(`Could not find audio by path id ${id}`);
+      }
+
+      const name = file.metadata?.title || filename;
+      const trackNo = `${file.metadata?.track?.no || ""}`;
+      const diskNo = `${file.metadata?.disk?.no || ""}`;
       const track = `${diskNo ? `${diskNo}.` : ""}${trackNo.padStart(padLen, "0")}`;
 
       return {
-        id: file?.path_id || "",
+        id: file.path_id,
         name,
         track,
         url,
         fileUrl,
-        metadata: file?.metadata,
+        metadata: file.metadata,
         coverUrl: album.coverUrl,
       };
     }),

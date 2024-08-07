@@ -45,7 +45,7 @@ export const createMediaCollection = ({
 
   const albumSet = new Set();
 
-  for (const file of files.slice(0, 100)) {
+  for (const file of files) {
     const [artistName, ...rest] = file.split(sep);
     const artistId = UrlSafeBase64.encode(artistName);
     const fileId = UrlSafeBase64.encode(file);

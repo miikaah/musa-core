@@ -27,6 +27,7 @@ export const albumFixture: AlbumWithFilesAndMetadata = {
       url: "http://100.95.164.23:4200/audio/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz",
       fileUrl:
         "http://100.95.164.23:4200/file/QWxhbWFhaWxtYW4gdmFzYXJhdC9WYXNhcmFhc2lhLzAxIC0gTWFtZWx1a2tpICYgTXVzdGEgTGVza2kubXAz",
+      coverUrl: "",
       metadata: {
         track: {
           no: 1,
