@@ -41,7 +41,7 @@ const toApiAudioResponse = async (
   return {
     ...audio,
     name,
-    track: track === "00" ? null : track,
+    track: track === "00" ? "" : track,
     fileUrl: audio.url,
     coverUrl: album?.coverUrl,
     metadata: dbAudio?.metadata,

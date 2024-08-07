@@ -1,3 +1,5 @@
+import { Metadata } from "./metadata.types";
+
 export type MediaCollection = {
   artistCollection: ArtistCollection;
   albumCollection: AlbumCollection;
@@ -15,6 +17,8 @@ export type File = {
   name: string;
   url: string;
   fileUrl: string;
+  track?: string;
+  metadata?: Metadata;
 };
 
 export type AlbumFile = {

@@ -72,7 +72,7 @@ export const getArtistAlbums = async (
       return {
         ...file,
         name,
-        track: track === "00" ? null : track,
+        track: track === "00" ? "" : track,
         metadata: dbAudio?.metadata,
       };
     }),
