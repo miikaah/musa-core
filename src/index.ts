@@ -21,11 +21,11 @@ import { createThreadPool, destroyThreadPool, hasThreadPool } from "./threadPool
 import UrlSafeBase64 from "./urlSafeBase64";
 
 const Api = {
-  getAlbumById: findAlbumById,
+  findAlbumById,
   getArtists,
   getArtistById,
   getArtistAlbums,
-  getAudioById: findAudioById,
+  findAudioById,
   getAudiosByFilepaths,
   getAudiosByPlaylistId,
   find,
