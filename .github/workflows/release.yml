@@ -17,6 +17,8 @@ jobs:
           node-version: 22.4.1
           registry-url: https://npm.pkg.github.com/
       - run: npm ci
+        env:
+          MUSA_GITHUB_PAT: ${{ secrets.MUSA_GITHUB_PAT }}
       - run: npm run test
       - run: npm run build
       - run: npm publish --registry=https://npm.pkg.github.com/
