@@ -26,6 +26,7 @@ import { ArtistWithEnrichedAlbums } from "./artist.types";
 import { findAudioById } from "./audio";
 import { AudioWithMetadata } from "./audio.types";
 import { FindResult } from "./find.types";
+import { normalizeSearchString } from "./find.utils";
 
 const getAudios = (audios: (AudioWithMetadata | undefined)[]): AudioWithMetadata[] => {
   return audios
@@ -46,7 +47,7 @@ export const find = async ({
   query: string;
   limit?: number;
 }): Promise<FindResult> => {
-  query = query.toLowerCase().trim();
+  query = normalizeSearchString(query);
 
   if (query.length < 2) {
     return {
@@ -109,7 +110,6 @@ export const find = async ({
 
   const isArtistSearch = query.startsWith("artist:");
   const isAlbumSearch = query.startsWith("album:");
-  query = query.replace("artist:", "").replace("album:", "");
 
   // Term search
   const options = { limit, key: "name", threshold: -50 };
