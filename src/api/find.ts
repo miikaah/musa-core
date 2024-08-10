@@ -10,9 +10,8 @@ import {
   findAudiosByYear,
 } from "../db";
 import { DbAlbum, DbAudio, EnrichedAlbum, EnrichedAlbumFile } from "../db.types";
-import { calculateOkapiBm25Score, tokenize } from "../fullTextSearch";
+import { tokenize } from "../fullTextSearch";
 import {
-  findAudioInCollectionById,
   getAlbumsForFind,
   getArtistsForFind,
   getAudiosForFind,
@@ -26,19 +25,17 @@ import { ArtistWithEnrichedAlbums } from "./artist.types";
 import { findAudioById } from "./audio";
 import { AudioWithMetadata } from "./audio.types";
 import { FindResult } from "./find.types";
-import { normalizeSearchString } from "./find.utils";
-
-const getAudios = (audios: (AudioWithMetadata | undefined)[]): AudioWithMetadata[] => {
-  return audios
-    .filter((audio) => !!audio)
-    .filter((audio) => !!findAudioInCollectionById(audio.id));
-};
-
-const getAlbums = (
-  albums: (AlbumWithFilesAndMetadata | undefined)[],
-): AlbumWithFilesAndMetadata[] => {
-  return albums.filter((album) => !!album).filter((album) => album.name);
-};
+import {
+  byOkapiBm25,
+  getAlbums,
+  getAlbumSortFn,
+  getAudios,
+  getAudioSortFn,
+  getRandomNumber,
+  getRandomNumbers,
+  lookupEntities,
+  normalizeSearchString,
+} from "./find.utils";
 
 export const find = async ({
   query,
@@ -51,11 +48,13 @@ export const find = async ({
   const isGenreSearch = query.startsWith("genre:");
   const isArtistSearch = query.startsWith("artist:");
   const isAlbumSearch = query.startsWith("album:");
-  query = normalizeSearchString(query)
-    .replace("artist:", "")
-    .replace("album:", "")
-    .replace("year:", "")
-    .replace("genre:", "");
+  query = normalizeSearchString(
+    query
+      .replace("artist:", "")
+      .replace("album:", "")
+      .replace("year:", "")
+      .replace("genre:", ""),
+  );
 
   if (query.length < 2) {
     return {
@@ -120,15 +119,15 @@ export const find = async ({
       .filter(Boolean)
       .map(async (a) => getArtistAlbums(a.id)),
   );
-  const artist = artists.find(({ name }) => name.toLowerCase() === query);
-  const artistAlbums = artist?.albums;
-  const artistFiles = artist?.files;
+  const exactArtist = artists.find(({ searchName }) => searchName.includes(query));
+  const exactArtistAlbums = exactArtist?.albums;
+  const exactArtistFiles = exactArtist?.files;
 
   let albums: AlbumWithFilesAndMetadata[] = [];
-  if (!isAlbumSearch && Array.isArray(artistAlbums) && artistAlbums.length) {
+  if (!isAlbumSearch && Array.isArray(exactArtistAlbums) && exactArtistAlbums.length) {
     albums = getAlbums(
       await Promise.all(
-        artistAlbums
+        exactArtistAlbums
           .filter(Boolean)
           .slice(0, limit * 2)
           .map(async (a) => findAlbumById(a.id)),
@@ -137,9 +136,9 @@ export const find = async ({
   }
 
   let audios: AudioWithMetadata[] = [];
-  if (Array.isArray(artistFiles) && artistFiles.length) {
+  if (Array.isArray(exactArtistFiles) && exactArtistFiles.length) {
     audios = getAudios(
-      await Promise.all(artistFiles.map(async (a) => findAudioById({ id: a.id }))),
+      await Promise.all(exactArtistFiles.map(async (a) => findAudioById({ id: a.id }))),
     );
   }
 
@@ -150,7 +149,12 @@ export const find = async ({
 
     if (!isAlbumSearch && foundAlbums.length < limit && artists.length > 0) {
       artists.forEach((a) => {
-        foundAlbums.push(...a.albums);
+        if (exactArtist) {
+          foundAlbums.push(...a.albums);
+        } else if (a.albums.length) {
+          const randomAlbum = a.albums[getRandomNumber(a.albums.length - 1)];
+          foundAlbums.push(randomAlbum);
+        }
       });
     }
 
@@ -198,18 +202,31 @@ export const find = async ({
     );
   }
 
-  if (isArtistSearch || audios.length < limit * 2) {
+  if (isArtistSearch || isAlbumSearch) {
     albums.forEach((a) => audios.push(...a.files));
   }
 
   const k1 = 1.2;
   const b = 0.75;
   const terms = tokenize(query);
+  const uniqAlbumArtists = uniqBy(albums, ({ artistName }) => artistName).map(
+    ({ artistName }) => artistName,
+  );
   const uniqAlbums = uniqBy(albums, ({ id }) => id);
 
+  // NOTE: Scanning needs to be enabled for fulltext search to be enabled
   return {
     artists: uniqBy(artists, ({ name }) => name).sort(byOkapiBm25(terms, k1, b, true)),
-    albums: uniqAlbums.sort(byOkapiBm25(terms, k1, b)),
+    albums: uniqAlbums.sort(
+      getAlbumSortFn({
+        isArtistSearch,
+        isAlbumSearch,
+        uniqAlbumArtists,
+        terms,
+        k1,
+        b,
+      }),
+    ),
     audios: uniqBy(audios, ({ id }) => id).sort(
       getAudioSortFn({
         isArtistSearch,
@@ -222,93 +239,6 @@ export const find = async ({
     ),
   };
 };
-
-function getAudioSortFn({
-  isArtistSearch,
-  isAlbumSearch,
-  uniqAlbums,
-  terms,
-  k1,
-  b,
-}: {
-  isArtistSearch: boolean;
-  isAlbumSearch: boolean;
-  uniqAlbums: AlbumWithFilesAndMetadata[];
-  terms: string[];
-  k1: number;
-  b: number;
-}) {
-  if (isArtistSearch || isAlbumSearch) {
-    // Disable sorting when using artist or album search
-    return () => 0;
-  } else {
-    return uniqAlbums.length > 1 ? byOkapiBm25(terms, k1, b) : byTrackAsc;
-  }
-}
-
-function byTrackAsc(a: AudioWithMetadata, b: AudioWithMetadata) {
-  const aTrack = `${a.metadata.track?.no}`.padStart(2, "0");
-  const bTrack = `${b.metadata.track?.no}`.padStart(2, "0");
-  const aDisk = a.metadata.disk?.no;
-  const bDisk = b.metadata.disk?.no;
-  const aTrackNo = aDisk ? Number(`${aDisk}.${aTrack}`) : Number(aTrack);
-  const bTrackNo = bDisk ? Number(`${bDisk}.${bTrack}`) : Number(bTrack);
-
-  return aTrackNo - bTrackNo;
-}
-
-function byOkapiBm25(terms: string[], k1: number, b: number, isArtist = false) {
-  // @ts-expect-error not useful here
-  return (a, c) => {
-    const tca = (isArtist ? a.name : a?.metadata?.title) || "";
-    const tcc = (isArtist ? c.name : c?.metadata?.title) || "";
-
-    if (!tca || !tcc) {
-      return 1;
-    }
-
-    const aScore = terms
-      .map((term) => calculateOkapiBm25Score(term, tca.length, k1, b))
-      .reduce((acc, score) => acc + score, 0);
-    const cScore = terms
-      .map((term) => calculateOkapiBm25Score(term, tcc.length, k1, b))
-      .reduce((acc, score) => acc + score, 0);
-
-    if (aScore === 0 && cScore === 0 && tca.toLowerCase().startsWith(terms[0])) {
-      return -1;
-    }
-
-    return cScore - aScore;
-  };
-}
-
-function getRandomNumber(max: number) {
-  return Math.floor(Math.random() * max);
-}
-
-function getRandomNumbers(max: number, amount: number) {
-  const randomNumbers: number[] = [];
-
-  while (randomNumbers.length < Math.min(amount, max)) {
-    const candidate = getRandomNumber(max);
-
-    if (!randomNumbers.includes(candidate)) {
-      randomNumbers.push(candidate);
-    }
-  }
-
-  return randomNumbers;
-}
-
-function lookupEntities<T>(entitiesForFind: T[], indices: number[]): T[] {
-  const entities: (T | undefined)[] = [];
-
-  for (const index of indices) {
-    entities.push(entitiesForFind.at(index));
-  }
-
-  return entities.filter(Boolean) as T[];
-}
 
 export const findRandom = async ({
   limit = 6,

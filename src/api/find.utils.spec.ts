@@ -36,8 +36,8 @@ describe("normalizeSearchString", () => {
     expect(normalizeSearchString("at@†at")).toBe("atatatat");
   });
 
-  it("replaces with et", () => {
-    expect(normalizeSearchString("et&et")).toBe("etetet");
+  it("replaces with and", () => {
+    expect(normalizeSearchString("and&and")).toBe("andandand");
   });
 
   it("replaces with s", () => {

@@ -6,6 +6,7 @@ import {
 } from "../mediaCollection";
 import { ArtistObject } from "../mediaSeparator.types";
 import { Artist, ArtistAlbum, ArtistWithEnrichedAlbums } from "./artist.types";
+import { normalizeSearchString } from "./find.utils";
 
 export const getArtists = async (): Promise<ArtistObject> => {
   return getArtistObject();
@@ -48,7 +49,11 @@ export const getArtistById = async (id: string): Promise<Artist> => {
   };
 };
 
-export const getArtistAlbums = async (id: string): Promise<ArtistWithEnrichedAlbums> => {
+export type GetArtistAlbumsResult = ArtistWithEnrichedAlbums & {
+  searchName: string;
+};
+
+export const getArtistAlbums = async (id: string): Promise<GetArtistAlbumsResult> => {
   const artist = findArtistInCollectionById(id);
 
   if (!artist) {
@@ -75,6 +80,7 @@ export const getArtistAlbums = async (id: string): Promise<ArtistWithEnrichedAlb
 
   return {
     ...artist,
+    searchName: normalizeSearchString(artist.name),
     albums: albums.sort(byYear),
     files,
   };
