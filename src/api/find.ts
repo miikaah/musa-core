@@ -47,7 +47,15 @@ export const find = async ({
   query: string;
   limit?: number;
 }): Promise<FindResult> => {
-  query = normalizeSearchString(query);
+  const isYearSearch = query.startsWith("year:");
+  const isGenreSearch = query.startsWith("genre:");
+  const isArtistSearch = query.startsWith("artist:");
+  const isAlbumSearch = query.startsWith("album:");
+  query = normalizeSearchString(query)
+    .replace("artist:", "")
+    .replace("album:", "")
+    .replace("year:", "")
+    .replace("genre:", "");
 
   if (query.length < 2) {
     return {
@@ -60,12 +68,8 @@ export const find = async ({
   const albumsForFind = getAlbumsForFind();
   const artistsForFind = getArtistsForFind();
 
-  // Year search
-  if (query.startsWith("year:")) {
-    const foundAlbums = await findAlbumsByYear(
-      parseInt(query.replace("year:", ""), 10),
-      albumsForFind.length,
-    );
+  if (isYearSearch) {
+    const foundAlbums = await findAlbumsByYear(parseInt(query, 10), albumsForFind.length);
     const albums = getAlbums(
       await Promise.all(
         foundAlbums.filter(Boolean).map(async (a) => findAlbumById(a.id || a.path_id)),
@@ -85,9 +89,8 @@ export const find = async ({
     };
   }
 
-  // Genre search
-  if (query.startsWith("genre:")) {
-    const foundAudios = await findAudiosByGenre(query.replace("genre:", ""), 1000);
+  if (isGenreSearch) {
+    const foundAudios = await findAudiosByGenre(query, 1000);
     const audios = getAudios(
       await Promise.all(
         foundAudios.map(async (a) =>
@@ -108,11 +111,8 @@ export const find = async ({
     };
   }
 
-  const isArtistSearch = query.startsWith("artist:");
-  const isAlbumSearch = query.startsWith("album:");
-
   // Term search
-  const options = { limit, key: "name", threshold: -50 };
+  const options = { limit, key: "searchName", threshold: -50 };
   const foundArtists = fuzzysort.go(query, artistsForFind, options);
   const artists = await Promise.all(
     foundArtists
@@ -394,7 +394,7 @@ export const findRandom = async ({
     );
 
     const audioIndices = getRandomNumbers(results.audios.length, limit);
-    const foundAudios = lookupEntities<FileWithId>(results.audios, audioIndices);
+    const foundAudios = lookupEntities<AudioWithMetadata>(results.audios, audioIndices);
     const audios = getAudios(
       await Promise.all(foundAudios.map(async (a) => findAudioById({ id: a.id }))),
     );

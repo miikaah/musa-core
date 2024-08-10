@@ -1,6 +1,7 @@
 import Datastore from "@seald-io/nedb";
 import fs from "fs/promises";
 import path from "path";
+import { normalizeSearchString } from "./api/find.utils";
 import config from "./config";
 import {
   AlbumUpsertOptions,
@@ -236,7 +237,7 @@ export const findAudiosByMetadataAndFilename = async (
 
   if (amountOfAudios < limit) {
     audiosByFuzzyTitle = await findAudios(limit - amountOfAudios, (self: DbAudio) => {
-      const title = self?.metadata?.title || "";
+      const title = normalizeSearchString(self?.metadata?.title || "");
 
       return title.toLowerCase().includes(query.toLowerCase());
     });
@@ -344,7 +345,7 @@ export const findAlbumsByMetadata = async (
 
   if (amountOfAudios < limit) {
     albumsByFuzzyTitle = await findAlbums(limit - amountOfAudios, (self: DbAlbum) => {
-      const title = self?.metadata?.album || "";
+      const title = normalizeSearchString(self?.metadata?.album || "");
 
       return title.toLowerCase().includes(query.toLowerCase());
     });

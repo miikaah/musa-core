@@ -5,9 +5,14 @@ import {
   MediaCollection,
 } from "./mediaSeparator.types";
 
-export type ArtistWithId = ArtistWithAlbums & { id: string };
-export type AlbumWithId = AlbumWithFiles & { id: string };
-export type FileWithId = FileWithInfo & { id: string };
+type SearchTypes = {
+  id: string;
+  searchName: string;
+};
+
+export type ArtistWithId = ArtistWithAlbums & SearchTypes;
+export type AlbumWithId = AlbumWithFiles & SearchTypes;
+export type FileWithId = FileWithInfo & SearchTypes;
 export type ArtistsForFind = ArtistWithId[];
 export type AlbumsForFind = AlbumWithId[];
 export type AudiosForFind = FileWithId[];

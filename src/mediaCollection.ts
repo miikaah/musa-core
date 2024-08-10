@@ -1,3 +1,4 @@
+import { normalizeSearchString } from "./api/find.utils";
 import {
   AlbumCollection,
   ArtistCollection,
@@ -21,6 +22,14 @@ export const setMediaCollection = (collections: MediaCollection) => {
   setPartialMediaCollectionForTest(collections);
 };
 
+const toSearchMedia = <T extends { name: string }>([id, media]: [string, T]) => {
+  return {
+    ...media,
+    id,
+    searchName: normalizeSearchString(media.name),
+  };
+};
+
 export const setPartialMediaCollectionForTest = (
   collections: Partial<MediaCollection>,
 ) => {
@@ -30,9 +39,9 @@ export const setPartialMediaCollectionForTest = (
   imageCollection = collections.imageCollection || {};
   artistObject = collections.artistObject || {};
 
-  artistsForFind = Object.entries(artistCollection).map(([id, a]) => ({ ...a, id }));
-  albumsForFind = Object.entries(albumCollection).map(([id, a]) => ({ ...a, id }));
-  audiosForFind = Object.entries(audioCollection).map(([id, a]) => ({ ...a, id }));
+  artistsForFind = Object.entries(artistCollection).map(toSearchMedia);
+  albumsForFind = Object.entries(albumCollection).map(toSearchMedia);
+  audiosForFind = Object.entries(audioCollection).map(toSearchMedia);
 };
 
 export const getArtistCollection = (): ArtistCollection => {
