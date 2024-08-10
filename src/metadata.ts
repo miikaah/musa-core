@@ -144,7 +144,7 @@ const getMetadataTags = async (
     genre,
     composer,
     albumArtist,
-    comment: comment?.map((c) => c.text).filter((c) => typeof c === "string") ?? [],
+    comment: comment?.map((c) => c.text).filter((c) => typeof c === "string"),
     bitrate,
     duration: duration || dur,
     container,
