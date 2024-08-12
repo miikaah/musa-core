@@ -1,5 +1,4 @@
-import { GetArtistAlbumsResult } from "../src/api/artist";
-import { Artist } from "../src/api/artist.types";
+import { Artist, ArtistWithEnrichedAlbums } from "../src/api/artist.types";
 import { ArtistCollection, ArtistObject } from "../src/mediaSeparator.types";
 
 export const artistObjectFixture: ArtistObject = {
@@ -66,7 +65,7 @@ export const artistFixture: Artist = {
   url: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
 };
 
-export const artistAlbumsFixture: GetArtistAlbumsResult = {
+export const artistAlbumsFixture: ArtistWithEnrichedAlbums = {
   albums: [
     {
       coverUrl:
@@ -90,6 +89,5 @@ export const artistAlbumsFixture: GetArtistAlbumsResult = {
   files: [],
   images: [],
   name: "Alamaailman vasarat",
-  searchName: "alamaailman vasarat",
   url: "http://100.95.164.23:4200/artist/QWxhbWFhaWxtYW4gdmFzYXJhdA",
 };

@@ -20,7 +20,7 @@ import { AlbumWithId, ArtistWithId, FileWithId } from "../scanner.types";
 import UrlSafeBase64 from "../urlSafeBase64";
 import { findAlbumById } from "./album";
 import { AlbumWithFilesAndMetadata } from "./album.types";
-import { getArtistAlbums } from "./artist";
+import { getArtistAlbums, getArtistAlbumsWithSearchName } from "./artist";
 import { ArtistWithEnrichedAlbums } from "./artist.types";
 import { findAudioById } from "./audio";
 import { AudioWithMetadata } from "./audio.types";
@@ -117,7 +117,7 @@ export const find = async ({
     foundArtists
       .map((a) => a.obj)
       .filter(Boolean)
-      .map(async (a) => getArtistAlbums(a.id)),
+      .map((a) => getArtistAlbumsWithSearchName(a.id)),
   );
   const exactArtist = artists.find(({ searchName }) => searchName.includes(query));
   const exactArtistAlbums = exactArtist?.albums;
@@ -172,7 +172,7 @@ export const find = async ({
         if (pathId) {
           const artistFolder = UrlSafeBase64.decode(pathId).split(path.sep)[0];
           const artistId = UrlSafeBase64.encode(artistFolder);
-          const artist = await getArtistAlbums(artistId);
+          const artist = await getArtistAlbumsWithSearchName(artistId);
           artists.push(artist);
         }
       }

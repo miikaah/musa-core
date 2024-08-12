@@ -49,11 +49,7 @@ export const getArtistById = async (id: string): Promise<Artist> => {
   };
 };
 
-export type GetArtistAlbumsResult = ArtistWithEnrichedAlbums & {
-  searchName: string;
-};
-
-export const getArtistAlbums = async (id: string): Promise<GetArtistAlbumsResult> => {
+export const getArtistAlbums = async (id: string): Promise<ArtistWithEnrichedAlbums> => {
   const artist = findArtistInCollectionById(id);
 
   if (!artist) {
@@ -80,8 +76,22 @@ export const getArtistAlbums = async (id: string): Promise<GetArtistAlbumsResult
 
   return {
     ...artist,
-    searchName: normalizeSearchString(artist.name),
     albums: albums.sort(byYear),
     files,
+  };
+};
+
+export type GetArtistAlbumsWithSearchNameResult = ArtistWithEnrichedAlbums & {
+  searchName: string;
+};
+
+export const getArtistAlbumsWithSearchName = async (
+  id: string,
+): Promise<GetArtistAlbumsWithSearchNameResult> => {
+  const artist = await getArtistAlbums(id);
+
+  return {
+    ...artist,
+    searchName: normalizeSearchString(artist.name),
   };
 };
