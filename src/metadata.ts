@@ -1,6 +1,5 @@
 import fs from "fs/promises";
 import Metaflac from "metaflac-js2";
-import type { IAudioMetadata } from "music-metadata";
 import NodeID3 from "node-id3";
 import path from "path";
 import * as Db from "./db";
@@ -9,13 +8,14 @@ import type {
   Codec,
   GetMetadataParams,
   Metadata,
+  MMAudioMetadata,
   Tags,
   TagsFlac,
 } from "./metadata.types";
 import { getGlobalThreadPool, hasThreadPool, Message } from "./threadPool";
 import UrlSafeBase64 from "./urlSafeBase64";
 
-export const readMetadata = async (filepath: string): Promise<IAudioMetadata> => {
+export const readMetadata = async (filepath: string): Promise<MMAudioMetadata> => {
   try {
     const musicMetadata = await import("music-metadata");
 
@@ -44,7 +44,7 @@ export const getMetadataByFilepath = async (filepath: string) => {
 
 const getMetadataTags = async (
   audioPath: string,
-  tags: IAudioMetadata,
+  tags: MMAudioMetadata,
   quiet = false,
 ): Promise<Metadata> => {
   const { format, native, common } = tags;

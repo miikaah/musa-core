@@ -1,7 +1,6 @@
-import type { IAudioMetadata } from "music-metadata";
-import type { Metadata } from "../src/metadata.types";
+import type { Metadata, MMAudioMetadata } from "../src/metadata.types";
 
-export const metadataFixture: Partial<IAudioMetadata> = {
+export const metadataFixture: Partial<MMAudioMetadata> = {
   format: {
     bitrate: 320000,
     codec: "MPEG 1 Layer 3",
@@ -14,7 +13,7 @@ export const metadataFixture: Partial<IAudioMetadata> = {
     tagTypes: ["ID3v2.3"],
     tool: "LAME 3.98r",
     trackInfo: [],
-    trackPeakLevel: undefined,
+    trackPeakLevel: null,
   },
   native: {
     "ID3v2.3": [
@@ -53,7 +52,7 @@ export const metadataFixture: Partial<IAudioMetadata> = {
       of: null,
     },
     movementIndex: {
-      no: 1,
+      no: null,
       of: null,
     },
     title: "Palovaroitin FX",

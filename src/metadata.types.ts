@@ -1,3 +1,5 @@
+import { IAudioMetadata } from "music-metadata";
+
 export type FormatMetadata = {
   bitrate: number;
   codec: string;
@@ -40,6 +42,14 @@ export type ReplayGain = { dB: number; ratio: number };
 export type GetMetadataParams = {
   id: string;
   quiet?: boolean;
+};
+
+type MMAudioMetadataFormat = Omit<IAudioMetadata["format"], "trackPeakLevel"> & {
+  trackPeakLevel?: number | null;
+};
+
+export type MMAudioMetadata = Omit<IAudioMetadata, "format"> & {
+  format: MMAudioMetadataFormat;
 };
 
 export type Metadata = Partial<{
