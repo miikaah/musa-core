@@ -52,7 +52,10 @@ export const metadataFixture: Partial<IAudioMetadata> = {
       no: 1,
       of: null,
     },
-    movementIndex: {},
+    movementIndex: {
+      no: 1,
+      of: null,
+    },
     title: "Palovaroitin FX",
     track: {
       no: 1,

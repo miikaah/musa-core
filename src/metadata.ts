@@ -75,7 +75,8 @@ const getMetadataTags = async (
         .value,
     };
 
-    flacDate = (vorbis.find((tag) => tag.id === "DATE") || {}).value;
+    const date = (vorbis.find((tag) => tag.id === "DATE") || {}).value;
+    flacDate = typeof date === "number" ? date : typeof date === "string" ? date : "";
   }
 
   if (!quiet) {
