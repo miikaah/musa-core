@@ -38,7 +38,7 @@
     "@types/node": "22.7.4",
     "@vitest/coverage-v8": "2.1.1",
     "esbuild": "0.23.1",
-    "esbuild-node-externals": "1.14.0",
+    "esbuild-node-externals": "1.15.0",
     "eslint": "9.11.1",
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.2.1",
