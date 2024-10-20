@@ -11,6 +11,7 @@ import {
   removeTheme,
   updateTheme,
 } from "./api/theme";
+import { checkMusadirExists } from "./checkMusadirExists";
 import { initDb } from "./db";
 import { getState, setState } from "./fsState";
 import { getCurrentProfileByIp, listDevices } from "./infra/tailscale";
@@ -45,6 +46,7 @@ const Api = {
 const Fs = {
   getState,
   setState,
+  checkMusadirExists,
 };
 
 const Db = {

@@ -17,7 +17,7 @@ import UrlSafeBase64 from "./urlSafeBase64";
 
 export const readMetadata = async (filepath: string): Promise<MMAudioMetadata> => {
   try {
-    const musicMetadata = await import("music-metadata");
+    const musicMetadata = await (await import("music-metadata")).loadMusicMetadata();
 
     return await musicMetadata.parseFile(filepath);
   } catch (error) {
