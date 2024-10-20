@@ -17,7 +17,12 @@ import UrlSafeBase64 from "./urlSafeBase64";
 
 export const readMetadata = async (filepath: string): Promise<MMAudioMetadata> => {
   try {
-    const musicMetadata = await (await import("music-metadata")).loadMusicMetadata();
+    const musicMetadata = await import("music-metadata");
+
+    // This means we're in CommonJS
+    if (typeof musicMetadata.loadMusicMetadata === "function") {
+      return await (await musicMetadata.loadMusicMetadata()).parseFile(filepath);
+    }
 
     return await musicMetadata.parseFile(filepath);
   } catch (error) {
