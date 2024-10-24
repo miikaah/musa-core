@@ -25,7 +25,7 @@ const binaryByPlatform = {
 const main = async () => {
   const bin = binaryByPlatform[process.platform];
 
-  if (bin) {
+  if (bin && process.env.GITHUB_ACTIONS !== "true") {
     // Copy the platform specific node C addon binary to git
     await fs.cp(path.join(buildpath, bin), path.join(dest, bin));
   }
