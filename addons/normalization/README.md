@@ -90,7 +90,15 @@ File .vscode/c_cpp_properties.json.
 }
 ```
 
-See `binding.gyp` for include and library directories
+## Dependencies
+
+See `binding.gyp` for include and library directories. The built binary and external binaries are included in the repo but you can update them manually if you want.
+
+### Linux (Debian)
+
+```sh
+sudo apt install libsndfile1 libsndfile-dev libebur128-1 libebur128-dev
+```
 
 ### MacOS
 
@@ -99,10 +107,6 @@ brew install libsndfile libebur128
 ```
 
 ### Windows
-
-The built binary and external binaries are included in the repo.
-
-You can update the external binaries manually.
 
 #### Update libsndfile
 
