@@ -13,6 +13,30 @@ Install N-API headers
 npm install -g node-gyp
 ```
 
+### VS Code (Linux)
+
+File .vscode/c_cpp_properties.json.
+
+```json
+{
+  "configurations": [
+    {
+      "name": "Linux",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "${workspaceFolder}/node_modules/node-addon-api",
+        "${HOME}/.nvm/versions/node/v22.4.1/include/node"
+      ],
+      "defines": [],
+      "cStandard": "c17",
+      "cppStandard": "gnu++17",
+      "intelliSenseMode": "linux-gcc-x64"
+    }
+  ],
+  "version": 4
+}
+```
+
 ### VS Code (Windows)
 
 File .vscode/c_cpp_properties.json. Change Username and node-gyp version in the example config.
@@ -40,7 +64,7 @@ File .vscode/c_cpp_properties.json. Change Username and node-gyp version in the 
 
 ### VS Code (MacOS)
 
-File .vscode/c_cpp_properties.json. Change Username and node-gyp version in the example config.
+File .vscode/c_cpp_properties.json.
 
 ```json
 {

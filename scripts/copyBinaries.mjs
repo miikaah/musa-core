@@ -15,7 +15,7 @@ const binaryByPlatform = {
   darwin: `${name}-${version}-darwin-arm64.node`,
   freebsd: "",
   haiku: "",
-  linux: "",
+  linux: `${name}-${version}-linux-x64.node`,
   netbsd: "",
   openbsd: "",
   sunos: "",
@@ -32,7 +32,7 @@ const main = async () => {
 
   // Copy the external library binary files for build
   const files = (await fs.readdir(libdir)).filter(
-    (file) => file.endsWith(".dll") || file.endsWith(".dylib"),
+    (file) => file.endsWith(".dll") || file.endsWith(".dylib") || file.endsWith(".so"),
   );
 
   for (const file of files) {

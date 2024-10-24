@@ -14,7 +14,7 @@ const binaryByPlatform = {
   darwin: path.join(binpath, `${name}-${version}-darwin-arm64.node`),
   freebsd: "",
   haiku: "",
-  linux: "",
+  linux: path.join(binpath, `${name}-${version}-linux-x64.node`),
   netbsd: "",
   openbsd: "",
   sunos: "",

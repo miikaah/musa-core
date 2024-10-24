@@ -20,6 +20,9 @@
         }],
         ['OS=="win"', {
           "target_name": "normalization-v1.0.0-win-x64",
+        }],
+        ['OS=="linux"', {
+          "target_name": "normalization-v1.0.0-linux-x64",
         }]
       ]
     }
