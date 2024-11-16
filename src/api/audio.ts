@@ -91,6 +91,7 @@ const handleDirOrFile = async (
   electronFileProtocol: string,
 ): Promise<(AudioWithMetadata | undefined)[]> => {
   const isExternal = !filepath.startsWith(libPath);
+  console.log("isExternal", isExternal, filepath, libPath);
 
   if (isExternal) {
     if (isDir(filepath)) {
@@ -127,9 +128,16 @@ const getAudioMetadata = async (
 ): Promise<AudioWithMetadata> => {
   const id = UrlSafeBase64.encode(filepath);
   const dbAudio = await Db.getExternalAudio(id);
+  console.log("dbAudio", dbAudio);
   const filenameParts = filepath.split(sep);
   const filename = filenameParts[filenameParts.length - 1];
-  const { mtimeMs } = await fs.stat(filepath);
+
+  let mtimeMs = 0;
+  if (process.platform !== "win32") {
+    mtimeMs = (await fs.stat(`/${path.join(...filepath.split("/"))}`)).mtimeMs;
+  } else {
+    mtimeMs = (await fs.stat(filepath)).mtimeMs;
+  }
 
   let isUpdate = false;
   if (dbAudio) {
