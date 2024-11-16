@@ -9,6 +9,7 @@ export const metadataFixture: Partial<MMAudioMetadata> = {
     duration: 4.048979591836734,
     lossless: false,
     numberOfChannels: 2,
+    numberOfSamples: 179712,
     sampleRate: 44100,
     tagTypes: ["ID3v2.3"],
     tool: "LAME 3.98r",
