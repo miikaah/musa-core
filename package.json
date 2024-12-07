@@ -43,7 +43,7 @@
     "eslint-config-prettier": "9.1.0",
     "eslint-plugin-prettier": "5.2.1",
     "node-addon-api": "8.3.0",
-    "node-gyp": "10.2.0",
+    "node-gyp": "10.3.1",
     "nodemon": "3.1.7",
     "prettier": "3.3.3",
     "prettier-plugin-organize-imports": "4.1.0",
