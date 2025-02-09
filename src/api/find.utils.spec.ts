@@ -1,5 +1,7 @@
 import { describe, it } from "vitest";
-import { normalizeSearchString } from "./find.utils";
+import { albumWithFilesFixture } from "../../fixtures/album.fixture";
+import { audioWithMetadataFixtures } from "../../fixtures/audio.fixture";
+import { byTrackAsc, getAlbums, normalizeSearchString } from "./find.utils";
 
 const adversarialChars = ".,;:{}()<>/\\|[]_-~^¨*`´“\"”'∞§≈±™˙ﬁ…–ıª√’˛‘¸›®ƒ‹•≤¶©";
 
@@ -66,5 +68,27 @@ describe("normalizeSearchString", () => {
 
   it("removes ! mark except from the end", () => {
     expect(normalizeSearchString("What! is this!")).toBe("what is this!");
+  });
+});
+
+describe("byTrackAsc", () => {
+  it("returns search results in ascending order", () => {
+    const audios = audioWithMetadataFixtures.sort(byTrackAsc);
+
+    expect(audios[0].track).toBe("01");
+    expect(audios[1].track).toBe("02");
+    expect(audios[2].track).toBe("03");
+    expect(audios[3].track).toBe("2.01");
+  });
+});
+
+describe("getAlbums", () => {
+  it("return album files in ascending order", () => {
+    const albums = getAlbums([albumWithFilesFixture]);
+
+    expect(albums[0].files[0].track).toBe("01");
+    expect(albums[0].files[1].track).toBe("02");
+    expect(albums[0].files[2].track).toBe("03");
+    expect(albums[0].files[3].track).toBe("2.01");
   });
 });

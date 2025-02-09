@@ -54,7 +54,13 @@ export const getAudios = (
 export const getAlbums = (
   albums: (AlbumWithFilesAndMetadata | undefined)[],
 ): AlbumWithFilesAndMetadata[] => {
-  return albums.filter((album) => !!album).filter((album) => album.name);
+  const filteredAlbums = albums.filter((album) => !!album).filter((album) => album.name);
+
+  filteredAlbums.forEach((album) => {
+    album.files.sort(byTrackAsc);
+  });
+
+  return filteredAlbums;
 };
 
 export function getAlbumSortFn({
@@ -99,9 +105,11 @@ export function getAudioSortFn({
   k1: number;
   b: number;
 }) {
-  if (isArtistSearch || isAlbumSearch) {
-    // Disable sorting when using artist or album search
+  if (isArtistSearch) {
+    // Disable sorting when using artist search
     return () => 0;
+  } else if (isAlbumSearch) {
+    return byTrackAsc;
   } else {
     return uniqAlbums.length > 1 ? byOkapiBm25(terms, k1, b) : byTrackAsc;
   }
@@ -112,8 +120,8 @@ export function byTrackAsc(a: AudioWithMetadata, b: AudioWithMetadata) {
   const bTrack = `${b.metadata.track?.no}`.padStart(2, "0");
   const aDisk = a.metadata.disk?.no;
   const bDisk = b.metadata.disk?.no;
-  const aTrackNo = aDisk ? Number(`${aDisk}.${aTrack}`) : Number(aTrack);
-  const bTrackNo = bDisk ? Number(`${bDisk}.${bTrack}`) : Number(bTrack);
+  const aTrackNo = aDisk ? Number(`${aDisk}${aTrack}`) : Number(aTrack);
+  const bTrackNo = bDisk ? Number(`${bDisk}${bTrack}`) : Number(bTrack);
 
   return aTrackNo - bTrackNo;
 }
