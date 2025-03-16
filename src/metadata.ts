@@ -21,8 +21,6 @@ export const readMetadata = async (filepath: string): Promise<MMAudioMetadata> =
     const musicMetadata =
       await loadEsm<typeof import("music-metadata")>("music-metadata");
 
-    console.log(await musicMetadata.parseFile(filepath));
-
     return await musicMetadata.parseFile(filepath);
   } catch (error) {
     console.error("Error when reading music metadata", error);
