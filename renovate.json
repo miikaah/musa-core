@@ -14,10 +14,6 @@
       "automerge": true
     },
     {
-      "matchPackageNames": ["music-metadata"],
-      "enabled": false
-    },
-    {
       "matchPackageNames": ["node"],
       "enabled": false
     }

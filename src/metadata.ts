@@ -1,4 +1,5 @@
 import fs from "fs/promises";
+import { loadEsm } from "load-esm";
 import Metaflac from "metaflac-js2";
 import NodeID3 from "node-id3";
 import path from "path";
@@ -17,12 +18,10 @@ import UrlSafeBase64 from "./urlSafeBase64";
 
 export const readMetadata = async (filepath: string): Promise<MMAudioMetadata> => {
   try {
-    const musicMetadata = await import("music-metadata");
+    const musicMetadata =
+      await loadEsm<typeof import("music-metadata")>("music-metadata");
 
-    // This means we're in CommonJS
-    if (typeof musicMetadata.loadMusicMetadata === "function") {
-      return await (await musicMetadata.loadMusicMetadata()).parseFile(filepath);
-    }
+    console.log(await musicMetadata.parseFile(filepath));
 
     return await musicMetadata.parseFile(filepath);
   } catch (error) {
