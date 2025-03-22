@@ -36,7 +36,7 @@
     "@types/lodash.uniqby": "4.7.9",
     "@types/nedb": "1.8.16",
     "@types/node": "22.13.11",
-    "@vitest/coverage-v8": "3.0.8",
+    "@vitest/coverage-v8": "3.0.9",
     "esbuild": "0.25.1",
     "esbuild-node-externals": "1.18.0",
     "eslint": "9.22.0",
@@ -50,7 +50,7 @@
     "shx": "0.3.4",
     "typescript": "5.8.2",
     "typescript-eslint": "8.26.1",
-    "vitest": "3.0.8"
+    "vitest": "3.0.9"
   },
   "files": [
     "lib"
