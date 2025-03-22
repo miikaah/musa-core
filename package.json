@@ -22,7 +22,7 @@
   "author": "Miika Henttonen",
   "license": "MIT",
   "dependencies": {
-    "@seald-io/nedb": "4.0.4",
+    "@seald-io/nedb": "4.1.1",
     "fuzzysort": "3.1.0",
     "load-esm": "1.0.2",
     "lodash.uniqby": "4.7.0",
