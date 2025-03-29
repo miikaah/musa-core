@@ -31,7 +31,7 @@
     "node-id3": "0.2.8"
   },
   "devDependencies": {
-    "@eslint/js": "9.22.0",
+    "@eslint/js": "9.23.0",
     "@miikaah/eslint-config-musa": "0.1.6",
     "@types/lodash.uniqby": "4.7.9",
     "@types/nedb": "1.8.16",
@@ -39,7 +39,7 @@
     "@vitest/coverage-v8": "3.0.9",
     "esbuild": "0.25.1",
     "esbuild-node-externals": "1.18.0",
-    "eslint": "9.22.0",
+    "eslint": "9.23.0",
     "eslint-config-prettier": "10.1.1",
     "eslint-plugin-prettier": "5.2.5",
     "node-addon-api": "8.3.1",
